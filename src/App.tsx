@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AuthProvider } from './contexts/AuthContext';
 import Header from './components/Header';
 import Navigation from './components/Navigation';
 import Dashboard from './components/Dashboard';
@@ -36,33 +37,35 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream-50 via-sage-50 to-lavender-50">
-      <div className="max-w-md mx-auto bg-white/80 backdrop-blur-sm min-h-screen shadow-xl">
-        <Header onEmergency={() => setShowEmergency(true)} />
-        
-        <main className="pb-20">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentView}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              {renderView()}
-            </motion.div>
+    <AuthProvider>
+      <div className="min-h-screen bg-gradient-to-br from-cream-50 via-sage-50 to-lavender-50">
+        <div className="max-w-md mx-auto bg-white/80 backdrop-blur-sm min-h-screen shadow-xl">
+          <Header onEmergency={() => setShowEmergency(true)} />
+          
+          <main className="pb-20">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentView}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {renderView()}
+              </motion.div>
+            </AnimatePresence>
+          </main>
+
+          <Navigation currentView={currentView} onNavigate={setCurrentView} />
+
+          <AnimatePresence>
+            {showEmergency && (
+              <SoftLanding onClose={() => setShowEmergency(false)} />
+            )}
           </AnimatePresence>
-        </main>
-
-        <Navigation currentView={currentView} onNavigate={setCurrentView} />
-
-        <AnimatePresence>
-          {showEmergency && (
-            <SoftLanding onClose={() => setShowEmergency(false)} />
-          )}
-        </AnimatePresence>
+        </div>
       </div>
-    </div>
+    </AuthProvider>
   );
 }
 
