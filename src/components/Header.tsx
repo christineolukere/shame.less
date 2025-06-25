@@ -7,9 +7,10 @@ import ProfileMenu from './Auth/ProfileMenu';
 
 interface HeaderProps {
   onEmergency: () => void;
+  onGuestContinue?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onEmergency }) => {
+const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue }) => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { user, loading } = useAuth();
 
@@ -48,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({ onEmergency }) => {
                   onClick={() => setShowAuthModal(true)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-4 py-2 bg-terracotta-500 text-white rounded-lg text-sm font-medium hover:bg-terracotta-600 transition-colors"
+                  className="px-6 py-2 bg-gradient-to-r from-terracotta-400 to-terracotta-500 text-white rounded-full text-sm font-medium hover:from-terracotta-500 hover:to-terracotta-600 transition-all shadow-sm"
                 >
                   Sign In
                 </motion.button>
@@ -60,7 +61,8 @@ const Header: React.FC<HeaderProps> = ({ onEmergency }) => {
 
       <AuthModal 
         isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)} 
+        onClose={() => setShowAuthModal(false)}
+        onGuestContinue={onGuestContinue}
       />
     </header>
   );

@@ -1,14 +1,15 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Heart, Mail, Lock, User, Eye, EyeOff } from 'lucide-react'
+import { X, Heart, Mail, Lock, User, Eye, EyeOff, UserCheck } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 
 interface AuthModalProps {
   isOpen: boolean
   onClose: () => void
+  onGuestContinue?: () => void
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
+const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue }) => {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -99,6 +100,46 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             </p>
           </div>
 
+          {/* Guest Option */}
+          {onGuestContinue && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6"
+            >
+              <motion.button
+                onClick={onGuestContinue}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full p-4 bg-cream-50 border-2 border-cream-200 rounded-2xl hover:bg-cream-100 transition-colors group"
+              >
+                <div className="flex items-center justify-center space-x-3">
+                  <UserCheck className="w-5 h-5 text-cream-600 group-hover:text-cream-700" />
+                  <div className="text-left">
+                    <h3 className="font-medium text-cream-800 group-hover:text-cream-900">
+                      Continue as guest
+                    </h3>
+                    <p className="text-cream-600 text-xs group-hover:text-cream-700">
+                      Start your healing journey right now
+                    </p>
+                  </div>
+                </div>
+              </motion.button>
+            </div>
+          )}
+
+          {/* Divider */}
+          {onGuestContinue && (
+            <div className="relative mb-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-sage-200" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-3 bg-white text-sage-500">or create an account</span>
+              </div>
+            </div>
+          )}
+
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
@@ -113,7 +154,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     type="text"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 border border-sage-200 rounded-xl focus:ring-2 focus:ring-terracotta-300 focus:border-transparent"
                     placeholder="Your name (optional)"
                   />
                 </div>
@@ -132,7 +173,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-sage-200 rounded-xl focus:ring-2 focus:ring-terracotta-300 focus:border-transparent"
                   placeholder="your@email.com"
                 />
               </div>
@@ -150,7 +191,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-10 pr-12 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-transparent"
+                  className="w-full pl-10 pr-12 py-3 border border-sage-200 rounded-xl focus:ring-2 focus:ring-terracotta-300 focus:border-transparent"
                   placeholder="••••••••"
                 />
                 <button
@@ -167,7 +208,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-3 bg-red-50 border border-red-200 rounded-lg"
+                className="p-3 bg-red-50 border border-red-200 rounded-xl"
               >
                 <p className="text-red-700 text-sm">{error}</p>
               </motion.div>
@@ -178,7 +219,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               disabled={loading}
               whileHover={{ scale: loading ? 1 : 1.02 }}
               whileTap={{ scale: loading ? 1 : 0.98 }}
-              className="w-full py-3 bg-terracotta-500 text-white rounded-lg font-medium hover:bg-terracotta-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 bg-terracotta-500 text-white rounded-xl font-medium hover:bg-terracotta-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Please wait...' : (mode === 'signin' ? 'Sign In' : 'Create Account')}
             </motion.button>
@@ -198,7 +239,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           {/* Privacy Note */}
-          <div className="mt-4 p-3 bg-lavender-50 rounded-lg border border-lavender-100">
+          <div className="mt-4 p-3 bg-lavender-50 rounded-xl border border-lavender-100">
             <p className="text-lavender-700 text-xs leading-relaxed">
               Your privacy and safety are our priority. We'll never share your personal information, 
               and you can delete your account at any time.

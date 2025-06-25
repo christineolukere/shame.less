@@ -2,14 +2,28 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session, AuthError } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 
+interface OnboardingData {
+  languages: string[]
+  healingVision: string
+  affirmationStyle: string
+  culturalBackground: string[]
+  spiritualPreference: string
+  preferredLanguage: string
+}
+
 interface AuthContextType {
   user: User | null
   session: Session | null
   loading: boolean
+  isGuest: boolean
+  onboardingComplete: boolean
   signUp: (email: string, password: string, displayName?: string) => Promise<{ error: AuthError | null }>
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
   signOut: () => Promise<{ error: AuthError | null }>
+  continueAsGuest: () => void
   updateProfile: (updates: { display_name?: string; avatar_url?: string }) => Promise<{ error: any }>
+  completeOnboarding: (data: OnboardingData) => Promise<{ error: any }>
+  setOnboardingComplete: (complete: boolean) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -26,8 +40,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isGuest, setIsGuest] = useState(false)
+  const [onboardingComplete, setOnboardingComplete] = useState(false)
 
   useEffect(() => {
+    // Check for guest mode
+    const guestMode = localStorage.getItem('shameless_guest_mode')
+    const onboardingDone = localStorage.getItem('shameless_onboarding_complete')
+    
+    if (guestMode === 'true') {
+      setIsGuest(true)
+      setOnboardingComplete(onboardingDone === 'true')
+      setLoading(false)
+      return
+    }
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
@@ -88,7 +115,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut()
+    // Clear guest mode when signing out
+    localStorage.removeItem('shameless_guest_mode')
+    localStorage.removeItem('shameless_onboarding_complete')
+    setIsGuest(false)
+    setOnboardingComplete(false)
     return { error }
+  }
+
+  const continueAsGuest = () => {
+    localStorage.setItem('shameless_guest_mode', 'true')
+    setIsGuest(true)
+    setLoading(false)
   }
 
   const updateProfile = async (updates: { display_name?: string; avatar_url?: string }) => {
@@ -105,15 +143,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error }
   }
 
+  const completeOnboarding = async (data: OnboardingData) => {
+    if (isGuest) {
+      // Store onboarding data locally for guest users
+      localStorage.setItem('shameless_onboarding_data', JSON.stringify(data))
+      localStorage.setItem('shameless_onboarding_complete', 'true')
+      setOnboardingComplete(true)
+      return { error: null }
+    }
+
+    if (!user) return { error: new Error('No user logged in') }
+
+    const { error } = await supabase
+      .from('user_preferences')
+      .upsert({
+        user_id: user.id,
+        languages: data.languages,
+        healing_vision: data.healingVision,
+        affirmation_style: data.affirmationStyle,
+        cultural_background: data.culturalBackground,
+        spiritual_preference: data.spiritualPreference,
+        preferred_language: data.preferredLanguage,
+        onboarding_complete: true,
+        updated_at: new Date().toISOString(),
+      })
+
+    if (!error) {
+      setOnboardingComplete(true)
+    }
+
+    return { error }
+  }
+
   const value = {
     user,
     session,
     loading,
+    isGuest,
+    onboardingComplete,
     signUp,
     signIn,
     signOut,
+    continueAsGuest,
     updateProfile,
+    completeOnboarding,
+    setOnboardingComplete,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
+
+export type { OnboardingData }
