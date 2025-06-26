@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Heart, Mail, Lock, User, Eye, EyeOff, UserCheck } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
+import { useLocalization } from '../../contexts/LocalizationContext'
 
 interface AuthModalProps {
   isOpen: boolean
@@ -19,6 +20,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
   const [error, setError] = useState<string | null>(null)
 
   const { signIn, signUp, user } = useAuth()
+  const { translations: t } = useLocalization()
 
   // Auto-close modal when user successfully authenticates
   useEffect(() => {
@@ -98,7 +100,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
             <div className="flex items-center space-x-2">
               <Heart className="w-5 h-5 text-terracotta-500 fill-current" />
               <h2 className="text-lg font-serif text-sage-800">
-                {mode === 'signin' ? 'Welcome back' : 'Join us'}
+                {mode === 'signin' ? t.welcomeBack : t.joinUs}
               </h2>
             </div>
             <motion.button
@@ -138,7 +140,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
                   <UserCheck className="w-5 h-5 text-cream-600 group-hover:text-cream-700" />
                   <div className="text-center">
                     <h3 className="font-medium text-cream-800 group-hover:text-cream-900">
-                      Continue as guest
+                      {t.continueAsGuest}
                     </h3>
                     <p className="text-cream-600 text-sm group-hover:text-cream-700">
                       Start your healing journey now
@@ -166,7 +168,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
             {mode === 'signup' && (
               <div className="space-y-1">
                 <label htmlFor="displayName" className="block text-xs font-medium text-sage-700">
-                  Name (optional)
+                  {t.name}
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-sage-400" />
@@ -184,7 +186,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
 
             <div className="space-y-1">
               <label htmlFor="email" className="block text-xs font-medium text-sage-700">
-                Email
+                {t.email}
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-sage-400" />
@@ -202,7 +204,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
 
             <div className="space-y-1">
               <label htmlFor="password" className="block text-xs font-medium text-sage-700">
-                Password
+                {t.password}
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-sage-400" />
@@ -242,19 +244,19 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
               whileTap={{ scale: loading ? 1 : 0.98 }}
               className="w-full py-3 bg-terracotta-500 text-white rounded-lg font-medium hover:bg-terracotta-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
             >
-              {loading ? 'Please wait...' : (mode === 'signin' ? 'Sign In' : 'Create Account')}
+              {loading ? 'Please wait...' : (mode === 'signin' ? t.signIn : t.createAccount)}
             </motion.button>
           </form>
 
           {/* Switch Mode */}
           <div className="mt-6 text-center">
             <p className="text-sage-600 text-xs">
-              {mode === 'signin' ? "Don't have an account? " : "Already have an account? "}
+              {mode === 'signin' ? t.dontHaveAccount + ' ' : t.alreadyHaveAccount + ' '}
               <button
                 onClick={switchMode}
                 className="text-terracotta-600 hover:text-terracotta-700 font-medium"
               >
-                {mode === 'signin' ? 'Sign up' : 'Sign in'}
+                {mode === 'signin' ? t.signUp : t.signIn}
               </button>
             </p>
           </div>
@@ -262,7 +264,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
           {/* Privacy Note */}
           <div className="mt-4 p-3 bg-lavender-50 rounded-lg border border-lavender-100">
             <p className="text-lavender-700 text-xs leading-relaxed">
-              Your privacy is our priority. We'll never share your information.
+              {t.privacyNote}
             </p>
           </div>
         </motion.div>

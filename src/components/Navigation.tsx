@@ -1,6 +1,7 @@
 import React from 'react';
 import { Home, Heart, Trophy, BookOpen, Sparkles, Leaf } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLocalization } from '../contexts/LocalizationContext';
 
 type View = 'dashboard' | 'checkin' | 'wins' | 'journal' | 'affirmations' | 'resources';
 
@@ -10,13 +11,15 @@ interface NavigationProps {
 }
 
 const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate }) => {
+  const { translations: t } = useLocalization();
+  
   const navItems = [
-    { id: 'dashboard', icon: Home, label: 'Home' },
-    { id: 'checkin', icon: Heart, label: 'Check-In' },
-    { id: 'wins', icon: Trophy, label: 'Wins' },
-    { id: 'journal', icon: BookOpen, label: 'Journal' },
-    { id: 'affirmations', icon: Sparkles, label: 'Affirm' },
-    { id: 'resources', icon: Leaf, label: 'Garden' },
+    { id: 'dashboard', icon: Home, label: t.home },
+    { id: 'checkin', icon: Heart, label: t.checkIn },
+    { id: 'wins', icon: Trophy, label: t.wins },
+    { id: 'journal', icon: BookOpen, label: t.journal },
+    { id: 'affirmations', icon: Sparkles, label: t.affirm },
+    { id: 'resources', icon: Leaf, label: t.garden },
   ] as const;
 
   return (

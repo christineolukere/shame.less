@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { LocalizationProvider } from './contexts/LocalizationContext';
 import Header from './components/Header';
 import Navigation from './components/Navigation';
 import Dashboard from './components/Dashboard';
@@ -159,9 +160,11 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <LocalizationProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </LocalizationProvider>
   );
 }
 

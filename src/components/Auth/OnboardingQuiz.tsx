@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, ArrowLeft, Heart, Globe, Sparkles, Shield } from 'lucide-react'
+import { useLocalization } from '../../contexts/LocalizationContext'
 
 interface OnboardingData {
   languages: string[]
@@ -24,56 +25,55 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
     preferredLanguage: 'English'
   })
 
+  const { setLanguage, translations: t, availableLanguages } = useLocalization()
+
   const questions = [
     {
-      id: 'languages',
-      title: 'What language(s) do you feel most loved in?',
-      subtitle: 'Select all that speak to your heart',
-      type: 'multiple-choice',
-      options: [
-        'English', 'Spanish', 'Swahili', 'French', 'Portuguese', 
-        'Arabic', 'Mandarin', 'Tagalog', 'Hindi', 'Other'
-      ]
+      id: 'preferredLanguage',
+      title: t.languageQuestion,
+      subtitle: t.languageSubtitle,
+      type: 'single-choice',
+      options: availableLanguages
     },
     {
       id: 'healingVision',
-      title: 'What does healing look like to you?',
-      subtitle: 'Share your vision in your own words',
+      title: t.healingVisionQuestion,
+      subtitle: t.healingVisionSubtitle,
       type: 'text',
-      placeholder: 'Healing to me means...'
+      placeholder: t.healingVisionPlaceholder
     },
     {
       id: 'affirmationStyle',
-      title: 'Do you prefer affirmations rooted in spirituality, culture, or science?',
-      subtitle: 'Choose what resonates most deeply',
+      title: t.affirmationStyleQuestion,
+      subtitle: t.affirmationStyleSubtitle,
       type: 'single-choice',
       options: [
-        'Spirituality & Faith',
-        'Cultural Wisdom & Ancestry',
-        'Science & Psychology',
-        'A blend of all three'
+        t.spiritualityFaith,
+        t.culturalWisdom,
+        t.sciencePsychology,
+        t.blendOfAll
       ]
     },
     {
       id: 'culturalBackground',
-      title: 'Which cultural communities do you connect with?',
-      subtitle: 'Help us honor your full identity (optional)',
+      title: t.culturalBackgroundQuestion,
+      subtitle: t.culturalBackgroundSubtitle,
       type: 'multiple-choice',
       options: [
-        'Black American', 'Afro-Caribbean', 'African', 'Latina/Hispanic',
-        'Indigenous', 'Asian', 'Middle Eastern', 'Mixed/Multiracial',
-        'LGBTQIA+', 'First-generation American', 'Other'
+        t.blackAmerican, t.afroCaribbean, t.african, t.latinaHispanic,
+        t.indigenous, t.asian, t.middleEastern, t.mixedMultiracial,
+        t.lgbtqia, t.firstGeneration, t.other
       ]
     },
     {
       id: 'spiritualPreference',
-      title: 'How do you connect with the sacred?',
-      subtitle: 'Your spiritual practice, however you define it',
+      title: t.spiritualPreferenceQuestion,
+      subtitle: t.spiritualPreferenceSubtitle,
       type: 'single-choice',
       options: [
-        'Christianity', 'Islam', 'Judaism', 'Buddhism', 'Hinduism',
-        'Indigenous/Traditional practices', 'Nature-based spirituality',
-        'Secular/Non-religious', 'Still exploring', 'Prefer not to say'
+        t.christianity, t.islam, t.judaism, t.buddhism, t.hinduism,
+        t.indigenousTraditional, t.natureBased, t.secularNonReligious,
+        t.stillExploring, t.preferNotToSay
       ]
     }
   ]
@@ -85,6 +85,11 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
       ...prev,
       [currentQuestion.id]: value
     }))
+
+    // If this is the language question, immediately update the app language
+    if (currentQuestion.id === 'preferredLanguage' && typeof value === 'string') {
+      setLanguage(value)
+    }
   }
 
   const nextStep = () => {
@@ -95,9 +100,9 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
       const completeData: OnboardingData = {
         languages: answers.languages || [],
         healingVision: answers.healingVision || '',
-        affirmationStyle: answers.affirmationStyle || 'A blend of all three',
+        affirmationStyle: answers.affirmationStyle || t.blendOfAll,
         culturalBackground: answers.culturalBackground || [],
-        spiritualPreference: answers.spiritualPreference || 'Still exploring',
+        spiritualPreference: answers.spiritualPreference || t.stillExploring,
         preferredLanguage: answers.preferredLanguage || 'English'
       }
       onComplete(completeData)
@@ -110,22 +115,10 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
     }
   }
 
-  const canProceed = () => {
-    const currentAnswer = answers[currentQuestion.id as keyof OnboardingData]
-    
-    if (currentQuestion.type === 'text') {
-      return true // Text fields are optional
-    }
-    
-    if (currentQuestion.type === 'multiple-choice') {
-      return true // Multiple choice fields are optional
-    }
-    
-    if (currentQuestion.type === 'single-choice') {
-      return true // Single choice fields are optional
-    }
-    
-    return true
+  const handleSkip = () => {
+    // Set language to English when skipping
+    setLanguage('English')
+    onSkip()
   }
 
   const renderQuestion = () => {
@@ -211,12 +204,12 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Heart className="w-6 h-6 text-terracotta-500 fill-current" />
             <h1 className="text-xl font-serif text-sage-800">
-              shame.<span className="text-terracotta-500">less</span>
+              {t.appName}
             </h1>
           </div>
-          <h2 className="text-2xl font-serif text-sage-800 mb-2">Let's get to know you</h2>
+          <h2 className="text-2xl font-serif text-sage-800 mb-2">{t.onboardingTitle}</h2>
           <p className="text-sage-600 text-sm">
-            Help us create a space that truly honors who you are
+            {t.onboardingSubtitle}
           </p>
         </div>
 
@@ -269,17 +262,17 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
                 className="flex items-center space-x-2 px-4 py-2 bg-sage-100 text-sage-700 rounded-lg hover:bg-sage-200 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>Back</span>
+                <span>{t.back}</span>
               </motion.button>
             )}
             
             <motion.button
-              onClick={onSkip}
+              onClick={handleSkip}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-4 py-2 text-sage-600 hover:text-sage-800 transition-colors"
             >
-              Skip for now
+              {t.skipForNow}
             </motion.button>
           </div>
 
@@ -289,7 +282,7 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
             whileTap={{ scale: 0.95 }}
             className="flex items-center space-x-2 px-6 py-3 bg-terracotta-500 text-white rounded-lg hover:bg-terracotta-600 transition-colors"
           >
-            <span>{currentStep === questions.length - 1 ? 'Complete' : 'Next'}</span>
+            <span>{currentStep === questions.length - 1 ? t.complete : t.next}</span>
             <ArrowRight className="w-4 h-4" />
           </motion.button>
         </div>
