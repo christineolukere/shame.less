@@ -69,33 +69,33 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-3xl max-w-md w-full p-8"
+          className="bg-white rounded-2xl max-w-sm w-full p-6"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
-              <Heart className="w-6 h-6 text-terracotta-500 fill-current" />
-              <h2 className="text-xl font-serif text-sage-800">
-                {mode === 'signin' ? 'Welcome back' : 'Join our community'}
+              <Heart className="w-5 h-5 text-terracotta-500 fill-current" />
+              <h2 className="text-lg font-serif text-sage-800">
+                {mode === 'signin' ? 'Welcome back' : 'Join us'}
               </h2>
             </div>
             <motion.button
               onClick={onClose}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="p-2 rounded-full bg-sage-100 text-sage-700"
+              className="p-1.5 rounded-full bg-sage-100 text-sage-700"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </motion.button>
           </div>
 
           {/* Welcome Message */}
-          <div className="mb-6 text-center">
+          <div className="mb-4 text-center">
             <p className="text-sage-600 text-sm leading-relaxed">
               {mode === 'signin' 
-                ? "We're so glad you're here. Your journey of self-love continues."
-                : "You deserve a space where you can be gentle with yourself. Let's create your safe haven."
+                ? "We're glad you're here."
+                : "You deserve a space for gentle self-care."
               }
             </p>
           </div>
@@ -105,22 +105,22 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6"
+              className="mb-4"
             >
               <motion.button
                 onClick={onGuestContinue}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full p-4 bg-cream-50 border-2 border-cream-200 rounded-2xl hover:bg-cream-100 transition-colors group"
+                className="w-full p-3 bg-cream-50 border-2 border-cream-200 rounded-xl hover:bg-cream-100 transition-colors group"
               >
-                <div className="flex items-center justify-center space-x-3">
-                  <UserCheck className="w-5 h-5 text-cream-600 group-hover:text-cream-700" />
-                  <div className="text-left">
-                    <h3 className="font-medium text-cream-800 group-hover:text-cream-900">
+                <div className="flex items-center justify-center space-x-2">
+                  <UserCheck className="w-4 h-4 text-cream-600 group-hover:text-cream-700" />
+                  <div className="text-center">
+                    <h3 className="font-medium text-cream-800 group-hover:text-cream-900 text-sm">
                       Continue as guest
                     </h3>
                     <p className="text-cream-600 text-xs group-hover:text-cream-700">
-                      Start your healing journey right now
+                      Start your healing journey now
                     </p>
                   </div>
                 </div>
@@ -130,68 +130,68 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
 
           {/* Divider */}
           {onGuestContinue && (
-            <div className="relative mb-6">
+            <div className="relative mb-4">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-sage-200" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-3 bg-white text-sage-500">or create an account</span>
+                <span className="px-2 bg-white text-sage-500 text-xs">or create account</span>
               </div>
             </div>
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3">
             {mode === 'signup' && (
-              <div className="space-y-2">
-                <label htmlFor="displayName" className="block text-sm font-medium text-sage-700">
-                  What should we call you?
+              <div className="space-y-1">
+                <label htmlFor="displayName" className="block text-xs font-medium text-sage-700">
+                  Name (optional)
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-sage-400" />
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-sage-400" />
                   <input
                     id="displayName"
                     type="text"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-sage-200 rounded-xl focus:ring-2 focus:ring-terracotta-300 focus:border-transparent"
-                    placeholder="Your name (optional)"
+                    className="w-full pl-9 pr-3 py-2.5 border border-sage-200 rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-transparent text-sm"
+                    placeholder="Your name"
                   />
                 </div>
               </div>
             )}
 
-            <div className="space-y-2">
-              <label htmlFor="email" className="block text-sm font-medium text-sage-700">
-                Email address
+            <div className="space-y-1">
+              <label htmlFor="email" className="block text-xs font-medium text-sage-700">
+                Email
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-sage-400" />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-sage-400" />
                 <input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-sage-200 rounded-xl focus:ring-2 focus:ring-terracotta-300 focus:border-transparent"
+                  className="w-full pl-9 pr-3 py-2.5 border border-sage-200 rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-transparent text-sm"
                   placeholder="your@email.com"
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label htmlFor="password" className="block text-sm font-medium text-sage-700">
+            <div className="space-y-1">
+              <label htmlFor="password" className="block text-xs font-medium text-sage-700">
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-sage-400" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-sage-400" />
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-10 pr-12 py-3 border border-sage-200 rounded-xl focus:ring-2 focus:ring-terracotta-300 focus:border-transparent"
+                  className="w-full pl-9 pr-10 py-2.5 border border-sage-200 rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-transparent text-sm"
                   placeholder="••••••••"
                 />
                 <button
@@ -199,7 +199,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sage-400 hover:text-sage-600"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
@@ -208,9 +208,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-3 bg-red-50 border border-red-200 rounded-xl"
+                className="p-2.5 bg-red-50 border border-red-200 rounded-lg"
               >
-                <p className="text-red-700 text-sm">{error}</p>
+                <p className="text-red-700 text-xs">{error}</p>
               </motion.div>
             )}
 
@@ -219,15 +219,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
               disabled={loading}
               whileHover={{ scale: loading ? 1 : 1.02 }}
               whileTap={{ scale: loading ? 1 : 0.98 }}
-              className="w-full py-3 bg-terracotta-500 text-white rounded-xl font-medium hover:bg-terracotta-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-2.5 bg-terracotta-500 text-white rounded-lg font-medium hover:bg-terracotta-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
             >
               {loading ? 'Please wait...' : (mode === 'signin' ? 'Sign In' : 'Create Account')}
             </motion.button>
           </form>
 
           {/* Switch Mode */}
-          <div className="mt-6 text-center">
-            <p className="text-sage-600 text-sm">
+          <div className="mt-4 text-center">
+            <p className="text-sage-600 text-xs">
               {mode === 'signin' ? "Don't have an account? " : "Already have an account? "}
               <button
                 onClick={switchMode}
@@ -239,10 +239,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
           </div>
 
           {/* Privacy Note */}
-          <div className="mt-4 p-3 bg-lavender-50 rounded-xl border border-lavender-100">
+          <div className="mt-3 p-2.5 bg-lavender-50 rounded-lg border border-lavender-100">
             <p className="text-lavender-700 text-xs leading-relaxed">
-              Your privacy and safety are our priority. We'll never share your personal information, 
-              and you can delete your account at any time.
+              Your privacy is our priority. We'll never share your information.
             </p>
           </div>
         </motion.div>
