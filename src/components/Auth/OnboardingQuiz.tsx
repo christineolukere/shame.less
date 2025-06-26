@@ -84,7 +84,6 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
     if (currentStep < questions.length - 1) {
       setCurrentStep(prev => prev + 1)
     } else {
-      // Ensure all required fields have defaults
       const completeData: OnboardingData = {
         languages: answers.languages || [],
         healingVision: answers.healingVision || '',
@@ -114,7 +113,7 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
             value={currentAnswer as string || ''}
             onChange={(e) => handleAnswer(e.target.value)}
             placeholder={question.placeholder}
-            className="w-full h-32 p-4 border border-sage-200 rounded-xl focus:ring-2 focus:ring-terracotta-300 focus:border-transparent resize-none text-sage-800 placeholder-sage-400"
+            className="w-full h-32 p-4 border border-sage-200 rounded-xl focus:ring-2 focus:ring-terracotta-300 focus:border-transparent resize-none text-sage-800 placeholder-sage-400 modal-text"
           />
         )
 
@@ -127,7 +126,7 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
                 onClick={() => handleAnswer(option)}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`w-full p-4 text-left rounded-xl transition-all ${
+                className={`w-full p-4 text-left rounded-xl transition-all modal-text ${
                   currentAnswer === option
                     ? 'bg-terracotta-100 border-2 border-terracotta-300 text-terracotta-800'
                     : 'bg-white border border-sage-200 text-sage-700 hover:bg-sage-50'
@@ -141,7 +140,7 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
 
       case 'multiple-choice':
         return (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {question.options?.map((option) => {
               const isSelected = (currentAnswer as string[] || []).includes(option)
               return (
@@ -156,7 +155,7 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
                   }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className={`p-3 text-center rounded-xl transition-all ${
+                  className={`p-3 text-center rounded-xl transition-all modal-text ${
                     isSelected
                       ? 'bg-lavender-100 border-2 border-lavender-300 text-lavender-800'
                       : 'bg-white border border-sage-200 text-sage-700 hover:bg-sage-50'
@@ -179,104 +178,109 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white/90 backdrop-blur-sm rounded-3xl max-w-lg w-full p-8 shadow-xl"
+        className="modal-content bg-white/90 backdrop-blur-sm shadow-xl"
       >
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <Heart className="w-6 h-6 text-terracotta-500 fill-current" />
-            <h1 className="text-xl font-serif text-sage-800">
+        <div className="modal-header">
+          <div className="flex items-center justify-center space-x-2 w-full">
+            <Heart className="w-5 h-5 text-terracotta-500 fill-current flex-shrink-0" />
+            <h1 className="modal-title text-center">
               {t.appName}
             </h1>
           </div>
-          <h2 className="text-2xl font-serif text-sage-800 mb-2">{t.onboardingTitle}</h2>
-          <p className="text-sage-600 text-sm">
-            {t.onboardingSubtitle}
-          </p>
         </div>
 
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between text-xs text-sage-600 mb-2">
-            <span>Step {currentStep + 1} of {questions.length}</span>
-            <span>{Math.round(((currentStep + 1) / questions.length) * 100)}%</span>
+        <div className="modal-body">
+          <div className="text-center space-y-2 mb-6">
+            <h2 className="modal-title">{t.onboardingTitle}</h2>
+            <p className="modal-text text-sage-600">
+              {t.onboardingSubtitle}
+            </p>
           </div>
-          <div className="w-full bg-sage-100 rounded-full h-2">
-            <motion.div
-              className="bg-terracotta-400 h-2 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${((currentStep + 1) / questions.length) * 100}%` }}
-              transition={{ duration: 0.3 }}
-            />
-          </div>
-        </div>
 
-        {/* Question */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentStep}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
-            <div className="text-center space-y-2">
-              <h3 className="text-xl font-serif text-sage-800">
-                {currentQuestion.title}
-              </h3>
-              <p className="text-sage-600 text-sm">
-                {currentQuestion.subtitle}
-              </p>
+          {/* Progress Bar */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between modal-text text-sage-600 mb-2">
+              <span>Step {currentStep + 1} of {questions.length}</span>
+              <span>{Math.round(((currentStep + 1) / questions.length) * 100)}%</span>
             </div>
+            <div className="w-full bg-sage-100 rounded-full h-2">
+              <motion.div
+                className="bg-terracotta-400 h-2 rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${((currentStep + 1) / questions.length) * 100}%` }}
+                transition={{ duration: 0.3 }}
+              />
+            </div>
+          </div>
 
-            {renderQuestion()}
-          </motion.div>
-        </AnimatePresence>
+          {/* Question */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="text-center space-y-2">
+                <h3 className="modal-title">
+                  {currentQuestion.title}
+                </h3>
+                <p className="modal-text text-sage-600">
+                  {currentQuestion.subtitle}
+                </p>
+              </div>
 
-        {/* Navigation */}
-        <div className="flex items-center justify-between mt-8">
-          <div className="flex space-x-3">
-            {currentStep > 0 && (
+              {renderQuestion()}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Navigation */}
+          <div className="flex items-center justify-between mt-6">
+            <div className="flex space-x-3">
+              {currentStep > 0 && (
+                <motion.button
+                  onClick={prevStep}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="modal-button flex items-center space-x-2 bg-sage-100 text-sage-700 hover:bg-sage-200"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>{t.back}</span>
+                </motion.button>
+              )}
+              
               <motion.button
-                onClick={prevStep}
+                onClick={onSkip}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center space-x-2 px-4 py-2 bg-sage-100 text-sage-700 rounded-lg hover:bg-sage-200 transition-colors"
+                className="modal-text text-sage-600 hover:text-sage-800 transition-colors px-4 py-2"
               >
-                <ArrowLeft className="w-4 h-4" />
-                <span>{t.back}</span>
+                {t.skipForNow}
               </motion.button>
-            )}
-            
+            </div>
+
             <motion.button
-              onClick={onSkip}
+              onClick={nextStep}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-4 py-2 text-sage-600 hover:text-sage-800 transition-colors"
+              className="modal-button flex items-center space-x-2 bg-terracotta-500 text-white hover:bg-terracotta-600"
             >
-              {t.skipForNow}
+              <span>{currentStep === questions.length - 1 ? t.complete : t.next}</span>
+              <ArrowRight className="w-4 h-4" />
             </motion.button>
           </div>
 
-          <motion.button
-            onClick={nextStep}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center space-x-2 px-6 py-3 bg-terracotta-500 text-white rounded-lg hover:bg-terracotta-600 transition-colors"
-          >
-            <span>{currentStep === questions.length - 1 ? t.complete : t.next}</span>
-            <ArrowRight className="w-4 h-4" />
-          </motion.button>
-        </div>
-
-        {/* Cultural Sensitivity Note */}
-        <div className="mt-6 p-4 bg-lavender-50 rounded-xl border border-lavender-100">
-          <div className="flex items-start space-x-2">
-            <Shield className="w-4 h-4 text-lavender-600 mt-0.5 flex-shrink-0" />
-            <p className="text-lavender-700 text-xs leading-relaxed">
-              Your responses help us personalize your experience with cultural sensitivity. 
-              All information is private and can be updated anytime in your profile.
-            </p>
+          {/* Cultural Sensitivity Note */}
+          <div className="mt-4 p-4 bg-lavender-50 rounded-xl border border-lavender-100">
+            <div className="flex items-start space-x-2">
+              <Shield className="w-4 h-4 text-lavender-600 mt-0.5 flex-shrink-0" />
+              <p className="modal-text text-lavender-700">
+                Your responses help us personalize your experience with cultural sensitivity. 
+                All information is private and can be updated anytime in your profile.
+              </p>
+            </div>
           </div>
         </div>
       </motion.div>

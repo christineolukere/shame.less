@@ -17,9 +17,9 @@ const Footer: React.FC = () => {
             onClick={() => setShowDisclaimer(true)}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="flex items-center justify-center space-x-2 w-full p-3 bg-terracotta-50 border border-terracotta-200 rounded-xl hover:bg-terracotta-100 transition-colors"
+            className="flex items-center justify-center space-x-2 w-full p-3 bg-terracotta-50 border border-terracotta-200 rounded-xl hover:bg-terracotta-100 transition-colors touch-target"
           >
-            <AlertTriangle className="w-4 h-4 text-terracotta-600" />
+            <AlertTriangle className="w-4 h-4 text-terracotta-600 flex-shrink-0" />
             <span className="text-terracotta-700 text-sm font-medium">
               {t.importantNotice}
             </span>
@@ -27,19 +27,19 @@ const Footer: React.FC = () => {
 
           {/* App Info */}
           <div className="flex items-center justify-center space-x-2">
-            <Heart className="w-4 h-4 text-sage-500 fill-current" />
+            <Heart className="w-4 h-4 text-sage-500 fill-current flex-shrink-0" />
             <span className="text-sage-600 text-xs">
               {t.appName} • Made with love for healing
             </span>
           </div>
 
           {/* Crisis Resources Quick Access */}
-          <div className="flex items-center justify-center space-x-4 text-xs">
-            <button className="text-lavender-600 hover:text-lavender-800 transition-colors">
+          <div className="flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-4 text-xs">
+            <button className="text-lavender-600 hover:text-lavender-800 transition-colors touch-target">
               Crisis Text: 741741
             </button>
-            <span className="text-sage-300">•</span>
-            <button className="text-lavender-600 hover:text-lavender-800 transition-colors">
+            <span className="text-sage-300 hidden sm:inline">•</span>
+            <button className="text-lavender-600 hover:text-lavender-800 transition-colors touch-target">
               Suicide Prevention: 988
             </button>
           </div>

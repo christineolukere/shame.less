@@ -1,3 +1,110 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Mobile-first responsive modal styles */
+@layer components {
+  .modal-container {
+    @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4;
+  }
+  
+  .modal-content {
+    @apply bg-white rounded-2xl w-full shadow-xl;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .modal-header {
+    @apply flex items-center justify-between p-4 border-b border-sage-100 sticky top-0 bg-white rounded-t-2xl z-10;
+  }
+  
+  .modal-body {
+    @apply p-4 space-y-4;
+  }
+  
+  .modal-title {
+    font-size: clamp(1rem, 3vw, 1.25rem);
+    @apply font-serif text-sage-800;
+  }
+  
+  .modal-text {
+    font-size: clamp(0.875rem, 2vw, 1rem);
+    @apply leading-relaxed;
+  }
+  
+  .modal-button {
+    @apply px-4 py-3 rounded-lg font-medium transition-colors;
+    font-size: clamp(0.875rem, 2vw, 1rem);
+    min-height: 44px; /* Touch target size */
+  }
+}
+
+/* Responsive breakpoints */
+@media (max-width: 400px) {
+  .modal-content {
+    max-width: 95vw;
+    margin: 0.5rem;
+  }
+  
+  .modal-body {
+    @apply p-3 space-y-3;
+  }
+  
+  .modal-header {
+    @apply p-3;
+  }
+  
+  .modal-button {
+    @apply px-3 py-2.5;
+    min-height: 40px;
+  }
+}
+
+@media (min-width: 768px) {
+  .modal-content {
+    max-width: 28rem; /* 448px */
+  }
+  
+  .modal-body {
+    @apply p-6 space-y-6;
+  }
+  
+  .modal-header {
+    @apply p-6;
+  }
+}
+
+/* Ensure text wrapping and prevent overflow */
+.modal-content * {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Touch-friendly button sizing */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 400px) {
+  .grid-cols-4 {
+    @apply grid-cols-2;
+  }
+  
+  .grid-cols-3 {
+    @apply grid-cols-2;
+  }
+  
+  .grid-cols-2 {
+    @apply grid-cols-1;
+  }
+}
+
+@media (max-width: 360px) {
+  .grid-cols-4 {
+    @apply grid-cols-1;
+  }
+}

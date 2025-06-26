@@ -20,35 +20,35 @@ const DisclaimerModal: React.FC<DisclaimerModalProps> = ({ isOpen, onClose, onAc
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        className="modal-container"
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-3xl max-w-md w-full p-8"
+          className="modal-content"
         >
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="modal-header">
             <div className="flex items-center space-x-2">
-              <AlertTriangle className="w-6 h-6 text-terracotta-500" />
-              <h2 className="text-xl font-serif text-sage-800">Important Notice</h2>
+              <AlertTriangle className="w-5 h-5 text-terracotta-500 flex-shrink-0" />
+              <h2 className="modal-title">Important Notice</h2>
             </div>
             <motion.button
               onClick={onClose}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="p-2 rounded-full bg-sage-100 text-sage-700"
+              className="p-2 rounded-full bg-sage-100 text-sage-700 touch-target flex-shrink-0"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </motion.button>
           </div>
 
           {/* Main Content */}
-          <div className="space-y-6">
-            <div className="bg-terracotta-50 rounded-2xl p-6 border border-terracotta-100">
-              <h3 className="font-serif text-terracotta-800 mb-3">{t.aboutShameless}</h3>
-              <p className="text-terracotta-700 text-sm leading-relaxed">
+          <div className="modal-body">
+            <div className="bg-terracotta-50 rounded-2xl p-4 border border-terracotta-100">
+              <h3 className="modal-title text-terracotta-800 mb-3">{t.aboutShameless}</h3>
+              <p className="modal-text text-terracotta-700">
                 <strong>{t.notReplacementTherapy}</strong>
                 {' '}If you are in crisis, please seek licensed mental health support. This app is for 
                 emotional grounding, reflection, and peer-inspired healing only.
@@ -56,42 +56,42 @@ const DisclaimerModal: React.FC<DisclaimerModalProps> = ({ isOpen, onClose, onAc
             </div>
 
             {/* Crisis Resources */}
-            <div className="bg-lavender-50 rounded-2xl p-6 border border-lavender-100">
+            <div className="bg-lavender-50 rounded-2xl p-4 border border-lavender-100">
               <div className="flex items-center space-x-2 mb-3">
-                <Phone className="w-5 h-5 text-lavender-600" />
-                <h3 className="font-serif text-lavender-800">{t.crisisSupport}</h3>
+                <Phone className="w-4 h-4 text-lavender-600 flex-shrink-0" />
+                <h3 className="modal-title text-lavender-800">{t.crisisSupport}</h3>
               </div>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between items-center p-2 bg-lavender-100 rounded-lg">
-                  <span className="text-lavender-800 font-medium">Crisis Text Line</span>
-                  <span className="text-lavender-700">{t.textHome}</span>
+              <div className="space-y-2">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-lavender-100 rounded-lg gap-2">
+                  <span className="modal-text text-lavender-800 font-medium">Crisis Text Line</span>
+                  <span className="modal-text text-lavender-700">{t.textHome}</span>
                 </div>
-                <div className="flex justify-between items-center p-2 bg-lavender-100 rounded-lg">
-                  <span className="text-lavender-800 font-medium">Suicide Prevention</span>
-                  <span className="text-lavender-700">{t.callText988}</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-lavender-100 rounded-lg gap-2">
+                  <span className="modal-text text-lavender-800 font-medium">Suicide Prevention</span>
+                  <span className="modal-text text-lavender-700">{t.callText988}</span>
                 </div>
-                <div className="flex justify-between items-center p-2 bg-lavender-100 rounded-lg">
-                  <span className="text-lavender-800 font-medium">{t.emergency}</span>
-                  <span className="text-lavender-700">{t.call911}</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-lavender-100 rounded-lg gap-2">
+                  <span className="modal-text text-lavender-800 font-medium">{t.emergency}</span>
+                  <span className="modal-text text-lavender-700">{t.call911}</span>
                 </div>
               </div>
             </div>
 
             {/* Affirmation */}
-            <div className="bg-sage-50 rounded-2xl p-6 border border-sage-100 text-center">
-              <Heart className="w-8 h-8 text-sage-600 mx-auto mb-3" />
-              <p className="text-sage-700 text-sm leading-relaxed">
+            <div className="bg-sage-50 rounded-2xl p-4 border border-sage-100 text-center">
+              <Heart className="w-6 h-6 text-sage-600 mx-auto mb-3 flex-shrink-0" />
+              <p className="modal-text text-sage-700">
                 {t.disclaimerAffirmation}
               </p>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <motion.button
                 onClick={onClose}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex-1 py-3 bg-sage-100 text-sage-700 rounded-lg font-medium hover:bg-sage-200 transition-colors"
+                className="modal-button flex-1 bg-sage-100 text-sage-700 hover:bg-sage-200"
               >
                 {t.notNow}
               </motion.button>
@@ -99,7 +99,7 @@ const DisclaimerModal: React.FC<DisclaimerModalProps> = ({ isOpen, onClose, onAc
                 onClick={onAccept}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex-1 py-3 bg-terracotta-500 text-white rounded-lg font-medium hover:bg-terracotta-600 transition-colors"
+                className="modal-button flex-1 bg-terracotta-500 text-white hover:bg-terracotta-600"
               >
                 {t.iUnderstand}
               </motion.button>
