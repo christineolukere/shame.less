@@ -25,9 +25,16 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
     preferredLanguage: 'English'
   })
 
-  const { translations: t } = useLocalization()
+  const { translations: t, setLanguage, availableLanguages } = useLocalization()
 
   const questions = [
+    {
+      id: 'preferredLanguage',
+      title: t.languageQuestion,
+      subtitle: t.languageSubtitle,
+      type: 'single-choice',
+      options: availableLanguages
+    },
     {
       id: 'healingVision',
       title: t.healingVisionQuestion,
@@ -74,10 +81,16 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
   const currentQuestion = questions[currentStep]
 
   const handleAnswer = (value: string | string[]) => {
-    setAnswers(prev => ({
-      ...prev,
+    const updatedAnswers = {
+      ...answers,
       [currentQuestion.id]: value
-    }))
+    }
+    setAnswers(updatedAnswers)
+
+    // If this is the language question, immediately update the app language
+    if (currentQuestion.id === 'preferredLanguage' && typeof value === 'string') {
+      setLanguage(value)
+    }
   }
 
   const nextStep = () => {
@@ -91,7 +104,7 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
         affirmationStyle: answers.affirmationStyle || t.blendOfAll,
         culturalBackground: answers.culturalBackground || [],
         spiritualPreference: answers.spiritualPreference || t.stillExploring,
-        preferredLanguage: 'English'
+        preferredLanguage: answers.preferredLanguage || 'English'
       }
       onComplete(completeData)
     }
