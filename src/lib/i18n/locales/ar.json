@@ -1,0 +1,188 @@
+{
+  "common": {
+    "loading": "جاري التحميل...",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "next": "التالي",
+    "back": "رجوع",
+    "complete": "إكمال",
+    "skipForNow": "تخطي الآن",
+    "close": "إغلاق"
+  },
+  "app": {
+    "name": "shame.less",
+    "tagline": "رفيقك اليومي اللطيف"
+  },
+  "auth": {
+    "signIn": "تسجيل الدخول",
+    "signUp": "إنشاء حساب",
+    "signOut": "تسجيل الخروج",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "name": "الاسم",
+    "welcomeBack": "مرحباً بعودتك",
+    "joinUs": "انضمي إلينا",
+    "continueAsGuest": "المتابعة كضيف",
+    "createAccount": "إنشاء حساب",
+    "dontHaveAccount": "ليس لديك حساب؟",
+    "alreadyHaveAccount": "لديك حساب بالفعل؟",
+    "privacyNote": "بياناتك خاصة وآمنة. نحن لا نشارك معلوماتك الشخصية أبداً."
+  },
+  "navigation": {
+    "home": "الرئيسية",
+    "checkIn": "تسجيل الوضع",
+    "wins": "الإنجازات",
+    "journal": "المذكرات",
+    "affirm": "التأكيد",
+    "garden": "الحديقة"
+  },
+  "dashboard": {
+    "goodMorning": "صباح الخير",
+    "goodAfternoon": "مساء الخير",
+    "goodEvening": "مساء الخير",
+    "beautiful": "جميلة",
+    "friend": "صديقة",
+    "worthyOfLove": "أنت تستحقين الحب واللطف.",
+    "welcomeBackToSafeSpace": "مرحباً بعودتك إلى مساحتك الآمنة.",
+    "todaysReminder": "تذكير اليوم اللطيف",
+    "howCanISupport": "كيف يمكنني دعمك اليوم؟",
+    "yourGrowthRings": "حلقات نموك",
+    "daysOfSelfCare": "أيام من الرعاية الذاتية"
+  },
+  "checkIn": {
+    "title": "كيف تشعرين؟",
+    "gentleCheckIn": "تسجيل وضع لطيف",
+    "description": "لا توجد طريقة صحيحة أو خاطئة للشعور. هذه مجرد لحظة للتوقف والاعتراف بمكانك.",
+    "whatEmotionClosest": "أي مشاعر تبدو الأقرب الآن؟",
+    "whatColorEnergy": "أي لون يتناسب مع طاقتك؟",
+    "forYouRightNow": "لك، الآن",
+    "affirmation": "مشاعرك صحيحة وتستحقين الرحمة، خاصة من نفسك.",
+    "emotions": {
+      "peaceful": "مسالمة",
+      "content": "راضية",
+      "tender": "حنونة",
+      "heavy": "ثقيلة",
+      "frustrated": "محبطة",
+      "growing": "نامية",
+      "hopeful": "متفائلة",
+      "tired": "متعبة"
+    },
+    "colors": {
+      "softPink": "وردي ناعم",
+      "warmSage": "مريمية دافئة",
+      "gentleLavender": "خزامى لطيف",
+      "sunsetOrange": "برتقالي الغروب",
+      "goldenCream": "كريمي ذهبي",
+      "oceanBlue": "أزرق المحيط"
+    }
+  },
+  "wins": {
+    "title": "إنجازاتك",
+    "everyStepCounts": "كل خطوة مهمة",
+    "description": "الاحتفال بالتقدم، مهما كان صغيراً. كل إنجاز شاهد على قوتك ومرونتك.",
+    "quickWins": "إنجازات سريعة للاحتفال",
+    "addYourWin": "أضيفي إنجازك",
+    "whatDidYouAccomplish": "ماذا أنجزت اليوم؟",
+    "celebrateThisWin": "احتفلي بهذا الإنجاز",
+    "recentCelebrations": "الاحتفالات الأخيرة",
+    "categories": {
+      "selfCare": "الرعاية الذاتية",
+      "boundaries": "الحدود",
+      "growth": "النمو",
+      "joy": "الفرح"
+    },
+    "quickWinsList": {
+      "gotOutOfBed": "نهضت من السرير",
+      "drankWater": "شربت الماء",
+      "tookShower": "استحممت",
+      "ateAMeal": "تناولت وجبة",
+      "setBoundary": "وضعت حداً",
+      "askedForHelp": "طلبت المساعدة",
+      "practicedSayingNo": "مارست قول لا",
+      "tookBreak": "أخذت استراحة",
+      "movedBody": "حركت جسدي",
+      "calledSomeone": "اتصلت بشخص ما"
+    }
+  },
+  "journal": {
+    "title": "المذكرات",
+    "safeSpaceThoughts": "مساحة آمنة لأفكارك",
+    "description": "دعي أفكارك تتدفق بحرية. هذه مساحتك الخاصة للمعالجة والتأمل والتحرر.",
+    "howToExpress": "كيف تودين التعبير عن نفسك؟",
+    "needGentleNudge": "تحتاجين دفعة لطيفة؟",
+    "letThoughtsFlow": "دعي أفكارك تتدفق...",
+    "saveEntry": "حفظ الإدخال",
+    "inputModes": {
+      "write": "كتابة",
+      "speak": "تحدث",
+      "capture": "التقاط"
+    },
+    "prompts": {
+      "gratefulFor": "لماذا أنا ممتنة اليوم؟",
+      "showedKindness": "كيف أظهرت اللطف لنفسي؟",
+      "boundaryHonored": "أي حد احترمته؟",
+      "madeSmile": "ما الذي جعلني أبتسم؟",
+      "needToRelease": "ما الذي أحتاج لتحريره؟",
+      "howGrowing": "كيف أنمو؟",
+      "tellYoungerSelf": "ماذا سأقول لنفسي الأصغر؟",
+      "bringsYouPeace": "ما الذي يجلب لك السلام؟"
+    }
+  },
+  "affirmations": {
+    "title": "التأكيدات اليومية",
+    "wordsOfLove": "كلمات الحب",
+    "description": "تذكيرات لطيفة بقيمتك وقوتك وجمالك. دعي هذه الكلمات تلفك مثل عناق دافئ.",
+    "gentleReflection": "تأمل لطيف",
+    "reflectionPrompt": "كيف يتردد صدى هذا التأكيد معك اليوم؟ أي مشاعر أو أفكار تظهر؟",
+    "nextAffirmation": "التأكيد التالي"
+  },
+  "resources": {
+    "title": "حديقة الموارد",
+    "curatedWithLove": "منتقاة بحب",
+    "description": "مجموعة من موارد الشفاء والقصص والأدوات التي أنشأتها النساء الملونات لرحلات العافية الخاصة بهن.",
+    "categories": {
+      "stories": "القصص",
+      "healing": "الشفاء",
+      "community": "المجتمع",
+      "media": "الوسائط"
+    },
+    "suggestResource": "اقتراح مورد",
+    "suggestDescription": "تعرفين مورداً يمكن أن يساعد الآخرين؟ نود أن نسمع عنه.",
+    "shareResource": "مشاركة المورد"
+  },
+  "softLanding": {
+    "title": "هبوط ناعم",
+    "youAreSafeHere": "أنت آمنة هنا",
+    "description": "خذي لحظة لتهدئة نفسك. اختاري ما يبدو الأكثر دعماً الآن.",
+    "options": {
+      "gentleBreathing": "تنفس لطيف",
+      "grounding": "التأريض",
+      "emergencyAffirmation": "تأكيد طوارئ",
+      "soothingSounds": "أصوات مهدئة"
+    },
+    "descriptions": {
+      "breathingDescription": "تنفس بطيء وواعي",
+      "groundingDescription": "اتصلي باللحظة الحالية",
+      "affirmationDescription": "كلمات الراحة والأمان",
+      "soundsDescription": "صوت مهدئ لتركيز نفسك"
+    },
+    "needMoreSupport": "تحتاجين المزيد من الدعم؟",
+    "crisisDescription": "إذا كنت في أزمة، يرجى طلب المساعدة المهنية.",
+    "crisisTextLine": "خط أزمة النص: 741741",
+    "suicidePrevention": "منع الانتحار: 988",
+    "emergency": "طوارئ",
+    "imFeelingBetter": "أشعر بتحسن"
+  },
+  "disclaimer": {
+    "title": "إشعار مهم",
+    "aboutApp": "حول shame.less",
+    "notReplacementTherapy": "هذا التطبيق ليس بديلاً للعلاج المهني.",
+    "crisisSupport": "دعم الأزمات",
+    "textHome": "أرسلي HOME إلى 741741",
+    "callText988": "اتصلي أو أرسلي نصاً إلى 988",
+    "call911": "اتصلي بـ 911",
+    "affirmation": "تستحقين الدعم والرعاية والشفاء. لست وحدك في هذه الرحلة.",
+    "notNow": "ليس الآن",
+    "iUnderstand": "أفهم"
+  }
+}

@@ -1,0 +1,188 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "next": "Siguiente",
+    "back": "Atrás",
+    "complete": "Completar",
+    "skipForNow": "Omitir por ahora",
+    "close": "Cerrar"
+  },
+  "app": {
+    "name": "shame.less",
+    "tagline": "Tu compañero diario gentil"
+  },
+  "auth": {
+    "signIn": "Iniciar Sesión",
+    "signUp": "Registrarse",
+    "signOut": "Cerrar Sesión",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "name": "Nombre",
+    "welcomeBack": "Bienvenido de vuelta",
+    "joinUs": "Únete a nosotros",
+    "continueAsGuest": "Continuar como invitado",
+    "createAccount": "Crear cuenta",
+    "dontHaveAccount": "¿No tienes una cuenta?",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+    "privacyNote": "Tus datos son privados y seguros. Nunca compartimos tu información personal."
+  },
+  "navigation": {
+    "home": "Inicio",
+    "checkIn": "Registro",
+    "wins": "Logros",
+    "journal": "Diario",
+    "affirm": "Afirmar",
+    "garden": "Jardín"
+  },
+  "dashboard": {
+    "goodMorning": "Buenos días",
+    "goodAfternoon": "Buenas tardes",
+    "goodEvening": "Buenas noches",
+    "beautiful": "hermosa",
+    "friend": "amiga",
+    "worthyOfLove": "Mereces amor y gentileza.",
+    "welcomeBackToSafeSpace": "Bienvenida de vuelta a tu espacio seguro.",
+    "todaysReminder": "Recordatorio gentil de hoy",
+    "howCanISupport": "¿Cómo puedo apoyarte hoy?",
+    "yourGrowthRings": "Tus anillos de crecimiento",
+    "daysOfSelfCare": "días de autocuidado"
+  },
+  "checkIn": {
+    "title": "¿Cómo te sientes?",
+    "gentleCheckIn": "Registro gentil",
+    "description": "No hay una forma correcta o incorrecta de sentirse. Este es simplemente un momento para pausar y reconocer dónde estás.",
+    "whatEmotionClosest": "¿Qué emoción se siente más cercana ahora?",
+    "whatColorEnergy": "¿Qué color coincide con tu energía?",
+    "forYouRightNow": "Para ti, ahora mismo",
+    "affirmation": "Tus sentimientos son válidos y mereces compasión, especialmente de ti misma.",
+    "emotions": {
+      "peaceful": "Tranquila",
+      "content": "Contenta",
+      "tender": "Tierna",
+      "heavy": "Pesada",
+      "frustrated": "Frustrada",
+      "growing": "Creciendo",
+      "hopeful": "Esperanzada",
+      "tired": "Cansada"
+    },
+    "colors": {
+      "softPink": "Rosa Suave",
+      "warmSage": "Salvia Cálida",
+      "gentleLavender": "Lavanda Gentil",
+      "sunsetOrange": "Naranja Atardecer",
+      "goldenCream": "Crema Dorada",
+      "oceanBlue": "Azul Océano"
+    }
+  },
+  "wins": {
+    "title": "Tus logros",
+    "everyStepCounts": "Cada paso cuenta",
+    "description": "Celebrando el progreso, sin importar cuán pequeño. Cada logro es un testimonio de tu fuerza y resistencia.",
+    "quickWins": "Logros rápidos para celebrar",
+    "addYourWin": "Añade tu logro",
+    "whatDidYouAccomplish": "¿Qué lograste hoy?",
+    "celebrateThisWin": "Celebra este logro",
+    "recentCelebrations": "Celebraciones recientes",
+    "categories": {
+      "selfCare": "Autocuidado",
+      "boundaries": "Límites",
+      "growth": "Crecimiento",
+      "joy": "Alegría"
+    },
+    "quickWinsList": {
+      "gotOutOfBed": "Me levanté de la cama",
+      "drankWater": "Bebí agua",
+      "tookShower": "Me duché",
+      "ateAMeal": "Comí una comida",
+      "setBoundary": "Establecí un límite",
+      "askedForHelp": "Pedí ayuda",
+      "practicedSayingNo": "Practiqué decir no",
+      "tookBreak": "Tomé un descanso",
+      "movedBody": "Moví mi cuerpo",
+      "calledSomeone": "Llamé a alguien"
+    }
+  },
+  "journal": {
+    "title": "Diario",
+    "safeSpaceThoughts": "Un espacio seguro para tus pensamientos",
+    "description": "Deja que tus pensamientos fluyan libremente. Este es tu espacio privado para procesar, reflexionar y liberar.",
+    "howToExpress": "¿Cómo te gustaría expresarte?",
+    "needGentleNudge": "¿Necesitas un empujoncito gentil?",
+    "letThoughtsFlow": "Deja que tus pensamientos fluyan...",
+    "saveEntry": "Guardar entrada",
+    "inputModes": {
+      "write": "Escribir",
+      "speak": "Hablar",
+      "capture": "Capturar"
+    },
+    "prompts": {
+      "gratefulFor": "¿Por qué estoy agradecida hoy?",
+      "showedKindness": "¿Cómo me mostré bondad?",
+      "boundaryHonored": "¿Qué límite honré?",
+      "madeSmile": "¿Qué me hizo sonreír?",
+      "needToRelease": "¿Qué necesito liberar?",
+      "howGrowing": "¿Cómo estoy creciendo?",
+      "tellYoungerSelf": "¿Qué le diría a mi yo más joven?",
+      "bringsYouPeace": "¿Qué te trae paz?"
+    }
+  },
+  "affirmations": {
+    "title": "Afirmaciones diarias",
+    "wordsOfLove": "Palabras de amor",
+    "description": "Recordatorios gentiles de tu valor, fuerza y belleza. Deja que estas palabras te envuelvan como un abrazo cálido.",
+    "gentleReflection": "Reflexión gentil",
+    "reflectionPrompt": "¿Cómo resuena esta afirmación contigo hoy? ¿Qué sentimientos o pensamientos surgen?",
+    "nextAffirmation": "Siguiente afirmación"
+  },
+  "resources": {
+    "title": "Jardín de recursos",
+    "curatedWithLove": "Curado con amor",
+    "description": "Una colección de recursos de sanación, historias y herramientas creadas por y para mujeres de color en sus viajes de bienestar.",
+    "categories": {
+      "stories": "Historias",
+      "healing": "Sanación",
+      "community": "Comunidad",
+      "media": "Medios"
+    },
+    "suggestResource": "Sugerir un recurso",
+    "suggestDescription": "¿Conoces un recurso que ayudaría a otros? Nos encantaría escuchar sobre él.",
+    "shareResource": "Compartir recurso"
+  },
+  "softLanding": {
+    "title": "Aterrizaje suave",
+    "youAreSafeHere": "Estás segura aquí",
+    "description": "Tómate un momento para tranquilizarte. Elige lo que se sienta más reconfortante ahora mismo.",
+    "options": {
+      "gentleBreathing": "Respiración gentil",
+      "grounding": "Conexión a tierra",
+      "emergencyAffirmation": "Afirmación de emergencia",
+      "soothingSounds": "Sonidos relajantes"
+    },
+    "descriptions": {
+      "breathingDescription": "Respiración lenta y consciente",
+      "groundingDescription": "Conecta con el momento presente",
+      "affirmationDescription": "Palabras de consuelo y seguridad",
+      "soundsDescription": "Audio calmante para centrarte"
+    },
+    "needMoreSupport": "¿Necesitas más apoyo?",
+    "crisisDescription": "Si estás en crisis, por favor busca ayuda profesional.",
+    "crisisTextLine": "Línea de Crisis por Texto: 741741",
+    "suicidePrevention": "Prevención del Suicidio: 988",
+    "emergency": "Emergencia",
+    "imFeelingBetter": "Me siento mejor"
+  },
+  "disclaimer": {
+    "title": "Aviso Importante",
+    "aboutApp": "Acerca de shame.less",
+    "notReplacementTherapy": "Esta aplicación no es un reemplazo para la terapia profesional.",
+    "crisisSupport": "Apoyo en crisis",
+    "textHome": "Envía HOME al 741741",
+    "callText988": "Llama o envía texto al 988",
+    "call911": "Llama al 911",
+    "affirmation": "Mereces apoyo, cuidado y sanación. No estás sola en este viaje.",
+    "notNow": "Ahora no",
+    "iUnderstand": "Entiendo"
+  }
+}
