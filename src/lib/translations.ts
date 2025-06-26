@@ -17936,3 +17936,4 @@ export interface Translations {
   acknowledging: string
   accepting: string
   agre
+}
