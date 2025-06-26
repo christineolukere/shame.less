@@ -125,7 +125,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
                   </div>
                 </div>
               </motion.button>
-            </div>
+            </motion.div>
           )}
 
           {/* Divider */}
