@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Sun, Moon, Heart, Sparkles, Trophy, BookOpen } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 type View = 'dashboard' | 'checkin' | 'wins' | 'journal' | 'affirmations' | 'resources';
 
@@ -9,13 +10,21 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
+  const { user, isGuest } = useAuth();
   const currentHour = new Date().getHours();
   const isEvening = currentHour >= 18 || currentHour < 6;
   
-  const greeting = () => {
-    if (currentHour < 12) return "Good morning, beautiful";
-    if (currentHour < 17) return "Good afternoon, love";
-    return "Good evening, dear one";
+  const getPersonalizedGreeting = () => {
+    const timeGreeting = currentHour < 12 ? "Good morning" : currentHour < 17 ? "Good afternoon" : "Good evening";
+    
+    if (user) {
+      const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'friend';
+      return `${timeGreeting}, ${displayName}`;
+    } else if (isGuest) {
+      return `${timeGreeting}, beautiful`;
+    } else {
+      return `${timeGreeting}, beautiful`;
+    }
   };
 
   const quickActions = [
@@ -55,7 +64,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Greeting */}
+      {/* Personalized Greeting */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -67,9 +76,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           ) : (
             <Sun className="w-6 h-6 text-cream-500" />
           )}
-          <h2 className="text-2xl font-serif text-sage-800">{greeting()}</h2>
+          <h2 className="text-2xl font-serif text-sage-800">{getPersonalizedGreeting()}</h2>
         </div>
-        <p className="text-sage-600">You are worthy of love and gentleness today</p>
+        <p className="text-sage-600">
+          {user ? "Welcome back to your safe space" : "You are worthy of love and gentleness today"}
+        </p>
       </motion.div>
 
       {/* Today's Gentle Reminder */}
