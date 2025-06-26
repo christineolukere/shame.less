@@ -25,16 +25,9 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
     preferredLanguage: 'English'
   })
 
-  const { setLanguage, translations: t, availableLanguages } = useLocalization()
+  const { translations: t } = useLocalization()
 
   const questions = [
-    {
-      id: 'preferredLanguage',
-      title: t.languageQuestion,
-      subtitle: t.languageSubtitle,
-      type: 'single-choice',
-      options: availableLanguages
-    },
     {
       id: 'healingVision',
       title: t.healingVisionQuestion,
@@ -85,11 +78,6 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
       ...prev,
       [currentQuestion.id]: value
     }))
-
-    // If this is the language question, immediately update the app language
-    if (currentQuestion.id === 'preferredLanguage' && typeof value === 'string') {
-      setLanguage(value)
-    }
   }
 
   const nextStep = () => {
@@ -103,7 +91,7 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
         affirmationStyle: answers.affirmationStyle || t.blendOfAll,
         culturalBackground: answers.culturalBackground || [],
         spiritualPreference: answers.spiritualPreference || t.stillExploring,
-        preferredLanguage: answers.preferredLanguage || 'English'
+        preferredLanguage: 'English'
       }
       onComplete(completeData)
     }
@@ -113,12 +101,6 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1)
     }
-  }
-
-  const handleSkip = () => {
-    // Set language to English when skipping
-    setLanguage('English')
-    onSkip()
   }
 
   const renderQuestion = () => {
@@ -267,7 +249,7 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
             )}
             
             <motion.button
-              onClick={handleSkip}
+              onClick={onSkip}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-4 py-2 text-sage-600 hover:text-sage-800 transition-colors"

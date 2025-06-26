@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getTranslation, getAvailableLanguages, type Translations } from '../lib/translations';
+import React, { createContext, useContext } from 'react';
+import { translations, type Translations } from '../lib/translations';
 
 interface LocalizationContextType {
   currentLanguage: string;
@@ -19,31 +19,11 @@ export const useLocalization = () => {
 };
 
 export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentLanguage, setCurrentLanguage] = useState('English');
-  const [translations, setTranslations] = useState(getTranslation('English'));
-
-  useEffect(() => {
-    // Check for saved language preference
-    const savedLanguage = localStorage.getItem('shameless_language');
-    if (savedLanguage && getAvailableLanguages().includes(savedLanguage)) {
-      setCurrentLanguage(savedLanguage);
-      setTranslations(getTranslation(savedLanguage));
-    }
-  }, []);
-
-  const setLanguage = (language: string) => {
-    if (getAvailableLanguages().includes(language)) {
-      setCurrentLanguage(language);
-      setTranslations(getTranslation(language));
-      localStorage.setItem('shameless_language', language);
-    }
-  };
-
   const value = {
-    currentLanguage,
+    currentLanguage: 'English',
     translations,
-    setLanguage,
-    availableLanguages: getAvailableLanguages(),
+    setLanguage: () => {}, // No-op since we only support English now
+    availableLanguages: ['English'],
   };
 
   return (
