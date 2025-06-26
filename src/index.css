@@ -8,6 +8,8 @@
     /* Prevent zoom on input focus on iOS */
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    /* Prevent horizontal scroll */
+    overflow-x: hidden;
   }
   
   body {
@@ -16,31 +18,42 @@
     /* Ensure full height on mobile */
     min-height: 100vh;
     min-height: -webkit-fill-available;
+    /* Improve font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   
   /* Fix viewport height issues on mobile browsers */
   #root {
     min-height: 100vh;
     min-height: -webkit-fill-available;
+    width: 100%;
+    position: relative;
+  }
+  
+  /* Prevent zoom on form inputs */
+  input, textarea, select {
+    font-size: 16px !important;
+    transform: translateZ(0);
   }
 }
 
 @layer utilities {
   /* Safe area utilities for notched devices */
   .safe-top {
-    padding-top: env(safe-area-inset-top);
+    padding-top: max(16px, env(safe-area-inset-top));
   }
   
   .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
   }
   
   .safe-left {
-    padding-left: env(safe-area-inset-left);
+    padding-left: max(16px, env(safe-area-inset-left));
   }
   
   .safe-right {
-    padding-right: env(safe-area-inset-right);
+    padding-right: max(16px, env(safe-area-inset-right));
   }
   
   /* Mobile-specific utilities */
@@ -54,7 +67,7 @@
   
   /* Prevent text from being too small on mobile */
   .mobile-text {
-    font-size: 16px;
+    font-size: 16px !important;
     line-height: 1.5;
   }
   
@@ -62,6 +75,15 @@
   .touch-target {
     min-height: 44px;
     min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Prevent content from going under the notch */
+  .viewport-safe {
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
   }
 }
 
@@ -69,54 +91,53 @@
 @media screen and (max-width: 320px) {
   /* iPhone SE and smaller devices */
   .text-2xl {
-    font-size: 1.25rem;
+    font-size: 1.25rem !important;
   }
   
   .text-xl {
-    font-size: 1.125rem;
+    font-size: 1.125rem !important;
   }
   
   .p-6 {
-    padding: 1rem;
+    padding: 1rem !important;
   }
   
   .space-y-6 > :not([hidden]) ~ :not([hidden]) {
-    margin-top: 1rem;
+    margin-top: 1rem !important;
+  }
+  
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
 
 @media screen and (max-width: 375px) {
   /* iPhone 6/7/8/SE 2nd gen */
-  .grid-cols-4 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.5rem;
-  }
-  
   .grid-cols-3 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
 
 @media screen and (max-width: 414px) {
   /* iPhone 6/7/8 Plus, iPhone 11 Pro Max */
   .max-w-md {
-    max-width: 100%;
+    max-width: 100% !important;
   }
 }
 
 /* Landscape orientation fixes */
 @media screen and (orientation: landscape) and (max-height: 500px) {
   .min-h-screen {
-    min-height: 100vh;
+    min-height: 100vh !important;
   }
   
   /* Reduce padding in landscape on small screens */
   .p-6 {
-    padding: 0.75rem;
+    padding: 0.75rem !important;
   }
   
   .space-y-6 > :not([hidden]) ~ :not([hidden]) {
-    margin-top: 0.75rem;
+    margin-top: 0.75rem !important;
   }
 }
 
@@ -127,4 +148,28 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+}
+
+/* Fix for iOS Safari bottom bar */
+@supports (-webkit-touch-callout: none) {
+  .viewport-safe {
+    height: -webkit-fill-available;
+  }
+}
+
+/* Prevent pull-to-refresh on mobile */
+body {
+  overscroll-behavior-y: contain;
+}
+
+/* Improve touch scrolling */
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Fix modal positioning on mobile */
+.fixed {
+  position: fixed;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }

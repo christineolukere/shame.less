@@ -85,21 +85,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start justify-center p-4 pt-8 overflow-y-auto"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start justify-center p-4 pt-8 overflow-y-auto safe-top safe-bottom"
         onClick={onClose}
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.9, opacity: 0, y: 20 }}
-          className="bg-white rounded-2xl w-full max-w-sm my-8 p-6 shadow-xl"
+          className="bg-white rounded-2xl w-full max-w-sm my-8 p-4 sm:p-6 shadow-xl"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
             <div className="flex items-center space-x-2">
-              <Heart className="w-5 h-5 text-terracotta-500 fill-current" />
-              <h2 className="text-lg font-serif text-sage-800">
+              <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-terracotta-500 fill-current" />
+              <h2 className="text-base sm:text-lg font-serif text-sage-800">
                 {mode === 'signin' ? t.welcomeBack : t.joinUs}
               </h2>
             </div>
@@ -107,15 +107,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
               onClick={onClose}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="p-1.5 rounded-full bg-sage-100 text-sage-700"
+              className="p-1.5 rounded-full bg-sage-100 text-sage-700 touch-target"
             >
               <X className="w-4 h-4" />
             </motion.button>
           </div>
 
           {/* Welcome Message */}
-          <div className="mb-6 text-center">
-            <p className="text-sage-600 text-sm leading-relaxed">
+          <div className="mb-4 sm:mb-6 text-center">
+            <p className="text-sage-600 text-xs sm:text-sm leading-relaxed">
               {mode === 'signin' 
                 ? "We're glad you're here."
                 : "You deserve a space for gentle self-care."
@@ -128,21 +128,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6"
+              className="mb-4 sm:mb-6"
             >
               <motion.button
                 onClick={handleGuestContinue}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full p-4 bg-cream-50 border-2 border-cream-200 rounded-xl hover:bg-cream-100 transition-colors group"
+                className="w-full p-3 sm:p-4 bg-cream-50 border-2 border-cream-200 rounded-xl hover:bg-cream-100 transition-colors group touch-target"
               >
                 <div className="flex items-center justify-center space-x-3">
-                  <UserCheck className="w-5 h-5 text-cream-600 group-hover:text-cream-700" />
+                  <UserCheck className="w-4 h-4 sm:w-5 sm:h-5 text-cream-600 group-hover:text-cream-700" />
                   <div className="text-center">
-                    <h3 className="font-medium text-cream-800 group-hover:text-cream-900">
+                    <h3 className="font-medium text-cream-800 group-hover:text-cream-900 text-sm sm:text-base">
                       {t.continueAsGuest}
                     </h3>
-                    <p className="text-cream-600 text-sm group-hover:text-cream-700">
+                    <p className="text-cream-600 text-xs sm:text-sm group-hover:text-cream-700">
                       Start your healing journey now
                     </p>
                   </div>
@@ -153,7 +153,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
 
           {/* Divider */}
           {onGuestContinue && (
-            <div className="relative mb-6">
+            <div className="relative mb-4 sm:mb-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-sage-200" />
               </div>
@@ -164,7 +164,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             {mode === 'signup' && (
               <div className="space-y-1">
                 <label htmlFor="displayName" className="block text-xs font-medium text-sage-700">
@@ -177,7 +177,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
                     type="text"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="w-full pl-9 pr-3 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-transparent text-sm"
+                    className="w-full pl-9 pr-3 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-transparent text-sm mobile-text"
                     placeholder="Your name"
                   />
                 </div>
@@ -196,7 +196,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-9 pr-3 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-transparent text-sm"
+                  className="w-full pl-9 pr-3 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-transparent text-sm mobile-text"
                   placeholder="your@email.com"
                 />
               </div>
@@ -214,13 +214,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-9 pr-10 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-transparent text-sm"
+                  className="w-full pl-9 pr-10 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-transparent text-sm mobile-text"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sage-400 hover:text-sage-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sage-400 hover:text-sage-600 touch-target"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -242,14 +242,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
               disabled={loading}
               whileHover={{ scale: loading ? 1 : 1.02 }}
               whileTap={{ scale: loading ? 1 : 0.98 }}
-              className="w-full py-3 bg-terracotta-500 text-white rounded-lg font-medium hover:bg-terracotta-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+              className="w-full py-3 bg-terracotta-500 text-white rounded-lg font-medium hover:bg-terracotta-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm touch-target"
             >
               {loading ? 'Please wait...' : (mode === 'signin' ? t.signIn : t.createAccount)}
             </motion.button>
           </form>
 
           {/* Switch Mode */}
-          <div className="mt-6 text-center">
+          <div className="mt-4 sm:mt-6 text-center">
             <p className="text-sage-600 text-xs">
               {mode === 'signin' ? t.dontHaveAccount + ' ' : t.alreadyHaveAccount + ' '}
               <button
@@ -262,7 +262,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
           </div>
 
           {/* Privacy Note */}
-          <div className="mt-4 p-3 bg-lavender-50 rounded-lg border border-lavender-100">
+          <div className="mt-3 sm:mt-4 p-3 bg-lavender-50 rounded-lg border border-lavender-100">
             <p className="text-lavender-700 text-xs leading-relaxed">
               {t.privacyNote}
             </p>
