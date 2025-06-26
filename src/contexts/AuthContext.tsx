@@ -147,7 +147,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('shameless_guest_mode')
     localStorage.removeItem('shameless_onboarding_complete')
     localStorage.removeItem('shameless_onboarding_data')
-    localStorage.removeItem('shameless_preferred_language')
     setIsGuest(false)
     setOnboardingComplete(false)
     return { error }
@@ -179,8 +178,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Store onboarding data locally for guest users
       localStorage.setItem('shameless_onboarding_data', JSON.stringify(data))
       localStorage.setItem('shameless_onboarding_complete', 'true')
-      // Also save the preferred language
-      localStorage.setItem('shameless_preferred_language', data.preferredLanguage)
       setOnboardingComplete(true)
       return { error: null }
     }
@@ -203,8 +200,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (!error) {
       setOnboardingComplete(true)
-      // Save the preferred language to localStorage as well
-      localStorage.setItem('shameless_preferred_language', data.preferredLanguage)
     }
 
     return { error }

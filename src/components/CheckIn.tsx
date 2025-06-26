@@ -33,39 +33,39 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
   ];
 
   return (
-    <div className="mobile-container py-4 sm:py-6 space-y-4 sm:space-y-6">
+    <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center space-x-3 sm:space-x-4">
+      <div className="flex items-center space-x-4">
         <motion.button
           onClick={onBack}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="p-2 rounded-full bg-sage-100 text-sage-700 touch-target"
+          className="p-2 rounded-full bg-sage-100 text-sage-700"
         >
-          <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+          <ArrowLeft className="w-5 h-5" />
         </motion.button>
-        <h1 className="text-xl sm:text-2xl font-serif text-sage-800">{t.howAreYouFeeling}</h1>
+        <h1 className="text-2xl font-serif text-sage-800">{t.howAreYouFeeling}</h1>
       </div>
 
       {/* Gentle Introduction */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-terracotta-50 rounded-2xl p-4 sm:p-6 border border-terracotta-100"
+        className="bg-terracotta-50 rounded-2xl p-6 border border-terracotta-100"
       >
         <div className="flex items-center space-x-2 mb-3">
-          <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-terracotta-600" />
-          <h3 className="font-serif text-terracotta-800 text-sm sm:text-base">{t.gentleCheckIn}</h3>
+          <Heart className="w-5 h-5 text-terracotta-600" />
+          <h3 className="font-serif text-terracotta-800">{t.gentleCheckIn}</h3>
         </div>
-        <p className="text-terracotta-700 text-xs sm:text-sm leading-relaxed">
+        <p className="text-terracotta-700 text-sm leading-relaxed">
           {t.checkInDescription}
         </p>
       </motion.div>
 
       {/* Mood Selection */}
-      <div className="space-y-3 sm:space-y-4">
-        <h3 className="text-base sm:text-lg font-serif text-sage-800">{t.whatEmotionClosest}</h3>
-        <div className="grid grid-cols-4 gap-2 sm:gap-3">
+      <div className="space-y-4">
+        <h3 className="text-lg font-serif text-sage-800">{t.whatEmotionClosest}</h3>
+        <div className="grid grid-cols-4 gap-3">
           {moods.map((mood, index) => (
             <motion.button
               key={mood.label}
@@ -73,23 +73,23 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.1 }}
               onClick={() => setSelectedMood(mood.label)}
-              className={`p-3 sm:p-4 rounded-xl text-center transition-all touch-target ${
+              className={`p-4 rounded-xl text-center transition-all ${
                 selectedMood === mood.label
                   ? 'bg-sage-200 border-2 border-sage-400'
                   : 'bg-white border border-sage-100 hover:bg-sage-50'
               }`}
             >
-              <div className="text-lg sm:text-2xl mb-1">{mood.emoji}</div>
-              <div className="text-xs text-sage-700 font-medium leading-tight">{mood.label}</div>
+              <div className="text-2xl mb-1">{mood.emoji}</div>
+              <div className="text-xs text-sage-700 font-medium">{mood.label}</div>
             </motion.button>
           ))}
         </div>
       </div>
 
       {/* Color Selection */}
-      <div className="space-y-3 sm:space-y-4">
-        <h3 className="text-base sm:text-lg font-serif text-sage-800">{t.whatColorEnergy}</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+      <div className="space-y-4">
+        <h3 className="text-lg font-serif text-sage-800">{t.whatColorEnergy}</h3>
+        <div className="grid grid-cols-3 gap-3">
           {colors.map((color, index) => (
             <motion.button
               key={color.name}
@@ -97,14 +97,14 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.5 + index * 0.1 }}
               onClick={() => setSelectedColor(color.name)}
-              className={`p-3 sm:p-4 rounded-xl transition-all touch-target ${
+              className={`p-4 rounded-xl transition-all ${
                 selectedColor === color.name
                   ? 'ring-2 ring-sage-400 ring-offset-2'
                   : 'hover:scale-105'
               }`}
             >
-              <div className={`w-full h-8 sm:h-12 rounded-lg ${color.value} mb-2`} />
-              <div className="text-xs text-sage-700 font-medium leading-tight">{color.name}</div>
+              <div className={`w-full h-12 rounded-lg ${color.value} mb-2`} />
+              <div className="text-xs text-sage-700 font-medium">{color.name}</div>
             </motion.button>
           ))}
         </div>
@@ -115,10 +115,10 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-lavender-50 rounded-2xl p-4 sm:p-6 border border-lavender-100"
+          className="bg-lavender-50 rounded-2xl p-6 border border-lavender-100"
         >
-          <h3 className="font-serif text-lavender-800 mb-2 text-sm sm:text-base">{t.forYouRightNow}</h3>
-          <p className="text-lavender-700 leading-relaxed text-sm sm:text-base">
+          <h3 className="font-serif text-lavender-800 mb-2">{t.forYouRightNow}</h3>
+          <p className="text-lavender-700 leading-relaxed">
             "{t.checkInAffirmation}"
           </p>
         </motion.div>
