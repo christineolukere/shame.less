@@ -7,7 +7,7 @@ import { useLocalization } from '../../contexts/LocalizationContext'
 const ProfileMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
   const { user, signOut } = useAuth()
-  const { translations: t } = useLocalization()
+  const { t } = useLocalization()
 
   const handleSignOut = async () => {
     await signOut()
@@ -16,7 +16,7 @@ const ProfileMenu: React.FC = () => {
 
   if (!user) return null
 
-  const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || t.friend
+  const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || t('common.friend')
 
   return (
     <div className="relative">
@@ -97,7 +97,7 @@ const ProfileMenu: React.FC = () => {
                     className="w-full flex items-center space-x-3 p-3 rounded-lg text-left"
                   >
                     <LogOut className="w-5 h-5 text-terracotta-600" />
-                    <span className="text-terracotta-700">{t.signOut}</span>
+                    <span className="text-terracotta-700">{t('auth.signOut')}</span>
                   </motion.button>
                 </div>
               </div>

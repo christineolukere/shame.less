@@ -9,15 +9,15 @@ interface SoftLandingProps {
 
 const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
   const [activeComfort, setActiveComfort] = useState<string | null>(null);
-  const { translations: t } = useLocalization();
+  const { t } = useLocalization();
 
   const comfortOptions = [
     {
       id: 'breathe',
-      title: t.gentleBreathing,
+      title: t('softLanding.breathing.title'),
       icon: Wind,
       color: 'sage',
-      description: t.breathingDescription,
+      description: t('softLanding.breathing.description'),
       content: (
         <div className="text-center space-y-4">
           <div className="w-24 h-24 mx-auto bg-sage-100 rounded-full flex items-center justify-center">
@@ -38,10 +38,10 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
     },
     {
       id: 'grounding',
-      title: t.grounding,
+      title: t('softLanding.grounding.title'),
       icon: Shield,
       color: 'terracotta',
-      description: t.groundingDescription,
+      description: t('softLanding.grounding.description'),
       content: (
         <div className="space-y-4">
           <div className="text-center mb-4">
@@ -69,10 +69,10 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
     },
     {
       id: 'affirmation',
-      title: t.emergencyAffirmation,
+      title: t('softLanding.affirmation.title'),
       icon: Heart,
       color: 'lavender',
-      description: t.affirmationDescription,
+      description: t('softLanding.affirmation.description'),
       content: (
         <div className="text-center space-y-6">
           <motion.div
@@ -95,10 +95,10 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
     },
     {
       id: 'sounds',
-      title: t.soothingSounds,
+      title: t('softLanding.sounds.title'),
       icon: Headphones,
       color: 'cream',
-      description: t.soundsDescription,
+      description: t('softLanding.sounds.description'),
       content: (
         <div className="text-center space-y-4">
           <Headphones className="w-12 h-12 text-cream-600 mx-auto" />
@@ -138,7 +138,7 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
         <div className="flex items-center justify-between p-6 border-b border-sage-100">
           <div className="flex items-center space-x-2">
             <Shield className="w-6 h-6 text-sage-600" />
-            <h2 className="text-xl font-serif text-sage-800">{t.softLanding}</h2>
+            <h2 className="text-xl font-serif text-sage-800">{t('softLanding.title')}</h2>
           </div>
           <motion.button
             onClick={onClose}
@@ -162,9 +162,9 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
                 className="space-y-6"
               >
                 <div className="text-center space-y-2">
-                  <h3 className="text-lg font-serif text-sage-800">{t.youAreSafeHere}</h3>
+                  <h3 className="text-lg font-serif text-sage-800">{t('softLanding.youAreSafe')}</h3>
                   <p className="text-sage-600 text-sm">
-                    {t.softLandingDescription}
+                    {t('softLanding.description')}
                   </p>
                 </div>
 
@@ -195,17 +195,17 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
                 <div className="bg-lavender-50 rounded-xl p-4 border border-lavender-100">
                   <div className="flex items-center space-x-2 mb-2">
                     <MessageCircle className="w-5 h-5 text-lavender-600" />
-                    <h4 className="font-medium text-lavender-800">{t.needMoreSupport}</h4>
+                    <h4 className="font-medium text-lavender-800">{t('softLanding.needMoreSupport')}</h4>
                   </div>
                   <p className="text-lavender-700 text-sm mb-3">
-                    {t.crisisDescription}
+                    {t('softLanding.crisisDescription')}
                   </p>
                   <div className="space-y-2">
                     <button className="w-full p-2 bg-lavender-100 text-lavender-800 rounded-lg text-sm hover:bg-lavender-200 transition-colors">
-                      {t.crisisTextLine}
+                      {t('softLanding.crisisTextLine')}
                     </button>
                     <button className="w-full p-2 bg-lavender-100 text-lavender-800 rounded-lg text-sm hover:bg-lavender-200 transition-colors">
-                      {t.suicidePrevention}
+                      {t('softLanding.suicidePrevention')}
                     </button>
                   </div>
                 </div>
@@ -242,7 +242,7 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
                     onClick={onClose}
                     className="px-6 py-3 bg-sage-500 text-white rounded-lg font-medium hover:bg-sage-600 transition-colors"
                   >
-                    {t.imFeelingBetter}
+                    {t('softLanding.feelingBetter')}
                   </button>
                 </div>
               </motion.div>

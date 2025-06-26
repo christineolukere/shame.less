@@ -25,48 +25,63 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
     preferredLanguage: 'English'
   })
 
-  const { translations: t } = useLocalization()
+  const { t } = useLocalization()
 
   const questions = [
     {
       id: 'healingVision',
-      title: t.healingVisionQuestion,
-      subtitle: t.healingVisionSubtitle,
+      title: t('onboarding.healingVision.question'),
+      subtitle: t('onboarding.healingVision.subtitle'),
       type: 'text',
-      placeholder: t.healingVisionPlaceholder
+      placeholder: t('onboarding.healingVision.placeholder')
     },
     {
       id: 'affirmationStyle',
-      title: t.affirmationStyleQuestion,
-      subtitle: t.affirmationStyleSubtitle,
+      title: t('onboarding.affirmationStyle.question'),
+      subtitle: t('onboarding.affirmationStyle.subtitle'),
       type: 'single-choice',
       options: [
-        t.spiritualityFaith,
-        t.culturalWisdom,
-        t.sciencePsychology,
-        t.blendOfAll
+        t('onboarding.affirmationStyle.spiritual'),
+        t('onboarding.affirmationStyle.cultural'),
+        t('onboarding.affirmationStyle.scientific'),
+        t('onboarding.affirmationStyle.blend')
       ]
     },
     {
       id: 'culturalBackground',
-      title: t.culturalBackgroundQuestion,
-      subtitle: t.culturalBackgroundSubtitle,
+      title: t('onboarding.culturalBackground.question'),
+      subtitle: t('onboarding.culturalBackground.subtitle'),
       type: 'multiple-choice',
       options: [
-        t.blackAmerican, t.afroCaribbean, t.african, t.latinaHispanic,
-        t.indigenous, t.asian, t.middleEastern, t.mixedMultiracial,
-        t.lgbtqia, t.firstGeneration, t.other
+        t('onboarding.culturalBackground.blackAmerican'),
+        t('onboarding.culturalBackground.afroCaribbean'),
+        t('onboarding.culturalBackground.african'),
+        t('onboarding.culturalBackground.latina'),
+        t('onboarding.culturalBackground.indigenous'),
+        t('onboarding.culturalBackground.asian'),
+        t('onboarding.culturalBackground.middleEastern'),
+        t('onboarding.culturalBackground.mixed'),
+        t('onboarding.culturalBackground.lgbtqia'),
+        t('onboarding.culturalBackground.firstGen'),
+        t('onboarding.culturalBackground.other')
       ]
     },
     {
       id: 'spiritualPreference',
-      title: t.spiritualPreferenceQuestion,
-      subtitle: t.spiritualPreferenceSubtitle,
+      title: t('onboarding.spiritualPreference.question'),
+      subtitle: t('onboarding.spiritualPreference.subtitle'),
       type: 'single-choice',
       options: [
-        t.christianity, t.islam, t.judaism, t.buddhism, t.hinduism,
-        t.indigenousTraditional, t.natureBased, t.secularNonReligious,
-        t.stillExploring, t.preferNotToSay
+        t('onboarding.spiritualPreference.christianity'),
+        t('onboarding.spiritualPreference.islam'),
+        t('onboarding.spiritualPreference.judaism'),
+        t('onboarding.spiritualPreference.buddhism'),
+        t('onboarding.spiritualPreference.hinduism'),
+        t('onboarding.spiritualPreference.indigenous'),
+        t('onboarding.spiritualPreference.nature'),
+        t('onboarding.spiritualPreference.secular'),
+        t('onboarding.spiritualPreference.exploring'),
+        t('onboarding.spiritualPreference.preferNotToSay')
       ]
     }
   ]
@@ -88,9 +103,9 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
       const completeData: OnboardingData = {
         languages: answers.languages || [],
         healingVision: answers.healingVision || '',
-        affirmationStyle: answers.affirmationStyle || t.blendOfAll,
+        affirmationStyle: answers.affirmationStyle || t('onboarding.affirmationStyle.blend'),
         culturalBackground: answers.culturalBackground || [],
-        spiritualPreference: answers.spiritualPreference || t.stillExploring,
+        spiritualPreference: answers.spiritualPreference || t('onboarding.spiritualPreference.exploring'),
         preferredLanguage: 'English'
       }
       onComplete(completeData)
@@ -186,12 +201,12 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Heart className="w-6 h-6 text-terracotta-500 fill-current" />
             <h1 className="text-xl font-serif text-sage-800">
-              {t.appName}
+              {t('app.name')}
             </h1>
           </div>
-          <h2 className="text-2xl font-serif text-sage-800 mb-2">{t.onboardingTitle}</h2>
+          <h2 className="text-2xl font-serif text-sage-800 mb-2">{t('onboarding.title')}</h2>
           <p className="text-sage-600 text-sm">
-            {t.onboardingSubtitle}
+            {t('onboarding.subtitle')}
           </p>
         </div>
 
@@ -244,7 +259,7 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
                 className="flex items-center space-x-2 px-4 py-2 bg-sage-100 text-sage-700 rounded-lg hover:bg-sage-200 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>{t.back}</span>
+                <span>{t('common.back')}</span>
               </motion.button>
             )}
             
@@ -254,7 +269,7 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
               whileTap={{ scale: 0.95 }}
               className="px-4 py-2 text-sage-600 hover:text-sage-800 transition-colors"
             >
-              {t.skipForNow}
+              {t('onboarding.skipForNow')}
             </motion.button>
           </div>
 
@@ -264,7 +279,7 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
             whileTap={{ scale: 0.95 }}
             className="flex items-center space-x-2 px-6 py-3 bg-terracotta-500 text-white rounded-lg hover:bg-terracotta-600 transition-colors"
           >
-            <span>{currentStep === questions.length - 1 ? t.complete : t.next}</span>
+            <span>{currentStep === questions.length - 1 ? t('common.complete') : t('common.next')}</span>
             <ArrowRight className="w-4 h-4" />
           </motion.button>
         </div>

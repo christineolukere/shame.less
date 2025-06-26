@@ -10,7 +10,7 @@ interface AffirmationsProps {
 const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   const [currentAffirmation, setCurrentAffirmation] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
-  const { translations: t } = useLocalization();
+  const { t } = useLocalization();
 
   const affirmations = [
     {
@@ -81,7 +81,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
           >
             <ArrowLeft className="w-5 h-5" />
           </motion.button>
-          <h1 className="text-2xl font-serif text-sage-800">{t.dailyAffirmations}</h1>
+          <h1 className="text-2xl font-serif text-sage-800">{t('affirmations.title')}</h1>
         </div>
         <motion.button
           onClick={randomAffirmation}
@@ -101,10 +101,10 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
       >
         <div className="flex items-center space-x-2 mb-3">
           <Heart className="w-5 h-5 text-cream-600" />
-          <h3 className="font-serif text-cream-800">{t.wordsOfLove}</h3>
+          <h3 className="font-serif text-cream-800">{t('affirmations.wordsOfLove')}</h3>
         </div>
         <p className="text-cream-700 text-sm leading-relaxed">
-          {t.affirmationsDescription}
+          {t('affirmations.description')}
         </p>
       </motion.div>
 
@@ -166,7 +166,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
           whileTap={{ scale: 0.98 }}
           className="px-6 py-3 bg-sage-500 text-white rounded-lg font-medium hover:bg-sage-600 transition-colors"
         >
-          {t.nextAffirmation}
+          {t('affirmations.next')}
         </motion.button>
       </div>
 
@@ -193,9 +193,9 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
         transition={{ delay: 0.5 }}
         className="bg-lavender-50 rounded-2xl p-6 border border-lavender-100"
       >
-        <h3 className="font-serif text-lavender-800 mb-2">{t.gentleReflection}</h3>
+        <h3 className="font-serif text-lavender-800 mb-2">{t('affirmations.reflection')}</h3>
         <p className="text-lavender-700 text-sm leading-relaxed">
-          {t.reflectionPrompt}
+          {t('affirmations.reflectionPrompt')}
         </p>
       </motion.div>
     </div>

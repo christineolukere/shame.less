@@ -6,7 +6,7 @@ import { useLocalization } from '../contexts/LocalizationContext'
 
 const Footer: React.FC = () => {
   const [showDisclaimer, setShowDisclaimer] = useState(false)
-  const { translations: t } = useLocalization()
+  const { t } = useLocalization()
 
   return (
     <>
@@ -21,7 +21,7 @@ const Footer: React.FC = () => {
           >
             <AlertTriangle className="w-4 h-4 text-terracotta-600" />
             <span className="text-terracotta-700 text-sm font-medium">
-              {t.importantNotice}
+              {t('disclaimer.title')}
             </span>
           </motion.button>
 
@@ -29,7 +29,7 @@ const Footer: React.FC = () => {
           <div className="flex items-center justify-center space-x-2">
             <Heart className="w-4 h-4 text-sage-500 fill-current" />
             <span className="text-sage-600 text-xs">
-              {t.appName} • Made with love for healing
+              {t('app.name')} • Made with love for healing
             </span>
           </div>
 
