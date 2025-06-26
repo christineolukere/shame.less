@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Mic, Camera, Type } from 'lucide-react';
+import { useLocalization } from '../contexts/LocalizationContext';
 
 interface JournalProps {
   onBack: () => void;
@@ -10,22 +11,23 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
   const [inputMode, setInputMode] = useState<'text' | 'voice' | 'photo'>('text');
   const [journalText, setJournalText] = useState('');
   const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
+  const { translations: t } = useLocalization();
 
   const prompts = [
-    "What am I grateful for today?",
-    "How did I show myself kindness?",
-    "What boundary did I honor?",
-    "What made me smile today?",
-    "What do I need to release?",
-    "How am I growing?",
-    "What would I tell my younger self?",
-    "What brings me peace?",
+    t.gratefulFor,
+    t.showedKindness,
+    t.boundaryHonored,
+    t.madeSmile,
+    t.needToRelease,
+    t.howGrowing,
+    t.tellYoungerSelf,
+    t.bringsYouPeace,
   ];
 
   const inputModes = [
-    { id: 'text', icon: Type, label: 'Write' },
-    { id: 'voice', icon: Mic, label: 'Speak' },
-    { id: 'photo', icon: Camera, label: 'Capture' },
+    { id: 'text', icon: Type, label: t.write },
+    { id: 'voice', icon: Mic, label: t.speak },
+    { id: 'photo', icon: Camera, label: t.capture },
   ] as const;
 
   return (
@@ -40,7 +42,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
         >
           <ArrowLeft className="w-5 h-5" />
         </motion.button>
-        <h1 className="text-2xl font-serif text-sage-800">Journal</h1>
+        <h1 className="text-2xl font-serif text-sage-800">{t.journalTitle}</h1>
       </div>
 
       {/* Gentle Introduction */}
@@ -49,15 +51,15 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
         animate={{ opacity: 1, y: 0 }}
         className="bg-lavender-50 rounded-2xl p-6 border border-lavender-100"
       >
-        <h3 className="font-serif text-lavender-800 mb-2">A safe space for your thoughts</h3>
+        <h3 className="font-serif text-lavender-800 mb-2">{t.safeSpaceThoughts}</h3>
         <p className="text-lavender-700 text-sm leading-relaxed">
-          Let your thoughts flow freely. There's no judgment here, only space for you to be authentic and gentle with yourself.
+          {t.journalDescription}
         </p>
       </motion.div>
 
       {/* Input Mode Selection */}
       <div className="space-y-3">
-        <h3 className="text-lg font-serif text-sage-800">How would you like to express yourself?</h3>
+        <h3 className="text-lg font-serif text-sage-800">{t.howToExpress}</h3>
         <div className="grid grid-cols-3 gap-3">
           {inputModes.map((mode) => {
             const Icon = mode.icon;
@@ -83,7 +85,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
 
       {/* Gentle Prompts */}
       <div className="space-y-3">
-        <h3 className="text-lg font-serif text-sage-800">Need a gentle nudge?</h3>
+        <h3 className="text-lg font-serif text-sage-800">{t.needGentleNudge}</h3>
         <div className="grid grid-cols-1 gap-2">
           {prompts.slice(0, 4).map((prompt, index) => (
             <motion.button
@@ -117,11 +119,11 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
           <textarea
             value={journalText}
             onChange={(e) => setJournalText(e.target.value)}
-            placeholder="Let your thoughts flow..."
+            placeholder={t.letThoughtsFlow}
             className="w-full h-40 p-4 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-300 focus:border-transparent resize-none"
           />
           <button className="w-full py-3 bg-sage-500 text-white rounded-lg font-medium hover:bg-sage-600 transition-colors">
-            Save Entry
+            {t.saveEntry}
           </button>
         </motion.div>
       )}

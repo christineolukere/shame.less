@@ -2,9 +2,11 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { AlertTriangle, Heart, Shield } from 'lucide-react'
 import DisclaimerModal from './Auth/DisclaimerModal'
+import { useLocalization } from '../contexts/LocalizationContext'
 
 const Footer: React.FC = () => {
   const [showDisclaimer, setShowDisclaimer] = useState(false)
+  const { translations: t } = useLocalization()
 
   return (
     <>
@@ -19,7 +21,7 @@ const Footer: React.FC = () => {
           >
             <AlertTriangle className="w-4 h-4 text-terracotta-600" />
             <span className="text-terracotta-700 text-sm font-medium">
-              Important: Not a replacement for therapy
+              {t.importantNotice}
             </span>
           </motion.button>
 
@@ -27,7 +29,7 @@ const Footer: React.FC = () => {
           <div className="flex items-center justify-center space-x-2">
             <Heart className="w-4 h-4 text-sage-500 fill-current" />
             <span className="text-sage-600 text-xs">
-              shame.<span className="text-terracotta-500">less</span> • Made with love for healing
+              {t.appName} • Made with love for healing
             </span>
           </div>
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Heart } from 'lucide-react';
+import { useLocalization } from '../contexts/LocalizationContext';
 
 interface CheckInProps {
   onBack: () => void;
@@ -9,25 +10,26 @@ interface CheckInProps {
 const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const { translations: t } = useLocalization();
 
   const moods = [
-    { emoji: '😌', label: 'peaceful', color: 'sage' },
-    { emoji: '😊', label: 'content', color: 'cream' },
-    { emoji: '🥺', label: 'tender', color: 'lavender' },
-    { emoji: '😔', label: 'heavy', color: 'sage' },
-    { emoji: '😤', label: 'frustrated', color: 'terracotta' },
-    { emoji: '🌱', label: 'growing', color: 'sage' },
-    { emoji: '💫', label: 'hopeful', color: 'lavender' },
-    { emoji: '🌙', label: 'tired', color: 'lavender' },
+    { emoji: '😌', label: t.peaceful, color: 'sage' },
+    { emoji: '😊', label: t.content, color: 'cream' },
+    { emoji: '🥺', label: t.tender, color: 'lavender' },
+    { emoji: '😔', label: t.heavy, color: 'sage' },
+    { emoji: '😤', label: t.frustrated, color: 'terracotta' },
+    { emoji: '🌱', label: t.growing, color: 'sage' },
+    { emoji: '💫', label: t.hopeful, color: 'lavender' },
+    { emoji: '🌙', label: t.tired, color: 'lavender' },
   ];
 
   const colors = [
-    { name: 'Soft Pink', value: 'bg-rose-200', hex: '#fecaca' },
-    { name: 'Warm Sage', value: 'bg-sage-200', hex: '#c7d0c7' },
-    { name: 'Gentle Lavender', value: 'bg-lavender-200', hex: '#e9e5f1' },
-    { name: 'Sunset Orange', value: 'bg-terracotta-200', hex: '#f6d2c2' },
-    { name: 'Golden Cream', value: 'bg-cream-200', hex: '#faf1e4' },
-    { name: 'Ocean Blue', value: 'bg-blue-200', hex: '#bfdbfe' },
+    { name: t.softPink, value: 'bg-rose-200', hex: '#fecaca' },
+    { name: t.warmSage, value: 'bg-sage-200', hex: '#c7d0c7' },
+    { name: t.gentleLavender, value: 'bg-lavender-200', hex: '#e9e5f1' },
+    { name: t.sunsetOrange, value: 'bg-terracotta-200', hex: '#f6d2c2' },
+    { name: t.goldenCream, value: 'bg-cream-200', hex: '#faf1e4' },
+    { name: t.oceanBlue, value: 'bg-blue-200', hex: '#bfdbfe' },
   ];
 
   return (
@@ -42,7 +44,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
         >
           <ArrowLeft className="w-5 h-5" />
         </motion.button>
-        <h1 className="text-2xl font-serif text-sage-800">How are you feeling?</h1>
+        <h1 className="text-2xl font-serif text-sage-800">{t.howAreYouFeeling}</h1>
       </div>
 
       {/* Gentle Introduction */}
@@ -53,16 +55,16 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
       >
         <div className="flex items-center space-x-2 mb-3">
           <Heart className="w-5 h-5 text-terracotta-600" />
-          <h3 className="font-serif text-terracotta-800">A gentle check-in</h3>
+          <h3 className="font-serif text-terracotta-800">{t.gentleCheckIn}</h3>
         </div>
         <p className="text-terracotta-700 text-sm leading-relaxed">
-          There's no right or wrong way to feel. Whatever you're experiencing right now is valid and worthy of acknowledgment.
+          {t.checkInDescription}
         </p>
       </motion.div>
 
       {/* Mood Selection */}
       <div className="space-y-4">
-        <h3 className="text-lg font-serif text-sage-800">What emotion feels closest?</h3>
+        <h3 className="text-lg font-serif text-sage-800">{t.whatEmotionClosest}</h3>
         <div className="grid grid-cols-4 gap-3">
           {moods.map((mood, index) => (
             <motion.button
@@ -86,7 +88,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
 
       {/* Color Selection */}
       <div className="space-y-4">
-        <h3 className="text-lg font-serif text-sage-800">What color matches your energy?</h3>
+        <h3 className="text-lg font-serif text-sage-800">{t.whatColorEnergy}</h3>
         <div className="grid grid-cols-3 gap-3">
           {colors.map((color, index) => (
             <motion.button
@@ -115,10 +117,9 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
           animate={{ opacity: 1, y: 0 }}
           className="bg-lavender-50 rounded-2xl p-6 border border-lavender-100"
         >
-          <h3 className="font-serif text-lavender-800 mb-2">For you, right now</h3>
+          <h3 className="font-serif text-lavender-800 mb-2">{t.forYouRightNow}</h3>
           <p className="text-lavender-700 leading-relaxed">
-            "Thank you for taking a moment to check in with yourself. Your feelings are valid, 
-            and you deserve compassion exactly as you are in this moment."
+            "{t.checkInAffirmation}"
           </p>
         </motion.div>
       )}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Book, Heart, Users, Headphones, Video, ExternalLink } from 'lucide-react';
+import { useLocalization } from '../contexts/LocalizationContext';
 
 interface ResourcesProps {
   onBack: () => void;
@@ -8,12 +9,13 @@ interface ResourcesProps {
 
 const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
   const [activeCategory, setActiveCategory] = useState('stories');
+  const { translations: t } = useLocalization();
 
   const categories = [
-    { id: 'stories', label: 'Stories', icon: Book, color: 'terracotta' },
-    { id: 'healing', label: 'Healing', icon: Heart, color: 'sage' },
-    { id: 'community', label: 'Community', icon: Users, color: 'lavender' },
-    { id: 'media', label: 'Media', icon: Headphones, color: 'cream' },
+    { id: 'stories', label: t.stories, icon: Book, color: 'terracotta' },
+    { id: 'healing', label: t.healing, icon: Heart, color: 'sage' },
+    { id: 'community', label: t.community, icon: Users, color: 'lavender' },
+    { id: 'media', label: t.media, icon: Headphones, color: 'cream' },
   ];
 
   const resources = {
@@ -123,7 +125,7 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
         >
           <ArrowLeft className="w-5 h-5" />
         </motion.button>
-        <h1 className="text-2xl font-serif text-sage-800">Resource Garden</h1>
+        <h1 className="text-2xl font-serif text-sage-800">{t.resourceGarden}</h1>
       </div>
 
       {/* Introduction */}
@@ -132,10 +134,9 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
         animate={{ opacity: 1, y: 0 }}
         className="bg-sage-50 rounded-2xl p-6 border border-sage-100"
       >
-        <h3 className="font-serif text-sage-800 mb-2">Curated with love</h3>
+        <h3 className="font-serif text-sage-800 mb-2">{t.curatedWithLove}</h3>
         <p className="text-sage-700 text-sm leading-relaxed">
-          These resources are carefully selected to honor your intersectional identity and support your healing journey. 
-          Each piece is chosen with cultural sensitivity and genuine care.
+          {t.resourcesDescription}
         </p>
       </motion.div>
 
@@ -208,12 +209,12 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
         transition={{ delay: 0.5 }}
         className="bg-lavender-50 rounded-2xl p-6 border border-lavender-100 text-center"
       >
-        <h3 className="font-serif text-lavender-800 mb-2">Suggest a resource</h3>
+        <h3 className="font-serif text-lavender-800 mb-2">{t.suggestResource}</h3>
         <p className="text-lavender-700 text-sm leading-relaxed mb-4">
-          Know of a resource that would help other young women of color? We'd love to hear about it.
+          {t.suggestDescription}
         </p>
         <button className="px-6 py-3 bg-lavender-500 text-white rounded-lg font-medium hover:bg-lavender-600 transition-colors">
-          Share a Resource
+          {t.shareResource}
         </button>
       </motion.div>
     </div>
