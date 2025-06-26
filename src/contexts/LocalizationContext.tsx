@@ -1,12 +1,11 @@
 import React, { createContext, useContext } from 'react';
-import { useTranslation as useI18nTranslation, type TranslationFunction } from '../lib/i18n';
+import { translations, type Translations } from '../lib/translations';
 
 interface LocalizationContextType {
-  t: TranslationFunction;
   currentLanguage: string;
-  changeLanguage: (language: string) => void;
-  isRTL: boolean;
-  isLoading: boolean;
+  translations: Translations;
+  setLanguage: (language: string) => void;
+  availableLanguages: string[];
 }
 
 const LocalizationContext = createContext<LocalizationContextType | undefined>(undefined);
@@ -20,14 +19,11 @@ export const useLocalization = () => {
 };
 
 export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { t, currentLanguage, changeLanguage, isRTL, isLoading } = useI18nTranslation();
-
   const value = {
-    t,
-    currentLanguage,
-    changeLanguage,
-    isRTL,
-    isLoading,
+    currentLanguage: 'English',
+    translations,
+    setLanguage: () => {}, // No-op since we only support English now
+    availableLanguages: ['English'],
   };
 
   return (

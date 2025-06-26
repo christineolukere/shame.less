@@ -10,7 +10,7 @@ interface DisclaimerModalProps {
 }
 
 const DisclaimerModal: React.FC<DisclaimerModalProps> = ({ isOpen, onClose, onAccept }) => {
-  const { t } = useLocalization()
+  const { translations: t } = useLocalization()
 
   if (!isOpen) return null
 
@@ -47,9 +47,9 @@ const DisclaimerModal: React.FC<DisclaimerModalProps> = ({ isOpen, onClose, onAc
           {/* Main Content */}
           <div className="space-y-6">
             <div className="bg-terracotta-50 rounded-2xl p-6 border border-terracotta-100">
-              <h3 className="font-serif text-terracotta-800 mb-3">{t('disclaimer.aboutApp')}</h3>
+              <h3 className="font-serif text-terracotta-800 mb-3">{t.aboutShameless}</h3>
               <p className="text-terracotta-700 text-sm leading-relaxed">
-                <strong>{t('disclaimer.notTherapy')}</strong>
+                <strong>{t.notReplacementTherapy}</strong>
                 {' '}If you are in crisis, please seek licensed mental health support. This app is for 
                 emotional grounding, reflection, and peer-inspired healing only.
               </p>
@@ -59,20 +59,20 @@ const DisclaimerModal: React.FC<DisclaimerModalProps> = ({ isOpen, onClose, onAc
             <div className="bg-lavender-50 rounded-2xl p-6 border border-lavender-100">
               <div className="flex items-center space-x-2 mb-3">
                 <Phone className="w-5 h-5 text-lavender-600" />
-                <h3 className="font-serif text-lavender-800">{t('disclaimer.crisisSupport')}</h3>
+                <h3 className="font-serif text-lavender-800">{t.crisisSupport}</h3>
               </div>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between items-center p-2 bg-lavender-100 rounded-lg">
                   <span className="text-lavender-800 font-medium">Crisis Text Line</span>
-                  <span className="text-lavender-700">{t('disclaimer.textHome')}</span>
+                  <span className="text-lavender-700">{t.textHome}</span>
                 </div>
                 <div className="flex justify-between items-center p-2 bg-lavender-100 rounded-lg">
                   <span className="text-lavender-800 font-medium">Suicide Prevention</span>
-                  <span className="text-lavender-700">{t('disclaimer.call988')}</span>
+                  <span className="text-lavender-700">{t.callText988}</span>
                 </div>
                 <div className="flex justify-between items-center p-2 bg-lavender-100 rounded-lg">
-                  <span className="text-lavender-800 font-medium">{t('disclaimer.emergency')}</span>
-                  <span className="text-lavender-700">{t('disclaimer.call911')}</span>
+                  <span className="text-lavender-800 font-medium">{t.emergency}</span>
+                  <span className="text-lavender-700">{t.call911}</span>
                 </div>
               </div>
             </div>
@@ -81,7 +81,7 @@ const DisclaimerModal: React.FC<DisclaimerModalProps> = ({ isOpen, onClose, onAc
             <div className="bg-sage-50 rounded-2xl p-6 border border-sage-100 text-center">
               <Heart className="w-8 h-8 text-sage-600 mx-auto mb-3" />
               <p className="text-sage-700 text-sm leading-relaxed">
-                {t('disclaimer.affirmation')}
+                {t.disclaimerAffirmation}
               </p>
             </div>
 
@@ -93,7 +93,7 @@ const DisclaimerModal: React.FC<DisclaimerModalProps> = ({ isOpen, onClose, onAc
                 whileTap={{ scale: 0.98 }}
                 className="flex-1 py-3 bg-sage-100 text-sage-700 rounded-lg font-medium hover:bg-sage-200 transition-colors"
               >
-                {t('disclaimer.notNow')}
+                {t.notNow}
               </motion.button>
               <motion.button
                 onClick={onAccept}
@@ -101,7 +101,7 @@ const DisclaimerModal: React.FC<DisclaimerModalProps> = ({ isOpen, onClose, onAc
                 whileTap={{ scale: 0.98 }}
                 className="flex-1 py-3 bg-terracotta-500 text-white rounded-lg font-medium hover:bg-terracotta-600 transition-colors"
               >
-                {t('disclaimer.understand')}
+                {t.iUnderstand}
               </motion.button>
             </div>
           </div>

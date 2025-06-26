@@ -15,17 +15,17 @@ interface WinTrackerProps {
 }
 
 const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
-  const { t } = useLocalization();
+  const { translations: t } = useLocalization();
   const [wins, setWins] = useState<Win[]>([
     {
       id: '1',
-      text: t('wins.examples.gotOutOfBed'),
+      text: t.gotOutOfBed,
       category: 'self-care',
       timestamp: new Date()
     },
     {
       id: '2',
-      text: t('wins.examples.setBoundary'),
+      text: t.setBoundary,
       category: 'boundaries',
       timestamp: new Date(Date.now() - 86400000)
     }
@@ -35,23 +35,23 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
   const [showAddForm, setShowAddForm] = useState(false);
 
   const categories = [
-    { id: 'self-care', label: t('wins.categories.selfCare'), icon: Heart, color: 'terracotta' },
-    { id: 'boundaries', label: t('wins.categories.boundaries'), icon: Sparkles, color: 'lavender' },
-    { id: 'growth', label: t('wins.categories.growth'), icon: Trophy, color: 'sage' },
-    { id: 'joy', label: t('wins.categories.joy'), icon: Sparkles, color: 'cream' },
+    { id: 'self-care', label: t.selfCare, icon: Heart, color: 'terracotta' },
+    { id: 'boundaries', label: t.boundaries, icon: Sparkles, color: 'lavender' },
+    { id: 'growth', label: t.growth, icon: Trophy, color: 'sage' },
+    { id: 'joy', label: t.joy, icon: Sparkles, color: 'cream' },
   ] as const;
 
   const quickWins = [
-    t('wins.examples.gotOutOfBed'),
-    t('wins.examples.drankWater'),
-    t('wins.examples.tookShower'),
-    t('wins.examples.ateAMeal'),
-    t('wins.examples.setBoundary'),
-    t('wins.examples.askedForHelp'),
-    t('wins.examples.practicedSayingNo'),
-    t('wins.examples.tookBreak'),
-    t('wins.examples.movedBody'),
-    t('wins.examples.calledSomeone'),
+    t.gotOutOfBed,
+    t.drankWater,
+    t.tookShower,
+    t.ateAMeal,
+    t.setBoundary,
+    t.askedForHelp,
+    t.practicedSayingNo,
+    t.tookBreak,
+    t.movedBody,
+    t.calledSomeone,
   ];
 
   const addWin = (text: string) => {
@@ -84,7 +84,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
           >
             <ArrowLeft className="w-5 h-5" />
           </motion.button>
-          <h1 className="text-2xl font-serif text-sage-800">{t('wins.title')}</h1>
+          <h1 className="text-2xl font-serif text-sage-800">{t.yourWins}</h1>
         </div>
         <motion.button
           onClick={() => setShowAddForm(true)}
@@ -102,16 +102,16 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
         animate={{ opacity: 1, y: 0 }}
         className="bg-cream-50 rounded-2xl p-6 border border-cream-100"
       >
-        <h3 className="font-serif text-cream-800 mb-2">{t('wins.everyStepCounts')}</h3>
+        <h3 className="font-serif text-cream-800 mb-2">{t.everyStepCounts}</h3>
         <p className="text-cream-700 text-sm leading-relaxed">
-          {t('wins.description')}
+          {t.winsDescription}
         </p>
       </motion.div>
 
       {/* Quick Add Wins */}
       {!showAddForm && (
         <div className="space-y-3">
-          <h3 className="text-lg font-serif text-sage-800">{t('wins.quickWins')}</h3>
+          <h3 className="text-lg font-serif text-sage-800">{t.quickWinsTocelebrate}</h3>
           <div className="grid grid-cols-2 gap-2">
             {quickWins.slice(0, 6).map((win, index) => (
               <motion.button
@@ -141,7 +141,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
             className="space-y-4"
           >
             <div className="space-y-3">
-              <h3 className="text-lg font-serif text-sage-800">{t('wins.addYourWin')}</h3>
+              <h3 className="text-lg font-serif text-sage-800">{t.addYourWin}</h3>
               
               {/* Category Selection */}
               <div className="grid grid-cols-2 gap-2">
@@ -168,7 +168,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
               <textarea
                 value={newWin}
                 onChange={(e) => setNewWin(e.target.value)}
-                placeholder={t('wins.whatDidYouAccomplish')}
+                placeholder={t.whatDidYouAccomplish}
                 className="w-full p-4 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-300 focus:border-transparent resize-none"
                 rows={3}
               />
@@ -180,13 +180,13 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
                   disabled={!newWin.trim()}
                   className="flex-1 py-3 bg-terracotta-500 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-terracotta-600 transition-colors"
                 >
-                  {t('wins.celebrateThisWin')}
+                  {t.celebrateThisWin}
                 </button>
                 <button
                   onClick={() => setShowAddForm(false)}
                   className="px-6 py-3 bg-sage-100 text-sage-700 rounded-lg font-medium hover:bg-sage-200 transition-colors"
                 >
-                  {t('common.cancel')}
+                  {t.cancel}
                 </button>
               </div>
             </div>
@@ -196,7 +196,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
 
       {/* Wins List */}
       <div className="space-y-3">
-        <h3 className="text-lg font-serif text-sage-800">{t('wins.recentCelebrations')}</h3>
+        <h3 className="text-lg font-serif text-sage-800">{t.recentCelebrations}</h3>
         <div className="space-y-3">
           {wins.map((win, index) => {
             const color = getCategoryColor(win.category);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { LocalizationProvider, useLocalization } from './contexts/LocalizationContext';
+import { LocalizationProvider } from './contexts/LocalizationContext';
 import Header from './components/Header';
 import Navigation from './components/Navigation';
 import Dashboard from './components/Dashboard';
@@ -33,8 +33,6 @@ function AppContent() {
     completeOnboarding,
     setOnboardingComplete 
   } = useAuth();
-
-  const { t, isRTL, isLoading: translationsLoading } = useLocalization();
 
   // Check if disclaimer has been accepted
   useEffect(() => {
@@ -98,11 +96,9 @@ function AppContent() {
   }
 
   // Show loading state
-  if (loading || translationsLoading) {
+  if (loading) {
     return (
-      <div className={`min-h-screen bg-gradient-to-br from-cream-50 via-sage-50 to-lavender-50 flex items-center justify-center ${
-        isRTL ? 'rtl' : 'ltr'
-      }`}>
+      <div className="min-h-screen bg-gradient-to-br from-cream-50 via-sage-50 to-lavender-50 flex items-center justify-center">
         <motion.div
           animate={{ scale: [1, 1.1, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
@@ -111,7 +107,7 @@ function AppContent() {
           <div className="w-16 h-16 bg-terracotta-200 rounded-full flex items-center justify-center mx-auto">
             <span className="text-terracotta-800 font-serif text-2xl">💛</span>
           </div>
-          <p className="text-sage-600 font-serif">{t('common.loading')}</p>
+          <p className="text-sage-600 font-serif">Loading your safe space...</p>
         </motion.div>
       </div>
     );
@@ -128,9 +124,7 @@ function AppContent() {
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-cream-50 via-sage-50 to-lavender-50 ${
-      isRTL ? 'rtl' : 'ltr'
-    } ${translationsLoading ? 'i18n-loading' : ''}`}>
+    <div className="min-h-screen bg-gradient-to-br from-cream-50 via-sage-50 to-lavender-50">
       <div className="max-w-md mx-auto bg-white/80 backdrop-blur-sm min-h-screen shadow-xl flex flex-col">
         <Header 
           onEmergency={() => setShowEmergency(true)} 

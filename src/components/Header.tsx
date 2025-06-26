@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import { Heart, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
-import { useLocalization } from '../contexts/LocalizationContext';
 import AuthModal from './Auth/AuthModal';
 import ProfileMenu from './Auth/ProfileMenu';
-import LanguageSwitcher from './LanguageSwitcher';
 
 interface HeaderProps {
   onEmergency: () => void;
@@ -15,7 +13,6 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue }) => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { user, loading } = useAuth();
-  const { t, isRTL } = useLocalization();
 
   const handleAuthModalOpen = () => {
     setShowAuthModal(true);
@@ -27,31 +24,27 @@ const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue }) => {
 
   return (
     <>
-      <header className={`bg-white/90 backdrop-blur-sm border-b border-sage-100 px-6 py-4 sticky top-0 z-10 ${
-        isRTL ? 'rtl' : 'ltr'
-      }`}>
-        <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
+      <header className="bg-white/90 backdrop-blur-sm border-b border-sage-100 px-6 py-4 sticky top-0 z-10">
+        <div className="flex items-center justify-between">
           <motion.div 
-            className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse space-x-reverse' : ''}`}
-            initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
+            className="flex items-center space-x-2"
+            initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
             <Heart className="w-6 h-6 text-terracotta-500 fill-current" />
             <h1 className="text-xl font-serif font-medium text-sage-800">
-              {t('app.name')}
+              shame.<span className="text-terracotta-500">less</span>
             </h1>
           </motion.div>
 
-          <div className={`flex items-center space-x-3 ${isRTL ? 'flex-row-reverse space-x-reverse' : ''}`}>
-            <LanguageSwitcher />
-            
+          <div className="flex items-center space-x-3">
             <motion.button
               onClick={onEmergency}
               className="p-2 rounded-full bg-lavender-100 text-lavender-700 hover:bg-lavender-200 transition-colors"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              title={t('softLanding.title')}
+              title="Soft Landing - Emergency Comfort"
             >
               <Shield className="w-5 h-5" />
             </motion.button>
@@ -68,7 +61,7 @@ const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue }) => {
                     className="px-4 py-2 text-white rounded-full text-sm font-medium transition-all"
                     style={{ backgroundColor: '#E9A8A6' }}
                   >
-                    {t('auth.signIn')}
+                    Sign In
                   </motion.button>
                 )}
               </>

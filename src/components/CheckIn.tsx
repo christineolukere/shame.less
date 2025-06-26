@@ -10,26 +10,26 @@ interface CheckInProps {
 const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
-  const { t } = useLocalization();
+  const { translations: t } = useLocalization();
 
   const moods = [
-    { emoji: '😌', label: t('checkin.moods.peaceful'), color: 'sage' },
-    { emoji: '😊', label: t('checkin.moods.content'), color: 'cream' },
-    { emoji: '🥺', label: t('checkin.moods.tender'), color: 'lavender' },
-    { emoji: '😔', label: t('checkin.moods.heavy'), color: 'sage' },
-    { emoji: '😤', label: t('checkin.moods.frustrated'), color: 'terracotta' },
-    { emoji: '🌱', label: t('checkin.moods.growing'), color: 'sage' },
-    { emoji: '💫', label: t('checkin.moods.hopeful'), color: 'lavender' },
-    { emoji: '🌙', label: t('checkin.moods.tired'), color: 'lavender' },
+    { emoji: '😌', label: t.peaceful, color: 'sage' },
+    { emoji: '😊', label: t.content, color: 'cream' },
+    { emoji: '🥺', label: t.tender, color: 'lavender' },
+    { emoji: '😔', label: t.heavy, color: 'sage' },
+    { emoji: '😤', label: t.frustrated, color: 'terracotta' },
+    { emoji: '🌱', label: t.growing, color: 'sage' },
+    { emoji: '💫', label: t.hopeful, color: 'lavender' },
+    { emoji: '🌙', label: t.tired, color: 'lavender' },
   ];
 
   const colors = [
-    { name: t('checkin.colors.softPink'), value: 'bg-rose-200', hex: '#fecaca' },
-    { name: t('checkin.colors.warmSage'), value: 'bg-sage-200', hex: '#c7d0c7' },
-    { name: t('checkin.colors.gentleLavender'), value: 'bg-lavender-200', hex: '#e9e5f1' },
-    { name: t('checkin.colors.sunsetOrange'), value: 'bg-terracotta-200', hex: '#f6d2c2' },
-    { name: t('checkin.colors.goldenCream'), value: 'bg-cream-200', hex: '#faf1e4' },
-    { name: t('checkin.colors.oceanBlue'), value: 'bg-blue-200', hex: '#bfdbfe' },
+    { name: t.softPink, value: 'bg-rose-200', hex: '#fecaca' },
+    { name: t.warmSage, value: 'bg-sage-200', hex: '#c7d0c7' },
+    { name: t.gentleLavender, value: 'bg-lavender-200', hex: '#e9e5f1' },
+    { name: t.sunsetOrange, value: 'bg-terracotta-200', hex: '#f6d2c2' },
+    { name: t.goldenCream, value: 'bg-cream-200', hex: '#faf1e4' },
+    { name: t.oceanBlue, value: 'bg-blue-200', hex: '#bfdbfe' },
   ];
 
   return (
@@ -44,7 +44,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
         >
           <ArrowLeft className="w-5 h-5" />
         </motion.button>
-        <h1 className="text-2xl font-serif text-sage-800">{t('checkin.title')}</h1>
+        <h1 className="text-2xl font-serif text-sage-800">{t.howAreYouFeeling}</h1>
       </div>
 
       {/* Gentle Introduction */}
@@ -55,16 +55,16 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
       >
         <div className="flex items-center space-x-2 mb-3">
           <Heart className="w-5 h-5 text-terracotta-600" />
-          <h3 className="font-serif text-terracotta-800">{t('checkin.gentleCheckIn')}</h3>
+          <h3 className="font-serif text-terracotta-800">{t.gentleCheckIn}</h3>
         </div>
         <p className="text-terracotta-700 text-sm leading-relaxed">
-          {t('checkin.description')}
+          {t.checkInDescription}
         </p>
       </motion.div>
 
       {/* Mood Selection */}
       <div className="space-y-4">
-        <h3 className="text-lg font-serif text-sage-800">{t('checkin.moodQuestion')}</h3>
+        <h3 className="text-lg font-serif text-sage-800">{t.whatEmotionClosest}</h3>
         <div className="grid grid-cols-4 gap-3">
           {moods.map((mood, index) => (
             <motion.button
@@ -88,7 +88,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
 
       {/* Color Selection */}
       <div className="space-y-4">
-        <h3 className="text-lg font-serif text-sage-800">{t('checkin.colorQuestion')}</h3>
+        <h3 className="text-lg font-serif text-sage-800">{t.whatColorEnergy}</h3>
         <div className="grid grid-cols-3 gap-3">
           {colors.map((color, index) => (
             <motion.button
@@ -117,9 +117,9 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
           animate={{ opacity: 1, y: 0 }}
           className="bg-lavender-50 rounded-2xl p-6 border border-lavender-100"
         >
-          <h3 className="font-serif text-lavender-800 mb-2">{t('checkin.forYou')}</h3>
+          <h3 className="font-serif text-lavender-800 mb-2">{t.forYouRightNow}</h3>
           <p className="text-lavender-700 leading-relaxed">
-            "{t('checkin.affirmation')}"
+            "{t.checkInAffirmation}"
           </p>
         </motion.div>
       )}

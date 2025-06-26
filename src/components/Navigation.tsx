@@ -11,22 +11,20 @@ interface NavigationProps {
 }
 
 const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate }) => {
-  const { t, isRTL } = useLocalization();
+  const { translations: t } = useLocalization();
   
   const navItems = [
-    { id: 'dashboard', icon: Home, label: t('navigation.home') },
-    { id: 'checkin', icon: Heart, label: t('navigation.checkIn') },
-    { id: 'wins', icon: Trophy, label: t('navigation.wins') },
-    { id: 'journal', icon: BookOpen, label: t('navigation.journal') },
-    { id: 'affirmations', icon: Sparkles, label: t('navigation.affirm') },
-    { id: 'resources', icon: Leaf, label: t('navigation.garden') },
+    { id: 'dashboard', icon: Home, label: t.home },
+    { id: 'checkin', icon: Heart, label: t.checkIn },
+    { id: 'wins', icon: Trophy, label: t.wins },
+    { id: 'journal', icon: BookOpen, label: t.journal },
+    { id: 'affirmations', icon: Sparkles, label: t.affirm },
+    { id: 'resources', icon: Leaf, label: t.garden },
   ] as const;
 
   return (
-    <nav className={`fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md bg-white/95 backdrop-blur-sm border-t border-sage-100 ${
-      isRTL ? 'rtl' : 'ltr'
-    }`}>
-      <div className={`flex items-center justify-around py-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+    <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md bg-white/95 backdrop-blur-sm border-t border-sage-100">
+      <div className="flex items-center justify-around py-2">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentView === item.id;

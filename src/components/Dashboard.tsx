@@ -12,27 +12,27 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const { user, isGuest } = useAuth();
-  const { t, isRTL } = useLocalization();
+  const { translations: t } = useLocalization();
   const currentHour = new Date().getHours();
   const isEvening = currentHour >= 18 || currentHour < 6;
   
   const getPersonalizedGreeting = () => {
-    const timeGreeting = currentHour < 12 ? t('dashboard.goodMorning') : currentHour < 17 ? t('dashboard.goodAfternoon') : t('dashboard.goodEvening');
+    const timeGreeting = currentHour < 12 ? t.goodMorning : currentHour < 17 ? t.goodAfternoon : t.goodEvening;
     
     if (user) {
-      const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || t('dashboard.friend');
+      const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || t.friend;
       return `${timeGreeting}, ${displayName}`;
     } else if (isGuest) {
-      return `${timeGreeting}, ${t('dashboard.beautiful')}`;
+      return `${timeGreeting}, ${t.beautiful}`;
     } else {
-      return `${timeGreeting}, ${t('dashboard.beautiful')}`;
+      return `${timeGreeting}, ${t.beautiful}`;
     }
   };
 
   const quickActions = [
     {
       id: 'checkin',
-      title: t('checkIn.title'),
+      title: t.howAreYouFeeling,
       subtitle: 'Check in with yourself',
       icon: Heart,
       color: 'terracotta',
@@ -65,14 +65,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   ];
 
   return (
-    <div className={`p-6 space-y-6 ${isRTL ? 'rtl' : 'ltr'}`}>
+    <div className="p-6 space-y-6">
       {/* Personalized Greeting */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`text-center space-y-2 ${isRTL ? 'text-right' : 'text-left'}`}
+        className="text-center space-y-2"
       >
-        <div className={`flex items-center justify-center space-x-2 ${isRTL ? 'flex-row-reverse space-x-reverse' : ''}`}>
+        <div className="flex items-center justify-center space-x-2">
           {isEvening ? (
             <Moon className="w-6 h-6 text-lavender-500" />
           ) : (
@@ -81,7 +81,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           <h2 className="text-2xl font-serif text-sage-800">{getPersonalizedGreeting()}</h2>
         </div>
         <p className="text-sage-600">
-          {user ? t('dashboard.welcomeBackToSafeSpace') : t('dashboard.worthyOfLove')}
+          {user ? t.welcomeBackToSafeSpace : t.worthyOfLove}
         </p>
       </motion.div>
 
@@ -92,8 +92,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         transition={{ delay: 0.2 }}
         className="bg-gradient-to-r from-terracotta-50 to-cream-50 rounded-2xl p-6 border border-terracotta-100"
       >
-        <h3 className="font-serif text-lg text-terracotta-800 mb-2">{t('dashboard.todaysReminder')}</h3>
-        <p className={`text-terracotta-700 leading-relaxed ${isRTL ? 'text-right' : 'text-left'}`}>
+        <h3 className="font-serif text-lg text-terracotta-800 mb-2">{t.todaysReminder}</h3>
+        <p className="text-terracotta-700 leading-relaxed">
           "Your healing is not linear, and that's perfectly okay. Every small step you take matters, 
           even when it doesn't feel like progress."
         </p>
@@ -101,9 +101,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
       {/* Quick Actions */}
       <div className="space-y-3">
-        <h3 className={`text-lg font-serif text-sage-800 ${isRTL ? 'text-right' : 'text-left'}`}>
-          {t('dashboard.howCanISupport')}
-        </h3>
+        <h3 className="text-lg font-serif text-sage-800">{t.howCanISupport}</h3>
         <div className="grid grid-cols-2 gap-3">
           {quickActions.map((action, index) => {
             const Icon = action.icon;
@@ -116,11 +114,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 transition={{ delay: 0.3 + index * 0.1 }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`p-4 rounded-xl transition-all bg-${action.color}-50 border border-${action.color}-100 hover:bg-${action.color}-100 ${
-                  isRTL ? 'text-right' : 'text-left'
-                }`}
+                className={`p-4 rounded-xl text-left transition-all bg-${action.color}-50 border border-${action.color}-100 hover:bg-${action.color}-100`}
               >
-                <Icon className={`w-6 h-6 text-${action.color}-600 mb-2 ${isRTL ? 'ml-auto' : ''}`} />
+                <Icon className={`w-6 h-6 text-${action.color}-600 mb-2`} />
                 <h4 className={`font-medium text-${action.color}-800 text-sm`}>{action.title}</h4>
                 <p className={`text-${action.color}-600 text-xs mt-1`}>{action.subtitle}</p>
               </motion.button>
@@ -136,10 +132,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         transition={{ delay: 0.7 }}
         className="bg-sage-50 rounded-2xl p-6 border border-sage-100"
       >
-        <h3 className={`font-serif text-lg text-sage-800 mb-4 ${isRTL ? 'text-right' : 'text-left'}`}>
-          {t('dashboard.yourGrowthRings')}
-        </h3>
-        <div className={`flex items-center justify-center space-x-2 ${isRTL ? 'flex-row-reverse space-x-reverse' : ''}`}>
+        <h3 className="font-serif text-lg text-sage-800 mb-4">{t.yourGrowthRings}</h3>
+        <div className="flex items-center justify-center space-x-2">
           {[1, 2, 3, 4, 5].map((ring, index) => (
             <motion.div
               key={ring}
@@ -154,8 +148,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             />
           ))}
         </div>
-        <p className={`text-sage-600 text-sm text-center mt-3 ${isRTL ? 'text-right' : 'text-left'}`}>
-          3 {t('dashboard.daysOfSelfCare')}
+        <p className="text-sage-600 text-sm text-center mt-3">
+          3 {t.daysOfSelfCare}
         </p>
       </motion.div>
     </div>
