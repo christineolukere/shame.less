@@ -98,11 +98,11 @@ function AppContent() {
   // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-cream-50 via-sage-50 to-lavender-50 flex items-center justify-center">
+      <div className="min-h-screen min-h-[100dvh] bg-gradient-to-br from-cream-50 via-sage-50 to-lavender-50 flex items-center justify-center safe-top safe-bottom">
         <motion.div
           animate={{ scale: [1, 1.1, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="text-center space-y-4"
+          className="text-center space-y-4 mobile-container"
         >
           <div className="w-16 h-16 bg-terracotta-200 rounded-full flex items-center justify-center mx-auto">
             <span className="text-terracotta-800 font-serif text-2xl">💛</span>
@@ -124,14 +124,14 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream-50 via-sage-50 to-lavender-50">
-      <div className="max-w-md mx-auto bg-white/80 backdrop-blur-sm min-h-screen shadow-xl flex flex-col">
+    <div className="min-h-screen min-h-[100dvh] bg-gradient-to-br from-cream-50 via-sage-50 to-lavender-50">
+      <div className="w-full max-w-md mx-auto bg-white/80 backdrop-blur-sm min-h-screen min-h-[100dvh] shadow-xl flex flex-col relative">
         <Header 
           onEmergency={() => setShowEmergency(true)} 
           onGuestContinue={handleGuestContinue}
         />
         
-        <main className="flex-1 pb-20">
+        <main className="flex-1 pb-20 safe-bottom overflow-y-auto">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentView}
@@ -139,6 +139,7 @@ function AppContent() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
+              className="w-full"
             >
               {renderView()}
             </motion.div>
