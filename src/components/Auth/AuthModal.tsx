@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Heart, Mail, Lock, User, Eye, EyeOff, UserCheck } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
@@ -18,7 +18,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const { signIn, signUp } = useAuth()
+  const { signIn, signUp, user } = useAuth()
+
+  // Auto-close modal when user successfully authenticates
+  useEffect(() => {
+    if (user && isOpen) {
+      onClose()
+    }
+  }, [user, isOpen, onClose])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,11 +40,17 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
         const { error } = await signUp(email, password, displayName)
         if (error) throw error
       }
-      onClose()
+      // Don't manually close here - let the useEffect handle it when user state changes
     } catch (err: any) {
       setError(err.message)
-    } finally {
-      setLoading(false)
+      setLoading(false) // Only set loading to false on error
+    }
+  }
+
+  const handleGuestContinue = () => {
+    if (onGuestContinue) {
+      onGuestContinue()
+      onClose() // Close modal immediately for guest users
     }
   }
 
@@ -47,12 +60,20 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
     setDisplayName('')
     setError(null)
     setShowPassword(false)
+    setLoading(false)
   }
 
   const switchMode = () => {
     setMode(mode === 'signin' ? 'signup' : 'signin')
     resetForm()
   }
+
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      resetForm()
+    }
+  }, [isOpen])
 
   if (!isOpen) return null
 
@@ -73,7 +94,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-2">
               <Heart className="w-5 h-5 text-terracotta-500 fill-current" />
               <h2 className="text-lg font-serif text-sage-800">
@@ -91,7 +112,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
           </div>
 
           {/* Welcome Message */}
-          <div className="mb-4 text-center">
+          <div className="mb-6 text-center">
             <p className="text-sage-600 text-sm leading-relaxed">
               {mode === 'signin' 
                 ? "We're glad you're here."
@@ -105,21 +126,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-4"
+              className="mb-6"
             >
               <motion.button
-                onClick={onGuestContinue}
+                onClick={handleGuestContinue}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full p-3 bg-cream-50 border-2 border-cream-200 rounded-xl hover:bg-cream-100 transition-colors group"
+                className="w-full p-4 bg-cream-50 border-2 border-cream-200 rounded-xl hover:bg-cream-100 transition-colors group"
               >
-                <div className="flex items-center justify-center space-x-2">
-                  <UserCheck className="w-4 h-4 text-cream-600 group-hover:text-cream-700" />
+                <div className="flex items-center justify-center space-x-3">
+                  <UserCheck className="w-5 h-5 text-cream-600 group-hover:text-cream-700" />
                   <div className="text-center">
-                    <h3 className="font-medium text-cream-800 group-hover:text-cream-900 text-sm">
+                    <h3 className="font-medium text-cream-800 group-hover:text-cream-900">
                       Continue as guest
                     </h3>
-                    <p className="text-cream-600 text-xs group-hover:text-cream-700">
+                    <p className="text-cream-600 text-sm group-hover:text-cream-700">
                       Start your healing journey now
                     </p>
                   </div>
@@ -130,7 +151,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
 
           {/* Divider */}
           {onGuestContinue && (
-            <div className="relative mb-4">
+            <div className="relative mb-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-sage-200" />
               </div>
@@ -141,7 +162,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
               <div className="space-y-1">
                 <label htmlFor="displayName" className="block text-xs font-medium text-sage-700">
@@ -154,7 +175,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
                     type="text"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 border border-sage-200 rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-transparent text-sm"
+                    className="w-full pl-9 pr-3 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-transparent text-sm"
                     placeholder="Your name"
                   />
                 </div>
@@ -173,7 +194,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-9 pr-3 py-2.5 border border-sage-200 rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-transparent text-sm"
+                  className="w-full pl-9 pr-3 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-transparent text-sm"
                   placeholder="your@email.com"
                 />
               </div>
@@ -191,7 +212,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-9 pr-10 py-2.5 border border-sage-200 rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-transparent text-sm"
+                  className="w-full pl-9 pr-10 py-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-transparent text-sm"
                   placeholder="••••••••"
                 />
                 <button
@@ -208,7 +229,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-2.5 bg-red-50 border border-red-200 rounded-lg"
+                className="p-3 bg-red-50 border border-red-200 rounded-lg"
               >
                 <p className="text-red-700 text-xs">{error}</p>
               </motion.div>
@@ -219,14 +240,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
               disabled={loading}
               whileHover={{ scale: loading ? 1 : 1.02 }}
               whileTap={{ scale: loading ? 1 : 0.98 }}
-              className="w-full py-2.5 bg-terracotta-500 text-white rounded-lg font-medium hover:bg-terracotta-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+              className="w-full py-3 bg-terracotta-500 text-white rounded-lg font-medium hover:bg-terracotta-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
             >
               {loading ? 'Please wait...' : (mode === 'signin' ? 'Sign In' : 'Create Account')}
             </motion.button>
           </form>
 
           {/* Switch Mode */}
-          <div className="mt-4 text-center">
+          <div className="mt-6 text-center">
             <p className="text-sage-600 text-xs">
               {mode === 'signin' ? "Don't have an account? " : "Already have an account? "}
               <button
@@ -239,7 +260,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
           </div>
 
           {/* Privacy Note */}
-          <div className="mt-3 p-2.5 bg-lavender-50 rounded-lg border border-lavender-100">
+          <div className="mt-4 p-3 bg-lavender-50 rounded-lg border border-lavender-100">
             <p className="text-lavender-700 text-xs leading-relaxed">
               Your privacy is our priority. We'll never share your information.
             </p>
