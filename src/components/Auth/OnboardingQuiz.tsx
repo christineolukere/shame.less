@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, ArrowLeft, Heart, Globe, Sparkles, Shield } from 'lucide-react'
-import { useAuth } from '../../contexts/AuthContext'
 
 interface OnboardingData {
   languages: string[]
@@ -92,7 +91,16 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
     if (currentStep < questions.length - 1) {
       setCurrentStep(prev => prev + 1)
     } else {
-      onComplete(answers as OnboardingData)
+      // Ensure all required fields have defaults
+      const completeData: OnboardingData = {
+        languages: answers.languages || [],
+        healingVision: answers.healingVision || '',
+        affirmationStyle: answers.affirmationStyle || 'A blend of all three',
+        culturalBackground: answers.culturalBackground || [],
+        spiritualPreference: answers.spiritualPreference || 'Still exploring',
+        preferredLanguage: answers.preferredLanguage || 'English'
+      }
+      onComplete(completeData)
     }
   }
 
@@ -100,6 +108,24 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, onSkip }) =
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1)
     }
+  }
+
+  const canProceed = () => {
+    const currentAnswer = answers[currentQuestion.id as keyof OnboardingData]
+    
+    if (currentQuestion.type === 'text') {
+      return true // Text fields are optional
+    }
+    
+    if (currentQuestion.type === 'multiple-choice') {
+      return true // Multiple choice fields are optional
+    }
+    
+    if (currentQuestion.type === 'single-choice') {
+      return true // Single choice fields are optional
+    }
+    
+    return true
   }
 
   const renderQuestion = () => {

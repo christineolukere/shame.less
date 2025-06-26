@@ -44,7 +44,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [onboardingComplete, setOnboardingComplete] = useState(false)
 
   useEffect(() => {
-    // Check for guest mode
+    // Check for guest mode first
     const guestMode = localStorage.getItem('shameless_guest_mode')
     const onboardingDone = localStorage.getItem('shameless_onboarding_complete')
     
@@ -59,7 +59,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       setUser(session?.user ?? null)
-      setLoading(false)
+      
+      // Check onboarding status for authenticated users
+      if (session?.user) {
+        checkOnboardingStatus(session.user.id)
+      } else {
+        setLoading(false)
+      }
     })
 
     // Listen for auth changes
@@ -68,10 +74,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session)
       setUser(session?.user ?? null)
-      setLoading(false)
 
-      // Create or update profile when user signs up or signs in
-      if (event === 'SIGNED_IN' && session?.user) {
+      if (session?.user) {
+        // Create or update profile when user signs up or signs in
         const { data: profile } = await supabase
           .from('profiles')
           .select('*')
@@ -86,11 +91,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             avatar_url: session.user.user_metadata?.avatar_url || null,
           })
         }
+
+        // Check onboarding status
+        await checkOnboardingStatus(session.user.id)
+      } else {
+        setOnboardingComplete(false)
+        setLoading(false)
       }
     })
 
     return () => subscription.unsubscribe()
   }, [])
+
+  const checkOnboardingStatus = async (userId: string) => {
+    try {
+      const { data: preferences } = await supabase
+        .from('user_preferences')
+        .select('onboarding_complete')
+        .eq('user_id', userId)
+        .single()
+
+      setOnboardingComplete(preferences?.onboarding_complete || false)
+    } catch (error) {
+      console.log('No preferences found, onboarding needed')
+      setOnboardingComplete(false)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const signUp = async (email: string, password: string, displayName?: string) => {
     const { error } = await supabase.auth.signUp({
@@ -118,6 +146,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Clear guest mode when signing out
     localStorage.removeItem('shameless_guest_mode')
     localStorage.removeItem('shameless_onboarding_complete')
+    localStorage.removeItem('shameless_onboarding_data')
     setIsGuest(false)
     setOnboardingComplete(false)
     return { error }
@@ -126,6 +155,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const continueAsGuest = () => {
     localStorage.setItem('shameless_guest_mode', 'true')
     setIsGuest(true)
+    setOnboardingComplete(false) // Force onboarding for guests
     setLoading(false)
   }
 
