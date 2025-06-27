@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session, AuthError } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
+import { GuestStorageManager } from '../lib/guestStorage'
 
 interface OnboardingData {
   languages: string[]
@@ -17,6 +18,8 @@ interface AuthContextType {
   loading: boolean
   isGuest: boolean
   onboardingComplete: boolean
+  visitCount: number
+  shouldShowUpsell: boolean
   signUp: (email: string, password: string, displayName?: string) => Promise<{ error: AuthError | null }>
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
   signOut: () => Promise<{ error: AuthError | null }>
@@ -24,6 +27,8 @@ interface AuthContextType {
   updateProfile: (updates: { display_name?: string; avatar_url?: string }) => Promise<{ error: any }>
   completeOnboarding: (data: OnboardingData) => Promise<{ error: any }>
   setOnboardingComplete: (complete: boolean) => void
+  dismissUpsell: () => void
+  migrateGuestData: () => Promise<{ success: boolean; migratedCount: number; error?: string }>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -42,6 +47,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true)
   const [isGuest, setIsGuest] = useState(false)
   const [onboardingComplete, setOnboardingComplete] = useState(false)
+  const [visitCount, setVisitCount] = useState(0)
+  const [shouldShowUpsell, setShouldShowUpsell] = useState(false)
 
   useEffect(() => {
     // Check for guest mode first
@@ -51,6 +58,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (guestMode === 'true') {
       setIsGuest(true)
       setOnboardingComplete(onboardingDone === 'true')
+      
+      // Increment visit count and check for upsell
+      const newVisitCount = GuestStorageManager.incrementVisitCount()
+      setVisitCount(newVisitCount)
+      setShouldShowUpsell(GuestStorageManager.shouldShowUpsell())
+      
       setLoading(false)
       return
     }
@@ -147,8 +160,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('shameless_guest_mode')
     localStorage.removeItem('shameless_onboarding_complete')
     localStorage.removeItem('shameless_onboarding_data')
+    localStorage.removeItem('shameless_upsell_dismissed')
     setIsGuest(false)
     setOnboardingComplete(false)
+    setVisitCount(0)
+    setShouldShowUpsell(false)
     return { error }
   }
 
@@ -156,6 +172,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('shameless_guest_mode', 'true')
     setIsGuest(true)
     setOnboardingComplete(false) // Force onboarding for guests
+    
+    // Initialize guest data and visit tracking
+    const newVisitCount = GuestStorageManager.incrementVisitCount()
+    setVisitCount(newVisitCount)
+    setShouldShowUpsell(GuestStorageManager.shouldShowUpsell())
+    
     setLoading(false)
   }
 
@@ -176,7 +198,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const completeOnboarding = async (data: OnboardingData) => {
     if (isGuest) {
       // Store onboarding data locally for guest users
-      localStorage.setItem('shameless_onboarding_data', JSON.stringify(data))
+      GuestStorageManager.updatePreferences({ 
+        language: data.preferredLanguage,
+        onboardingData: data 
+      })
       localStorage.setItem('shameless_onboarding_complete', 'true')
       setOnboardingComplete(true)
       return { error: null }
@@ -205,12 +230,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error }
   }
 
+  const dismissUpsell = () => {
+    GuestStorageManager.dismissUpsell()
+    setShouldShowUpsell(false)
+  }
+
+  const migrateGuestData = async (): Promise<{ success: boolean; migratedCount: number; error?: string }> => {
+    if (!user) {
+      return { success: false, migratedCount: 0, error: 'No user logged in' }
+    }
+
+    const guestData = GuestStorageManager.getGuestData()
+    const totalEntries = guestData.checkIns.length + guestData.wins.length + guestData.journalEntries.length
+
+    if (totalEntries === 0) {
+      return { success: true, migratedCount: 0 }
+    }
+
+    const result = await GuestStorageManager.migrateToUser(user.id)
+    
+    if (result.success) {
+      // Clear guest data after successful migration
+      GuestStorageManager.clearGuestData()
+      setIsGuest(false)
+      localStorage.removeItem('shameless_guest_mode')
+      return { success: true, migratedCount: totalEntries }
+    }
+
+    return { success: false, migratedCount: 0, error: result.error }
+  }
+
   const value = {
     user,
     session,
     loading,
     isGuest,
     onboardingComplete,
+    visitCount,
+    shouldShowUpsell,
     signUp,
     signIn,
     signOut,
@@ -218,6 +275,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     updateProfile,
     completeOnboarding,
     setOnboardingComplete,
+    dismissUpsell,
+    migrateGuestData,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

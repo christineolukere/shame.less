@@ -12,7 +12,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue }) => {
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const { user, loading } = useAuth();
+  const { user, loading, isGuest } = useAuth();
 
   const handleAuthModalOpen = () => {
     setShowAuthModal(true);
@@ -53,7 +53,7 @@ const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue }) => {
               <>
                 {user ? (
                   <ProfileMenu />
-                ) : (
+                ) : !isGuest ? (
                   <motion.button
                     onClick={handleAuthModalOpen}
                     whileHover={{ scale: 1.05 }}
@@ -62,6 +62,15 @@ const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue }) => {
                     style={{ backgroundColor: '#E9A8A6' }}
                   >
                     Sign In
+                  </motion.button>
+                ) : (
+                  <motion.button
+                    onClick={handleAuthModalOpen}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-3 sm:px-4 py-2 bg-sage-100 text-sage-700 rounded-full text-sm font-medium hover:bg-sage-200 transition-all touch-target"
+                  >
+                    Save Journey
                   </motion.button>
                 )}
               </>
@@ -74,6 +83,7 @@ const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue }) => {
         isOpen={showAuthModal} 
         onClose={handleAuthModalClose}
         onGuestContinue={onGuestContinue}
+        showMigrationMessage={isGuest}
       />
     </>
   );

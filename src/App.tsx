@@ -13,6 +13,8 @@ import Resources from './components/Resources';
 import SoftLanding from './components/SoftLanding';
 import OnboardingQuiz from './components/Auth/OnboardingQuiz';
 import DisclaimerModal from './components/Auth/DisclaimerModal';
+import UpsellModal from './components/Auth/UpsellModal';
+import MigrationSuccessModal from './components/Auth/MigrationSuccessModal';
 import Footer from './components/Footer';
 import type { OnboardingData } from './contexts/AuthContext';
 
@@ -23,15 +25,21 @@ function AppContent() {
   const [showEmergency, setShowEmergency] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showMigrationSuccess, setShowMigrationSuccess] = useState(false);
+  const [migratedCount, setMigratedCount] = useState(0);
   
   const { 
     user, 
     isGuest, 
     loading, 
     onboardingComplete, 
+    shouldShowUpsell,
     continueAsGuest, 
     completeOnboarding,
-    setOnboardingComplete 
+    setOnboardingComplete,
+    dismissUpsell,
+    migrateGuestData
   } = useAuth();
 
   // Check if disclaimer has been accepted
@@ -64,6 +72,31 @@ function AppContent() {
       localStorage.setItem('shameless_onboarding_complete', 'true');
     }
   };
+
+  const handleUpsellSignUp = () => {
+    dismissUpsell();
+    setShowAuthModal(true);
+  };
+
+  const handleUpsellClose = () => {
+    dismissUpsell();
+  };
+
+  // Handle successful authentication - migrate guest data
+  useEffect(() => {
+    const handleMigration = async () => {
+      if (user && !isGuest && localStorage.getItem('shameless_guest_mode') === 'true') {
+        // User just signed up/in and we have guest data to migrate
+        const result = await migrateGuestData();
+        if (result.success && result.migratedCount > 0) {
+          setMigratedCount(result.migratedCount);
+          setShowMigrationSuccess(true);
+        }
+      }
+    };
+
+    handleMigration();
+  }, [user, isGuest, migrateGuestData]);
 
   const renderView = () => {
     switch (currentView) {
@@ -148,9 +181,26 @@ function AppContent() {
         <Navigation currentView={currentView} onNavigate={setCurrentView} />
         <Footer />
 
+        {/* Modals */}
         <AnimatePresence>
           {showEmergency && (
             <SoftLanding onClose={() => setShowEmergency(false)} />
+          )}
+          
+          {shouldShowUpsell && (
+            <UpsellModal
+              isOpen={shouldShowUpsell}
+              onClose={handleUpsellClose}
+              onSignUp={handleUpsellSignUp}
+            />
+          )}
+
+          {showMigrationSuccess && (
+            <MigrationSuccessModal
+              isOpen={showMigrationSuccess}
+              onClose={() => setShowMigrationSuccess(false)}
+              migratedCount={migratedCount}
+            />
           )}
         </AnimatePresence>
       </div>

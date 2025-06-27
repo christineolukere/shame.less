@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Heart } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import { useLocalization } from '../contexts/LocalizationContext';
+import { GuestStorageManager } from '../lib/guestStorage';
+import { supabase } from '../lib/supabase';
 
 interface CheckInProps {
   onBack: () => void;
@@ -10,7 +13,10 @@ interface CheckInProps {
 const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [notes, setNotes] = useState('');
+  const [saving, setSaving] = useState(false);
   const { translations: t } = useLocalization();
+  const { user, isGuest } = useAuth();
 
   const moods = [
     { emoji: '😌', label: t.peaceful, color: 'sage' },
@@ -31,6 +37,46 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
     { name: t.goldenCream, value: 'bg-cream-200', hex: '#faf1e4' },
     { name: t.oceanBlue, value: 'bg-blue-200', hex: '#bfdbfe' },
   ];
+
+  const handleSaveCheckIn = async () => {
+    if (!selectedMood || !selectedColor) return;
+
+    setSaving(true);
+    
+    try {
+      if (isGuest) {
+        // Save to local storage for guest users
+        GuestStorageManager.addCheckIn({
+          mood: selectedMood,
+          color: selectedColor,
+          notes: notes || undefined
+        });
+      } else if (user) {
+        // Save to Supabase for authenticated users
+        const { error } = await supabase
+          .from('check_ins')
+          .insert({
+            user_id: user.id,
+            mood: selectedMood,
+            color: selectedColor,
+            notes: notes || null
+          });
+
+        if (error) throw error;
+      }
+
+      // Reset form and go back
+      setSelectedMood(null);
+      setSelectedColor(null);
+      setNotes('');
+      onBack();
+    } catch (error) {
+      console.error('Error saving check-in:', error);
+      // Could add toast notification here
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -110,17 +156,47 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
         </div>
       </div>
 
-      {/* Affirmation */}
+      {/* Optional Notes */}
       {(selectedMood || selectedColor) && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-lavender-50 rounded-2xl p-6 border border-lavender-100"
+          className="space-y-3"
         >
-          <h3 className="font-serif text-lavender-800 mb-2">{t.forYouRightNow}</h3>
-          <p className="text-lavender-700 leading-relaxed">
-            "{t.checkInAffirmation}"
-          </p>
+          <h3 className="text-lg font-serif text-sage-800">Any thoughts to add?</h3>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Optional: What's on your mind right now?"
+            className="w-full h-24 p-4 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-300 focus:border-transparent resize-none text-sage-800 placeholder-sage-400"
+          />
+        </motion.div>
+      )}
+
+      {/* Save Button */}
+      {selectedMood && selectedColor && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-4"
+        >
+          <motion.button
+            onClick={handleSaveCheckIn}
+            disabled={saving}
+            whileHover={{ scale: saving ? 1 : 1.02 }}
+            whileTap={{ scale: saving ? 1 : 0.98 }}
+            className="w-full py-4 bg-sage-500 text-white rounded-lg font-medium hover:bg-sage-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {saving ? 'Saving your check-in...' : 'Save check-in'}
+          </motion.button>
+
+          {/* Affirmation */}
+          <div className="bg-lavender-50 rounded-2xl p-6 border border-lavender-100">
+            <h3 className="font-serif text-lavender-800 mb-2">{t.forYouRightNow}</h3>
+            <p className="text-lavender-700 leading-relaxed">
+              "{t.checkInAffirmation}"
+            </p>
+          </div>
         </motion.div>
       )}
     </div>

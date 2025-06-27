@@ -8,9 +8,15 @@ interface AuthModalProps {
   isOpen: boolean
   onClose: () => void
   onGuestContinue?: () => void
+  showMigrationMessage?: boolean
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue }) => {
+const AuthModal: React.FC<AuthModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  onGuestContinue,
+  showMigrationMessage = false 
+}) => {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -112,6 +118,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
           </div>
 
           <div className="modal-body">
+            {/* Migration Message */}
+            {showMigrationMessage && (
+              <div className="bg-terracotta-50 rounded-xl p-4 border border-terracotta-100 mb-4">
+                <p className="modal-text text-terracotta-700 text-center">
+                  💌 Sign up to save your journey and access it from anywhere!
+                </p>
+              </div>
+            )}
+
             {/* Welcome Message */}
             <div className="text-center">
               <p className="modal-text text-sage-600">
@@ -123,7 +138,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
             </div>
 
             {/* Guest Option */}
-            {onGuestContinue && (
+            {onGuestContinue && !showMigrationMessage && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -150,7 +165,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onGuestContinue 
             )}
 
             {/* Divider */}
-            {onGuestContinue && (
+            {onGuestContinue && !showMigrationMessage && (
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-sage-200" />
