@@ -1,10 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sun, Moon, Heart, Sparkles, Trophy, BookOpen } from 'lucide-react';
+import { Sun, Moon, Heart, Sparkles, Trophy, BookOpen, Bookmark } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocalization } from '../contexts/LocalizationContext';
+import { getFavoriteResponses } from '../lib/checkInResponses';
 
-type View = 'dashboard' | 'checkin' | 'wins' | 'journal' | 'affirmations' | 'resources';
+type View = 'dashboard' | 'checkin' | 'wins' | 'journal' | 'affirmations' | 'resources' | 'favorites';
 
 interface DashboardProps {
   onNavigate: (view: View) => void;
@@ -15,6 +16,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const { translations: t } = useLocalization();
   const currentHour = new Date().getHours();
   const isEvening = currentHour >= 18 || currentHour < 6;
+  const favoriteCount = getFavoriteResponses().length;
   
   const getPersonalizedGreeting = () => {
     const timeGreeting = currentHour < 12 ? t.goodMorning : currentHour < 17 ? t.goodAfternoon : t.goodEvening;
@@ -33,7 +35,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     {
       id: 'checkin',
       title: t.howAreYouFeeling,
-      subtitle: 'Check in with yourself',
+      subtitle: 'Get personalized responses',
       icon: Heart,
       color: 'terracotta',
       action: () => onNavigate('checkin')
@@ -125,11 +127,38 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         </div>
       </div>
 
+      {/* Saved Favorites (if any) */}
+      {favoriteCount > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="bg-lavender-50 rounded-2xl p-4 sm:p-6 border border-lavender-100"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-serif text-base sm:text-lg text-lavender-800 mb-2">Your saved combinations</h3>
+              <p className="text-lavender-700 text-sm">
+                {favoriteCount} personalized response{favoriteCount !== 1 ? 's' : ''} saved
+              </p>
+            </div>
+            <motion.button
+              onClick={() => onNavigate('favorites')}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="p-3 bg-lavender-100 text-lavender-700 rounded-lg hover:bg-lavender-200 transition-colors"
+            >
+              <Bookmark className="w-5 h-5" />
+            </motion.button>
+          </div>
+        </motion.div>
+      )}
+
       {/* Growth Rings - Progress Visualization */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
+        transition={{ delay: 0.8 }}
         className="bg-sage-50 rounded-2xl p-4 sm:p-6 border border-sage-100"
       >
         <h3 className="font-serif text-base sm:text-lg text-sage-800 mb-4">{t.yourGrowthRings}</h3>
@@ -139,7 +168,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               key={ring}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ delay: 0.8 + index * 0.1 }}
+              transition={{ delay: 0.9 + index * 0.1 }}
               className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 ${
                 index < 3 
                   ? 'bg-sage-200 border-sage-400' 

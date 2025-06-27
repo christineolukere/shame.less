@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Heart } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { GuestStorageManager } from '../lib/guestStorage';
 import { supabase } from '../lib/supabase';
+import { getCheckInResponse, saveFavoriteResponse } from '../lib/checkInResponses';
+import CheckInResponseComponent from './CheckInResponse';
 
 interface CheckInProps {
   onBack: () => void;
@@ -15,6 +17,8 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
+  const [showResponse, setShowResponse] = useState(false);
+  const [currentResponse, setCurrentResponse] = useState<any>(null);
   const { translations: t } = useLocalization();
   const { user, isGuest } = useAuth();
 
@@ -65,11 +69,10 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
         if (error) throw error;
       }
 
-      // Reset form and go back
-      setSelectedMood(null);
-      setSelectedColor(null);
-      setNotes('');
-      onBack();
+      // Generate dynamic response
+      const response = getCheckInResponse(selectedMood, selectedColor);
+      setCurrentResponse(response);
+      setShowResponse(true);
     } catch (error) {
       console.error('Error saving check-in:', error);
       // Could add toast notification here
@@ -77,6 +80,50 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
       setSaving(false);
     }
   };
+
+  const handleSaveFavorite = (response: any) => {
+    saveFavoriteResponse({
+      ...response,
+      emotion: selectedMood,
+      color: selectedColor
+    });
+  };
+
+  const handleContinue = () => {
+    // Reset form and go back
+    setSelectedMood(null);
+    setSelectedColor(null);
+    setNotes('');
+    setShowResponse(false);
+    setCurrentResponse(null);
+    onBack();
+  };
+
+  if (showResponse && currentResponse) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center space-x-4 mb-6">
+          <motion.button
+            onClick={() => setShowResponse(false)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="p-2 rounded-full bg-sage-100 text-sage-700"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </motion.button>
+          <h1 className="text-2xl font-serif text-sage-800">Your personalized response</h1>
+        </div>
+
+        <CheckInResponseComponent
+          response={currentResponse}
+          emotion={selectedMood!}
+          color={selectedColor!}
+          onContinue={handleContinue}
+          onSaveFavorite={handleSaveFavorite}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -121,7 +168,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
               onClick={() => setSelectedMood(mood.label)}
               className={`p-4 rounded-xl text-center transition-all ${
                 selectedMood === mood.label
-                  ? 'bg-sage-200 border-2 border-sage-400'
+                  ? 'bg-sage-200 border-2 border-sage-400 transform scale-105'
                   : 'bg-white border border-sage-100 hover:bg-sage-50'
               }`}
             >
@@ -145,7 +192,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
               onClick={() => setSelectedColor(color.name)}
               className={`p-4 rounded-xl transition-all ${
                 selectedColor === color.name
-                  ? 'ring-2 ring-sage-400 ring-offset-2'
+                  ? 'ring-2 ring-sage-400 ring-offset-2 transform scale-105'
                   : 'hover:scale-105'
               }`}
             >
@@ -187,15 +234,12 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
             whileTap={{ scale: saving ? 1 : 0.98 }}
             className="w-full py-4 bg-sage-500 text-white rounded-lg font-medium hover:bg-sage-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saving ? 'Saving your check-in...' : 'Save check-in'}
+            {saving ? 'Creating your personalized response...' : 'Get my personalized response'}
           </motion.button>
 
-          {/* Affirmation */}
-          <div className="bg-lavender-50 rounded-2xl p-6 border border-lavender-100">
-            <h3 className="font-serif text-lavender-800 mb-2">{t.forYouRightNow}</h3>
-            <p className="text-lavender-700 leading-relaxed">
-              "{t.checkInAffirmation}"
-            </p>
+          {/* Preview hint */}
+          <div className="text-center text-sm text-sage-600">
+            ✨ We'll create a unique affirmation and reflection just for your {selectedMood} + {selectedColor} combination
           </div>
         </motion.div>
       )}

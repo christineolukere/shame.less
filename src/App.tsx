@@ -10,6 +10,7 @@ import WinTracker from './components/WinTracker';
 import Journal from './components/Journal';
 import Affirmations from './components/Affirmations';
 import Resources from './components/Resources';
+import FavoriteResponses from './components/FavoriteResponses';
 import SoftLanding from './components/SoftLanding';
 import OnboardingQuiz from './components/Auth/OnboardingQuiz';
 import DisclaimerModal from './components/Auth/DisclaimerModal';
@@ -18,7 +19,7 @@ import MigrationSuccessModal from './components/Auth/MigrationSuccessModal';
 import Footer from './components/Footer';
 import type { OnboardingData } from './contexts/AuthContext';
 
-type View = 'dashboard' | 'checkin' | 'wins' | 'journal' | 'affirmations' | 'resources' | 'emergency';
+type View = 'dashboard' | 'checkin' | 'wins' | 'journal' | 'affirmations' | 'resources' | 'emergency' | 'favorites';
 
 function AppContent() {
   const [currentView, setCurrentView] = useState<View>('dashboard');
@@ -104,6 +105,8 @@ function AppContent() {
         return <Affirmations onBack={() => setCurrentView('dashboard')} />;
       case 'resources':
         return <Resources onBack={() => setCurrentView('dashboard')} />;
+      case 'favorites':
+        return <FavoriteResponses onBack={() => setCurrentView('dashboard')} />;
       default:
         return <Dashboard onNavigate={setCurrentView} />;
     }
