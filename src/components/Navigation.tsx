@@ -12,16 +12,16 @@ interface NavigationProps {
 }
 
 const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate }) => {
-  const { translations: t } = useLocalization();
+  const { t } = useLocalization();
   const favoriteCount = getFavoriteResponses().length;
   
   const navItems = [
-    { id: 'dashboard', icon: Home, label: t.home },
-    { id: 'checkin', icon: Heart, label: t.checkIn },
-    { id: 'wins', icon: Trophy, label: t.wins },
-    { id: 'journal', icon: BookOpen, label: t.journal },
-    { id: 'affirmations', icon: Sparkles, label: t.affirm },
-    { id: 'resources', icon: Leaf, label: t.garden },
+    { id: 'dashboard', icon: Home, label: t('home') },
+    { id: 'checkin', icon: Heart, label: t('checkIn') },
+    { id: 'wins', icon: Trophy, label: t('wins') },
+    { id: 'journal', icon: BookOpen, label: t('journal') },
+    { id: 'affirmations', icon: Sparkles, label: t('affirm') },
+    { id: 'resources', icon: Leaf, label: t('garden') },
   ] as const;
 
   // Add favorites to nav if user has any saved

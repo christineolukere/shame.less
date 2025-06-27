@@ -13,28 +13,28 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const { user, isGuest } = useAuth();
-  const { translations: t } = useLocalization();
+  const { t } = useLocalization();
   const currentHour = new Date().getHours();
   const isEvening = currentHour >= 18 || currentHour < 6;
   const favoriteCount = getFavoriteResponses().length;
   
   const getPersonalizedGreeting = () => {
-    const timeGreeting = currentHour < 12 ? t.goodMorning : currentHour < 17 ? t.goodAfternoon : t.goodEvening;
+    const timeGreeting = currentHour < 12 ? t('goodMorning') : currentHour < 17 ? t('goodAfternoon') : t('goodEvening');
     
     if (user) {
-      const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || t.friend;
+      const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || t('friend');
       return `${timeGreeting}, ${displayName}`;
     } else if (isGuest) {
-      return `${timeGreeting}, ${t.beautiful}`;
+      return `${timeGreeting}, ${t('beautiful')}`;
     } else {
-      return `${timeGreeting}, ${t.beautiful}`;
+      return `${timeGreeting}, ${t('beautiful')}`;
     }
   };
 
   const quickActions = [
     {
       id: 'checkin',
-      title: t.howAreYouFeeling,
+      title: t('howAreYouFeeling'),
       subtitle: 'Get personalized responses',
       icon: Heart,
       color: 'terracotta',
@@ -83,7 +83,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           <h2 className="text-xl sm:text-2xl font-serif text-sage-800 truncate">{getPersonalizedGreeting()}</h2>
         </div>
         <p className="text-sm sm:text-base text-sage-600">
-          {user ? t.welcomeBackToSafeSpace : t.worthyOfLove}
+          {user ? t('welcomeBackToSafeSpace') : t('worthyOfLove')}
         </p>
       </motion.div>
 
@@ -94,7 +94,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         transition={{ delay: 0.2 }}
         className="bg-gradient-to-r from-terracotta-50 to-cream-50 rounded-2xl p-4 sm:p-6 border border-terracotta-100"
       >
-        <h3 className="font-serif text-base sm:text-lg text-terracotta-800 mb-2">{t.todaysReminder}</h3>
+        <h3 className="font-serif text-base sm:text-lg text-terracotta-800 mb-2">{t('todaysReminder')}</h3>
         <p className="text-sm sm:text-base text-terracotta-700 leading-relaxed">
           "Your healing is not linear, and that's perfectly okay. Every small step you take matters, 
           even when it doesn't feel like progress."
@@ -103,7 +103,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
       {/* Quick Actions */}
       <div className="space-y-3">
-        <h3 className="text-base sm:text-lg font-serif text-sage-800">{t.howCanISupport}</h3>
+        <h3 className="text-base sm:text-lg font-serif text-sage-800">{t('howCanISupport')}</h3>
         <div className="grid grid-cols-2 gap-3">
           {quickActions.map((action, index) => {
             const Icon = action.icon;
@@ -161,7 +161,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         transition={{ delay: 0.8 }}
         className="bg-sage-50 rounded-2xl p-4 sm:p-6 border border-sage-100"
       >
-        <h3 className="font-serif text-base sm:text-lg text-sage-800 mb-4">{t.yourGrowthRings}</h3>
+        <h3 className="font-serif text-base sm:text-lg text-sage-800 mb-4">{t('yourGrowthRings')}</h3>
         <div className="flex items-center justify-center space-x-2">
           {[1, 2, 3, 4, 5].map((ring, index) => (
             <motion.div
@@ -178,7 +178,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           ))}
         </div>
         <p className="text-sage-600 text-sm text-center mt-3">
-          3 {t.daysOfSelfCare}
+          3 {t('daysOfSelfCare')}
         </p>
       </motion.div>
     </div>

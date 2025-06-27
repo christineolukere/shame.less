@@ -207,6 +207,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         onboardingData: data 
       })
       localStorage.setItem('shameless_onboarding_complete', 'true')
+      localStorage.setItem('shameless_preferred_language', data.preferredLanguage)
       setOnboardingComplete(true)
       return { error: null }
     }
@@ -229,6 +230,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (!error) {
       setOnboardingComplete(true)
+      // Also save language preference to localStorage for immediate access
+      localStorage.setItem('shameless_preferred_language', data.preferredLanguage)
     }
 
     return { error }

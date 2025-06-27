@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, ArrowLeft, Heart, Globe, Sparkles, Shield, AlertCircle } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Heart, Globe, Sparkles, Shield, AlertCircle, CheckCircle } from 'lucide-react'
 import { useLocalization } from '../../contexts/LocalizationContext'
 
 interface OnboardingData {
@@ -24,68 +24,84 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete }) => {
     preferredLanguage: 'English'
   })
   const [errors, setErrors] = useState<Record<string, boolean>>({})
+  const [showLanguageToast, setShowLanguageToast] = useState(false)
 
-  const { translations: t, setLanguage, availableLanguages } = useLocalization()
+  const { t, setLanguage, availableLanguages, isUpdatingLanguage } = useLocalization()
+
+  // Listen for language update events
+  useEffect(() => {
+    const handleLanguageUpdated = (event: CustomEvent) => {
+      setShowLanguageToast(true)
+      setTimeout(() => setShowLanguageToast(false), 3000)
+    }
+
+    window.addEventListener('languageUpdated', handleLanguageUpdated as EventListener)
+    return () => window.removeEventListener('languageUpdated', handleLanguageUpdated as EventListener)
+  }, [])
 
   const questions = [
     {
       id: 'preferredLanguage',
-      title: t.languageQuestion,
-      subtitle: t.languageSubtitle,
+      title: t('languageQuestion'),
+      subtitle: t('languageSubtitle'),
       type: 'language-choice',
       required: true,
-      options: availableLanguages.map(lang => lang.name)
+      options: availableLanguages.map(lang => ({
+        code: lang.code,
+        name: lang.name,
+        nativeName: lang.nativeName
+      }))
     },
     {
       id: 'healingVision',
-      title: t.healingVisionQuestion,
-      subtitle: t.healingVisionSubtitle,
+      title: t('healingVisionQuestion'),
+      subtitle: t('healingVisionSubtitle'),
       type: 'text',
       required: true,
-      placeholder: t.healingVisionPlaceholder
+      placeholder: t('healingVisionPlaceholder')
     },
     {
       id: 'affirmationStyle',
-      title: t.affirmationStyleQuestion,
-      subtitle: t.affirmationStyleSubtitle,
+      title: t('affirmationStyleQuestion'),
+      subtitle: t('affirmationStyleSubtitle'),
       type: 'single-choice',
       required: true,
       options: [
-        t.spiritualityFaith,
-        t.culturalWisdom,
-        t.sciencePsychology,
-        t.blendOfAll
+        t('spiritualityFaith'),
+        t('culturalWisdom'),
+        t('sciencePsychology'),
+        t('blendOfAll')
       ]
     },
     {
       id: 'culturalBackground',
-      title: t.culturalBackgroundQuestion,
-      subtitle: t.culturalBackgroundSubtitle,
+      title: t('culturalBackgroundQuestion'),
+      subtitle: t('culturalBackgroundSubtitle'),
       type: 'multiple-choice',
       required: true,
       options: [
-        t.blackAmerican, t.afroCaribbean, t.african, t.latinaHispanic,
-        t.indigenous, t.asian, t.middleEastern, t.mixedMultiracial,
-        t.lgbtqia, t.firstGeneration, t.other
+        t('blackAmerican'), t('afroCaribbean'), t('african'), t('latinaHispanic'),
+        t('indigenous'), t('asian'), t('middleEastern'), t('mixedMultiracial'),
+        t('lgbtqia'), t('firstGeneration'), t('other')
       ]
     },
     {
       id: 'spiritualPreference',
-      title: t.spiritualPreferenceQuestion,
-      subtitle: t.spiritualPreferenceSubtitle,
+      title: t('spiritualPreferenceQuestion'),
+      subtitle: t('spiritualPreferenceSubtitle'),
       type: 'single-choice',
       required: true,
       options: [
-        t.christianity, t.islam, t.judaism, t.buddhism, t.hinduism,
-        t.indigenousTraditional, t.natureBased, t.secularNonReligious,
-        t.stillExploring, t.preferNotToSay
+        t('christianity'), t('islam'), t('judaism'), t('buddhism'), t('hinduism'),
+        t('indigenousTraditional'), t('natureBased'), t('secularNonReligious'),
+        t('stillExploring'), t('preferNotToSay')
       ]
     }
   ]
 
   const currentQuestion = questions[currentStep]
 
-  const handleAnswer = (value: string | string[]) => {
+  const handleAnswer = async (value: string | string[]) => {
     setAnswers(prev => ({
       ...prev,
       [currentQuestion.id]: value
@@ -97,11 +113,13 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete }) => {
       [currentQuestion.id]: false
     }))
 
-    // Handle language change immediately
+    // Handle language change immediately for the first question
     if (currentQuestion.id === 'preferredLanguage' && typeof value === 'string') {
-      const selectedLang = availableLanguages.find(lang => lang.name === value)
-      if (selectedLang) {
-        setLanguage(selectedLang.code)
+      const selectedLang = availableLanguages.find(lang => 
+        lang.code === value || lang.name === value || lang.nativeName === value
+      )
+      if (selectedLang && selectedLang.code !== answers.preferredLanguage) {
+        await setLanguage(selectedLang.code)
       }
     }
   }
@@ -145,9 +163,9 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete }) => {
       const completeData: OnboardingData = {
         languages: answers.languages || [],
         healingVision: answers.healingVision || '',
-        affirmationStyle: answers.affirmationStyle || t.blendOfAll,
+        affirmationStyle: answers.affirmationStyle || t('blendOfAll'),
         culturalBackground: answers.culturalBackground || [],
-        spiritualPreference: answers.spiritualPreference || t.stillExploring,
+        spiritualPreference: answers.spiritualPreference || t('stillExploring'),
         preferredLanguage: answers.preferredLanguage || 'English'
       }
       onComplete(completeData)
@@ -169,27 +187,53 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete }) => {
       case 'language-choice':
         return (
           <div className="space-y-3">
-            {question.options?.map((option) => {
-              const langData = availableLanguages.find(lang => lang.name === option)
-              return (
-                <motion.button
-                  key={option}
-                  onClick={() => handleAnswer(langData?.code || option)}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`w-full p-4 text-left rounded-xl transition-all modal-text ${
-                    currentAnswer === (langData?.code || option)
-                      ? 'bg-terracotta-100 border-2 border-terracotta-300 text-terracotta-800'
-                      : 'bg-white border border-sage-200 text-sage-700 hover:bg-sage-50'
-                  } ${hasError ? 'border-red-300 bg-red-50' : ''}`}
-                >
-                  <div className="flex items-center space-x-3">
-                    <Globe className="w-5 h-5 text-sage-600 flex-shrink-0" />
-                    <span>{option}</span>
+            {question.options?.map((option: any) => (
+              <motion.button
+                key={option.code}
+                onClick={() => handleAnswer(option.code)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                disabled={isUpdatingLanguage}
+                className={`w-full p-4 text-left rounded-xl transition-all modal-text relative ${
+                  currentAnswer === option.code
+                    ? 'bg-terracotta-100 border-2 border-terracotta-300 text-terracotta-800'
+                    : 'bg-white border border-sage-200 text-sage-700 hover:bg-sage-50'
+                } ${hasError ? 'border-red-300 bg-red-50' : ''} ${
+                  isUpdatingLanguage ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <Globe className="w-5 h-5 text-sage-600 flex-shrink-0" />
+                  <div className="flex-1">
+                    <div className="font-medium">{option.nativeName}</div>
+                    {option.nativeName !== option.name && (
+                      <div className="text-sm opacity-75">{option.name}</div>
+                    )}
                   </div>
-                </motion.button>
-              )
-            })}
+                  {currentAnswer === option.code && (
+                    <CheckCircle className="w-5 h-5 text-terracotta-600 flex-shrink-0" />
+                  )}
+                </div>
+                
+                {/* Loading overlay for language updates */}
+                {isUpdatingLanguage && currentAnswer === option.code && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center"
+                  >
+                    <div className="flex items-center space-x-2 text-terracotta-600">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-4 h-4 border-2 border-terracotta-600 border-t-transparent rounded-full"
+                      />
+                      <span className="text-sm font-medium">{t('updatingLanguage')}</span>
+                    </div>
+                  </motion.div>
+                )}
+              </motion.button>
+            ))}
           </div>
         )
 
@@ -207,7 +251,7 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete }) => {
             {hasError && (
               <div className="flex items-center space-x-2 text-red-600">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span className="text-sm">This field is required</span>
+                <span className="text-sm">{t('required')}</span>
               </div>
             )}
           </div>
@@ -228,13 +272,18 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete }) => {
                     : 'bg-white border border-sage-200 text-sage-700 hover:bg-sage-50'
                 } ${hasError ? 'border-red-300' : ''}`}
               >
-                {option}
+                <div className="flex items-center justify-between">
+                  <span>{option}</span>
+                  {currentAnswer === option && (
+                    <CheckCircle className="w-5 h-5 text-terracotta-600 flex-shrink-0" />
+                  )}
+                </div>
               </motion.button>
             ))}
             {hasError && (
               <div className="flex items-center space-x-2 text-red-600">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span className="text-sm">Please select an option</span>
+                <span className="text-sm">{t('required')}</span>
               </div>
             )}
           </div>
@@ -264,7 +313,12 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete }) => {
                         : 'bg-white border border-sage-200 text-sage-700 hover:bg-sage-50'
                     } ${hasError ? 'border-red-300' : ''}`}
                   >
-                    {option}
+                    <div className="flex items-center justify-between">
+                      <span className="flex-1">{option}</span>
+                      {isSelected && (
+                        <CheckCircle className="w-4 h-4 text-lavender-600 flex-shrink-0 ml-2" />
+                      )}
+                    </div>
                   </motion.button>
                 )
               })}
@@ -272,7 +326,7 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete }) => {
             {hasError && (
               <div className="flex items-center space-x-2 text-red-600">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span className="text-sm">Please select at least one option</span>
+                <span className="text-sm">{t('required')}</span>
               </div>
             )}
           </div>
@@ -285,6 +339,21 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream-50 via-sage-50 to-lavender-50 flex items-center justify-center p-4">
+      {/* Language Update Toast */}
+      <AnimatePresence>
+        {showLanguageToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -50, scale: 0.9 }}
+            className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-sage-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 max-w-sm"
+          >
+            <CheckCircle className="w-5 h-5 flex-shrink-0" />
+            <span className="text-sm font-medium">{t('languageUpdated')}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -295,23 +364,23 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete }) => {
           <div className="flex items-center justify-center space-x-2 w-full">
             <Heart className="w-5 h-5 text-terracotta-500 fill-current flex-shrink-0" />
             <h1 className="modal-title text-center">
-              {t.appName}
+              {t('appName')}
             </h1>
           </div>
         </div>
 
         <div className="modal-body">
           <div className="text-center space-y-2 mb-6">
-            <h2 className="modal-title">{t.onboardingTitle}</h2>
+            <h2 className="modal-title">{t('onboardingTitle')}</h2>
             <p className="modal-text text-sage-600">
-              {t.onboardingSubtitle}
+              {t('onboardingSubtitle')}
             </p>
           </div>
 
           {/* Progress Bar */}
           <div className="mb-6">
             <div className="flex items-center justify-between modal-text text-sage-600 mb-2">
-              <span>Step {currentStep + 1} of {questions.length}</span>
+              <span>{t('skipForNow')} {currentStep + 1} {t('skipForNow')} {questions.length}</span>
               <span>{Math.round(((currentStep + 1) / questions.length) * 100)}%</span>
             </div>
             <div className="w-full bg-sage-100 rounded-full h-2">
@@ -362,7 +431,7 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete }) => {
                   className="modal-button flex items-center space-x-2 bg-sage-100 text-sage-700 hover:bg-sage-200"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  <span>{t.back}</span>
+                  <span>{t('back')}</span>
                 </motion.button>
               )}
             </div>
@@ -371,9 +440,10 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete }) => {
               onClick={nextStep}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="modal-button flex items-center space-x-2 bg-terracotta-500 text-white hover:bg-terracotta-600"
+              disabled={isUpdatingLanguage}
+              className="modal-button flex items-center space-x-2 bg-terracotta-500 text-white hover:bg-terracotta-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span>{currentStep === questions.length - 1 ? t.complete : t.next}</span>
+              <span>{currentStep === questions.length - 1 ? t('complete') : t('next')}</span>
               <ArrowRight className="w-4 h-4" />
             </motion.button>
           </div>

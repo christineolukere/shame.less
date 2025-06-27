@@ -1,11 +1,13 @@
-import React, { createContext, useContext, useState } from 'react';
-import { translations, type Translations, getTranslationsForLanguage } from '../lib/translations';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { translations, type Translations, getTranslationsForLanguage, getAvailableLanguages, getTranslation } from '../lib/translations';
 
 interface LocalizationContextType {
   currentLanguage: string;
   translations: Translations;
   setLanguage: (language: string) => void;
-  availableLanguages: { code: string; name: string }[];
+  availableLanguages: { code: string; name: string; nativeName: string }[];
+  t: (key: string) => string;
+  isUpdatingLanguage: boolean;
 }
 
 const LocalizationContext = createContext<LocalizationContextType | undefined>(undefined);
@@ -20,18 +22,40 @@ export const useLocalization = () => {
 
 export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentLanguage, setCurrentLanguage] = useState('English');
+  const [isUpdatingLanguage, setIsUpdatingLanguage] = useState(false);
 
-  const availableLanguages = [
-    { code: 'English', name: 'English' },
-    { code: 'Spanish', name: 'Español' },
-    { code: 'French', name: 'Français' },
-    { code: 'Arabic', name: 'العربية' }
-  ];
+  const availableLanguages = getAvailableLanguages();
 
-  const setLanguage = (language: string) => {
+  // Load saved language preference on mount
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('shameless_preferred_language');
+    if (savedLanguage) {
+      setCurrentLanguage(savedLanguage);
+    }
+  }, []);
+
+  const setLanguage = async (language: string) => {
+    if (language === currentLanguage) return;
+    
+    setIsUpdatingLanguage(true);
+    
+    // Small delay to show loading state
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
     setCurrentLanguage(language);
-    // Store language preference
     localStorage.setItem('shameless_preferred_language', language);
+    
+    setIsUpdatingLanguage(false);
+    
+    // Show success toast (we'll implement this in the onboarding component)
+    const event = new CustomEvent('languageUpdated', { detail: { language } });
+    window.dispatchEvent(event);
+  };
+
+  // Translation function with fallback
+  const t = (key: string): string => {
+    const currentTranslations = getTranslationsForLanguage(currentLanguage);
+    return getTranslation(key, currentTranslations);
   };
 
   const value = {
@@ -39,6 +63,8 @@ export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     translations: getTranslationsForLanguage(currentLanguage),
     setLanguage,
     availableLanguages,
+    t,
+    isUpdatingLanguage,
   };
 
   return (

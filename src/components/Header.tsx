@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Heart, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
+import { useLocalization } from '../contexts/LocalizationContext';
 import AuthModal from './Auth/AuthModal';
 import ProfileMenu from './Auth/ProfileMenu';
 
@@ -13,6 +14,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue }) => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { user, loading, isGuest } = useAuth();
+  const { t } = useLocalization();
 
   const handleAuthModalOpen = () => {
     setShowAuthModal(true);
@@ -34,7 +36,7 @@ const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue }) => {
           >
             <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-terracotta-500 fill-current flex-shrink-0" />
             <h1 className="text-lg sm:text-xl font-serif font-medium text-sage-800 truncate">
-              shame.<span className="text-terracotta-500">less</span>
+              {t('appName')}
             </h1>
           </motion.div>
 
@@ -61,7 +63,7 @@ const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue }) => {
                     className="px-3 sm:px-4 py-2 text-white rounded-full text-sm font-medium transition-all touch-target"
                     style={{ backgroundColor: '#E9A8A6' }}
                   >
-                    Sign In
+                    {t('signIn')}
                   </motion.button>
                 ) : (
                   <motion.button
