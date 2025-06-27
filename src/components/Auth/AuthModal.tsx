@@ -25,7 +25,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const { signIn, signUp, user } = useAuth()
+  const { signIn, signUp, user, isGuest } = useAuth()
   const { translations: t } = useLocalization()
 
   // Auto-close modal when user successfully authenticates
@@ -137,8 +137,8 @@ const AuthModal: React.FC<AuthModalProps> = ({
               </p>
             </div>
 
-            {/* Guest Option */}
-            {onGuestContinue && !showMigrationMessage && (
+            {/* Guest Option - Show for non-guests or when explicitly requested */}
+            {onGuestContinue && !isGuest && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -164,8 +164,8 @@ const AuthModal: React.FC<AuthModalProps> = ({
               </motion.div>
             )}
 
-            {/* Divider */}
-            {onGuestContinue && !showMigrationMessage && (
+            {/* Divider - Show when guest option is visible */}
+            {onGuestContinue && !isGuest && (
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-sage-200" />
