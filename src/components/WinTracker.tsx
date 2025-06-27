@@ -5,6 +5,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { GuestStorageManager } from '../lib/guestStorage';
 import { supabase } from '../lib/supabase';
+import { celebrateWin, CelebrationConfig } from '../lib/winCelebrations';
+import WinCelebration from './WinCelebration';
 
 interface Win {
   id: string;
@@ -26,6 +28,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [currentCelebration, setCurrentCelebration] = useState<CelebrationConfig | null>(null);
 
   const categories = [
     { id: 'self-care', label: t.selfCare, icon: Heart, color: 'terracotta' },
@@ -133,6 +136,10 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
         setWins([formattedWin, ...wins]);
       }
 
+      // Trigger celebration!
+      const celebration = celebrateWin(selectedCategory, text);
+      setCurrentCelebration(celebration);
+
       setNewWin('');
       setShowAddForm(false);
     } catch (error) {
@@ -142,9 +149,31 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
     }
   };
 
+  const handleQuickWin = async (winText: string) => {
+    // Determine category based on win text
+    let category: Win['category'] = 'self-care';
+    
+    if (winText.includes('boundary') || winText.includes('saying no') || winText.includes('help')) {
+      category = 'boundaries';
+    } else if (winText.includes('moved') || winText.includes('called') || winText.includes('break')) {
+      category = 'growth';
+    } else if (winText.includes('water') || winText.includes('shower') || winText.includes('meal') || winText.includes('bed')) {
+      category = 'self-care';
+    }
+
+    const originalCategory = selectedCategory;
+    setSelectedCategory(category);
+    await addWin(winText);
+    setSelectedCategory(originalCategory);
+  };
+
   const getCategoryColor = (category: Win['category']) => {
     const cat = categories.find(c => c.id === category);
     return cat?.color || 'sage';
+  };
+
+  const handleCelebrationComplete = () => {
+    setCurrentCelebration(null);
   };
 
   if (loading) {
@@ -157,6 +186,12 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
 
   return (
     <div className="p-6 space-y-6">
+      {/* Celebration Overlay */}
+      <WinCelebration 
+        celebration={currentCelebration} 
+        onComplete={handleCelebrationComplete} 
+      />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
@@ -203,12 +238,19 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
-                onClick={() => addWin(win)}
+                onClick={() => handleQuickWin(win)}
                 disabled={saving}
                 whileHover={{ scale: saving ? 1 : 1.02 }}
                 whileTap={{ scale: saving ? 1 : 0.98 }}
-                className="p-3 text-left text-sm bg-white border border-sage-100 rounded-lg hover:bg-sage-50 transition-colors disabled:opacity-50"
+                className="p-3 text-left text-sm bg-white border border-sage-100 rounded-lg hover:bg-sage-50 transition-colors disabled:opacity-50 relative overflow-hidden"
               >
+                {saving && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent"
+                  />
+                )}
                 {win}
               </motion.button>
             ))}
@@ -233,9 +275,11 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
                 {categories.map((category) => {
                   const Icon = category.icon;
                   return (
-                    <button
+                    <motion.button
                       key={category.id}
                       onClick={() => setSelectedCategory(category.id)}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       className={`p-3 rounded-lg text-left transition-all ${
                         selectedCategory === category.id
                           ? `bg-${category.color}-100 border-2 border-${category.color}-300`
@@ -244,7 +288,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
                     >
                       <Icon className={`w-4 h-4 text-${category.color}-600 mb-1`} />
                       <div className="text-sm font-medium">{category.label}</div>
-                    </button>
+                    </motion.button>
                   );
                 })}
               </div>
@@ -260,13 +304,22 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
 
               {/* Action Buttons */}
               <div className="flex space-x-3">
-                <button
+                <motion.button
                   onClick={() => addWin(newWin)}
                   disabled={!newWin.trim() || saving}
-                  className="flex-1 py-3 bg-terracotta-500 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-terracotta-600 transition-colors"
+                  whileHover={{ scale: !newWin.trim() || saving ? 1 : 1.02 }}
+                  whileTap={{ scale: !newWin.trim() || saving ? 1 : 0.98 }}
+                  className="flex-1 py-3 bg-terracotta-500 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-terracotta-600 transition-colors relative overflow-hidden"
                 >
-                  {saving ? 'Saving...' : t.celebrateThisWin}
-                </button>
+                  {saving && (
+                    <motion.div
+                      animate={{ x: ['-100%', '100%'] }}
+                      transition={{ duration: 1, repeat: Infinity }}
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                    />
+                  )}
+                  {saving ? 'Celebrating...' : t.celebrateThisWin}
+                </motion.button>
                 <button
                   onClick={() => setShowAddForm(false)}
                   disabled={saving}
@@ -298,7 +351,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className={`p-4 rounded-lg bg-${color}-50 border border-${color}-100`}
+                  className={`p-4 rounded-lg bg-${color}-50 border border-${color}-100 relative overflow-hidden`}
                 >
                   <div className="flex items-start space-x-3">
                     <Trophy className={`w-5 h-5 text-${color}-600 mt-0.5 flex-shrink-0`} />
@@ -309,6 +362,18 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
                       </p>
                     </div>
                   </div>
+                  
+                  {/* Subtle sparkle animation for recent wins */}
+                  {index === 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: [0, 1, 0], scale: [0, 1, 0] }}
+                      transition={{ duration: 2, delay: 0.5 }}
+                      className="absolute top-2 right-2 text-yellow-400"
+                    >
+                      ✨
+                    </motion.div>
+                  )}
                 </motion.div>
               );
             })}
