@@ -53,11 +53,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Check for guest mode first
     const guestMode = localStorage.getItem('shameless_guest_mode')
-    const onboardingDone = localStorage.getItem('shameless_onboarding_complete')
     
     if (guestMode === 'true') {
       setIsGuest(true)
-      setOnboardingComplete(onboardingDone === 'true')
+      
+      // Check guest onboarding status
+      const guestOnboardingDone = localStorage.getItem('shameless_onboarding_complete')
+      setOnboardingComplete(guestOnboardingDone === 'true')
       
       // Increment visit count and check for upsell
       const newVisitCount = GuestStorageManager.incrementVisitCount()
@@ -171,7 +173,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const continueAsGuest = () => {
     localStorage.setItem('shameless_guest_mode', 'true')
     setIsGuest(true)
-    setOnboardingComplete(false) // Force onboarding for guests
+    
+    // Force onboarding for new guests - don't check existing completion
+    setOnboardingComplete(false)
     
     // Initialize guest data and visit tracking
     const newVisitCount = GuestStorageManager.incrementVisitCount()
