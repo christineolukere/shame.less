@@ -1,30 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Mic, Camera, Type } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Mic, Camera, Type, Play, Pause, Image as ImageIcon, AlertCircle, CheckCircle, Star } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { GuestStorageManager } from '../lib/guestStorage';
-import { supabase } from '../lib/supabase';
-
-interface JournalEntry {
-  id: string;
-  content: string;
-  prompt?: string;
-  entryType: string;
-  timestamp: string;
-}
+import { 
+  saveJournalEntry, 
+  loadJournalEntries, 
+  checkContentSafety, 
+  initializeStorageBuckets,
+  EnhancedJournalEntry 
+} from '../lib/journalStorage';
+import AudioRecorder from './Journal/AudioRecorder';
+import PhotoUploader from './Journal/PhotoUploader';
+import SafetyModal from './Journal/SafetyModal';
 
 interface JournalProps {
   onBack: () => void;
 }
 
+type InputMode = 'text' | 'voice' | 'photo';
+
+interface MediaFile {
+  file: File;
+  type: 'audio' | 'photo';
+  duration?: number;
+  preview?: string;
+}
+
 const Journal: React.FC<JournalProps> = ({ onBack }) => {
-  const [inputMode, setInputMode] = useState<'text' | 'voice' | 'photo'>('text');
+  const [inputMode, setInputMode] = useState<InputMode>('text');
+  const [title, setTitle] = useState('');
   const [journalText, setJournalText] = useState('');
   const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
-  const [entries, setEntries] = useState<JournalEntry[]>([]);
+  const [moodRating, setMoodRating] = useState<number | null>(null);
+  const [entries, setEntries] = useState<EnhancedJournalEntry[]>([]);
+  const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showAudioRecorder, setShowAudioRecorder] = useState(false);
+  const [showPhotoUploader, setShowPhotoUploader] = useState(false);
+  const [showSafetyModal, setShowSafetyModal] = useState(false);
+  const [flaggedWords, setFlaggedWords] = useState<string[]>([]);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [playingAudio, setPlayingAudio] = useState<string | null>(null);
+  
   const { translations: t } = useLocalization();
   const { user, isGuest } = useAuth();
 
@@ -46,42 +66,36 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
   ] as const;
 
   useEffect(() => {
-    loadEntries();
+    initializeStorageBuckets();
+    loadJournalData();
   }, [user, isGuest]);
 
-  const loadEntries = async () => {
+  const loadJournalData = async () => {
     setLoading(true);
     try {
       if (isGuest) {
         // Load from local storage for guest users
         const guestData = GuestStorageManager.getGuestData();
-        const formattedEntries: JournalEntry[] = guestData.journalEntries.map(entry => ({
+        const formattedEntries: EnhancedJournalEntry[] = guestData.journalEntries.map(entry => ({
           id: entry.id,
+          user_id: undefined,
+          guest_session_id: GuestStorageManager.getGuestSessionId(),
+          title: undefined,
           content: entry.content,
           prompt: entry.prompt,
-          entryType: entry.entryType,
-          timestamp: entry.timestamp
+          entry_type: entry.entryType,
+          mood_rating: undefined,
+          is_flagged: false,
+          created_at: entry.timestamp,
+          media: []
         }));
         setEntries(formattedEntries);
       } else if (user) {
         // Load from Supabase for authenticated users
-        const { data, error } = await supabase
-          .from('journal_entries')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(5); // Show recent entries
-
-        if (error) throw error;
-
-        const formattedEntries: JournalEntry[] = (data || []).map(entry => ({
-          id: entry.id,
-          content: entry.content,
-          prompt: entry.prompt || undefined,
-          entryType: entry.entry_type,
-          timestamp: entry.created_at
-        }));
-        setEntries(formattedEntries);
+        const result = await loadJournalEntries(user.id, 10);
+        if (result.success && result.entries) {
+          setEntries(result.entries);
+        }
       }
     } catch (error) {
       console.error('Error loading journal entries:', error);
@@ -90,52 +104,107 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
     }
   };
 
+  const handlePromptSelect = (prompt: string) => {
+    setSelectedPrompt(prompt);
+    setJournalText(prompt + '\n\n');
+  };
+
+  const handleAudioRecordingComplete = (audioFile: File, duration: number) => {
+    const newMediaFile: MediaFile = {
+      file: audioFile,
+      type: 'audio',
+      duration
+    };
+    setMediaFiles([...mediaFiles, newMediaFile]);
+    setShowAudioRecorder(false);
+  };
+
+  const handlePhotoSelected = (photoFile: File) => {
+    const preview = URL.createObjectURL(photoFile);
+    const newMediaFile: MediaFile = {
+      file: photoFile,
+      type: 'photo',
+      preview
+    };
+    setMediaFiles([...mediaFiles, newMediaFile]);
+    setShowPhotoUploader(false);
+  };
+
+  const removeMediaFile = (index: number) => {
+    const updatedFiles = mediaFiles.filter((_, i) => i !== index);
+    setMediaFiles(updatedFiles);
+  };
+
   const saveEntry = async () => {
-    if (!journalText.trim()) return;
+    if (!journalText.trim() && mediaFiles.length === 0) return;
 
     setSaving(true);
+    
     try {
-      const entryData = {
-        content: journalText.trim(),
-        prompt: selectedPrompt || undefined,
-        entryType: inputMode
-      };
+      // Check content safety if there's text
+      if (journalText.trim()) {
+        const safetyCheck = checkContentSafety(journalText);
+        if (!safetyCheck.isSafe) {
+          setFlaggedWords(safetyCheck.flaggedWords);
+          setShowSafetyModal(true);
+          setSaving(false);
+          return;
+        }
+      }
 
+      await performSave();
+    } catch (error) {
+      console.error('Error saving journal entry:', error);
+      setSaving(false);
+    }
+  };
+
+  const performSave = async () => {
+    try {
       if (isGuest) {
         // Save to local storage for guest users
-        GuestStorageManager.addJournalEntry(entryData);
+        GuestStorageManager.addJournalEntry({
+          content: journalText.trim(),
+          prompt: selectedPrompt || undefined,
+          entryType: inputMode
+        });
         
-        // Reload entries to get the new ID
-        await loadEntries();
+        // Reload entries to get the new one
+        await loadJournalData();
       } else if (user) {
         // Save to Supabase for authenticated users
-        const { data, error } = await supabase
-          .from('journal_entries')
-          .insert({
-            user_id: user.id,
-            content: entryData.content,
-            prompt: entryData.prompt || null,
-            entry_type: entryData.entryType
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
-
-        const newEntry: JournalEntry = {
-          id: data.id,
-          content: data.content,
-          prompt: data.prompt || undefined,
-          entryType: data.entry_type,
-          timestamp: data.created_at
+        const entryData = {
+          user_id: user.id,
+          title: title.trim() || undefined,
+          content: journalText.trim(),
+          prompt: selectedPrompt || undefined,
+          entry_type: inputMode,
+          mood_rating: moodRating,
+          is_flagged: false
         };
 
-        setEntries([newEntry, ...entries]);
+        const result = await saveJournalEntry(entryData, mediaFiles);
+        
+        if (result.success) {
+          // Reload entries to get the updated list
+          await loadJournalData();
+        } else {
+          throw new Error(result.error);
+        }
       }
 
       // Reset form
+      setTitle('');
       setJournalText('');
       setSelectedPrompt(null);
+      setMoodRating(null);
+      setMediaFiles([]);
+      setInputMode('text');
+      
+      // Show success message
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+      
     } catch (error) {
       console.error('Error saving journal entry:', error);
     } finally {
@@ -143,8 +212,63 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
     }
   };
 
+  const handleSafetyModalContinue = () => {
+    setShowSafetyModal(false);
+    performSave();
+  };
+
+  const playAudio = (audioUrl: string, entryId: string) => {
+    if (playingAudio === entryId) {
+      // Pause current audio
+      const audioElements = document.querySelectorAll('audio');
+      audioElements.forEach(audio => audio.pause());
+      setPlayingAudio(null);
+    } else {
+      // Stop any currently playing audio
+      const audioElements = document.querySelectorAll('audio');
+      audioElements.forEach(audio => audio.pause());
+      
+      // Play new audio
+      const audio = new Audio(audioUrl);
+      audio.play();
+      setPlayingAudio(entryId);
+      
+      audio.onended = () => setPlayingAudio(null);
+      audio.onpause = () => setPlayingAudio(null);
+    }
+  };
+
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  if (loading) {
+    return (
+      <div className="p-6 flex items-center justify-center">
+        <div className="text-sage-600">Loading your journal...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-6">
+      {/* Success Message */}
+      <AnimatePresence>
+        {saveSuccess && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-sage-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2"
+          >
+            <CheckCircle className="w-5 h-5" />
+            <span>Your reflection has been saved</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <div className="flex items-center space-x-4">
         <motion.button
@@ -168,6 +292,23 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
         <p className="text-lavender-700 text-sm leading-relaxed">
           {t.journalDescription}
         </p>
+      </motion.div>
+
+      {/* Safety Disclaimer */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-cream-50 rounded-xl p-4 border border-cream-100"
+      >
+        <div className="flex items-start space-x-2">
+          <AlertCircle className="w-4 h-4 text-cream-600 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="text-cream-700 text-sm">
+              <strong>Journal Guidelines:</strong> This is your personal healing space. 
+              Please avoid uploading explicit content. If you're in crisis, visit our Crisis Support section.
+            </p>
+          </div>
+        </div>
       </motion.div>
 
       {/* Input Mode Selection */}
@@ -196,57 +337,150 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
         </div>
       </div>
 
-      {/* Gentle Prompts */}
-      <div className="space-y-3">
-        <h3 className="text-lg font-serif text-sage-800">{t.needGentleNudge}</h3>
-        <div className="grid grid-cols-1 gap-2">
-          {prompts.slice(0, 4).map((prompt, index) => (
-            <motion.button
-              key={prompt}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-              onClick={() => {
-                setSelectedPrompt(prompt);
-                setJournalText(prompt + '\n\n');
-              }}
-              className={`p-3 text-left text-sm rounded-lg transition-all ${
-                selectedPrompt === prompt
-                  ? 'bg-cream-100 border-2 border-cream-300'
-                  : 'bg-white border border-sage-100 hover:bg-sage-50'
-              }`}
-            >
-              {prompt}
-            </motion.button>
-          ))}
-        </div>
-      </div>
-
-      {/* Journal Input */}
+      {/* Text Input Mode */}
       {inputMode === 'text' && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-3"
+          className="space-y-4"
         >
+          {/* Optional Title */}
+          <div>
+            <label className="block text-sm font-medium text-sage-700 mb-2">
+              Title (optional)
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Give your entry a title..."
+              className="w-full p-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-300 focus:border-transparent"
+            />
+          </div>
+
+          {/* Gentle Prompts */}
+          <div className="space-y-3">
+            <h4 className="text-base font-serif text-sage-800">{t.needGentleNudge}</h4>
+            <div className="grid grid-cols-1 gap-2">
+              {prompts.slice(0, 4).map((prompt, index) => (
+                <motion.button
+                  key={prompt}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  onClick={() => handlePromptSelect(prompt)}
+                  className={`p-3 text-left text-sm rounded-lg transition-all ${
+                    selectedPrompt === prompt
+                      ? 'bg-cream-100 border-2 border-cream-300'
+                      : 'bg-white border border-sage-100 hover:bg-sage-50'
+                  }`}
+                >
+                  {prompt}
+                </motion.button>
+              ))}
+            </div>
+          </div>
+
+          {/* Mood Rating */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-sage-700">
+              How are you feeling? (optional)
+            </label>
+            <div className="flex space-x-2">
+              {[1, 2, 3, 4, 5].map((rating) => (
+                <motion.button
+                  key={rating}
+                  onClick={() => setMoodRating(rating)}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                    moodRating === rating
+                      ? 'bg-terracotta-200 text-terracotta-800'
+                      : 'bg-sage-100 text-sage-600 hover:bg-sage-200'
+                  }`}
+                >
+                  <Star className={`w-4 h-4 ${moodRating === rating ? 'fill-current' : ''}`} />
+                </motion.button>
+              ))}
+            </div>
+          </div>
+
+          {/* Text Area */}
           <textarea
             value={journalText}
             onChange={(e) => setJournalText(e.target.value)}
             placeholder={t.letThoughtsFlow}
             className="w-full h-40 p-4 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-300 focus:border-transparent resize-none"
           />
-          <button 
+
+          {/* Media Attachments */}
+          {mediaFiles.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium text-sage-700">Attachments</h4>
+              <div className="space-y-2">
+                {mediaFiles.map((media, index) => (
+                  <div key={index} className="flex items-center space-x-3 p-3 bg-sage-50 rounded-lg">
+                    {media.type === 'audio' ? (
+                      <Mic className="w-5 h-5 text-sage-600" />
+                    ) : (
+                      <ImageIcon className="w-5 h-5 text-sage-600" />
+                    )}
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-sage-800">{media.file.name}</p>
+                      {media.duration && (
+                        <p className="text-xs text-sage-600">{formatDuration(media.duration)}</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => removeMediaFile(index)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Add Media Buttons */}
+          <div className="flex space-x-3">
+            <motion.button
+              onClick={() => setShowAudioRecorder(true)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex items-center space-x-2 px-4 py-2 bg-terracotta-100 text-terracotta-700 rounded-lg hover:bg-terracotta-200 transition-colors"
+            >
+              <Mic className="w-4 h-4" />
+              <span>Add Voice Note</span>
+            </motion.button>
+            
+            <motion.button
+              onClick={() => setShowPhotoUploader(true)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex items-center space-x-2 px-4 py-2 bg-sage-100 text-sage-700 rounded-lg hover:bg-sage-200 transition-colors"
+            >
+              <Camera className="w-4 h-4" />
+              <span>Add Photo</span>
+            </motion.button>
+          </div>
+
+          {/* Save Button */}
+          <motion.button
             onClick={saveEntry}
-            disabled={!journalText.trim() || saving}
+            disabled={(!journalText.trim() && mediaFiles.length === 0) || saving}
+            whileHover={{ scale: (!journalText.trim() && mediaFiles.length === 0) || saving ? 1 : 1.02 }}
+            whileTap={{ scale: (!journalText.trim() && mediaFiles.length === 0) || saving ? 1 : 0.98 }}
             className="w-full py-3 bg-sage-500 text-white rounded-lg font-medium hover:bg-sage-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? 'Saving...' : t.saveEntry}
-          </button>
+          </motion.button>
         </motion.div>
       )}
 
-      {/* Voice Recording */}
-      {inputMode === 'voice' && (
+      {/* Voice Recording Mode */}
+      {inputMode === 'voice' && !showAudioRecorder && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -255,15 +489,20 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
           <div className="w-32 h-32 mx-auto bg-terracotta-100 rounded-full flex items-center justify-center">
             <Mic className="w-12 h-12 text-terracotta-600" />
           </div>
-          <p className="text-sage-600">Voice recording coming soon</p>
-          <button className="px-8 py-3 bg-terracotta-500 text-white rounded-lg font-medium hover:bg-terracotta-600 transition-colors opacity-50 cursor-not-allowed">
+          <p className="text-sage-600">Ready to record your voice note</p>
+          <motion.button
+            onClick={() => setShowAudioRecorder(true)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="px-8 py-3 bg-terracotta-500 text-white rounded-lg font-medium hover:bg-terracotta-600 transition-colors"
+          >
             Start Recording
-          </button>
+          </motion.button>
         </motion.div>
       )}
 
-      {/* Photo Capture */}
-      {inputMode === 'photo' && (
+      {/* Photo Mode */}
+      {inputMode === 'photo' && !showPhotoUploader && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -272,10 +511,15 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
           <div className="w-32 h-32 mx-auto bg-lavender-100 rounded-full flex items-center justify-center">
             <Camera className="w-12 h-12 text-lavender-600" />
           </div>
-          <p className="text-sage-600">Photo journaling coming soon</p>
-          <button className="px-8 py-3 bg-lavender-500 text-white rounded-lg font-medium hover:bg-lavender-600 transition-colors opacity-50 cursor-not-allowed">
-            Take Photo
-          </button>
+          <p className="text-sage-600">Share a moment through photography</p>
+          <motion.button
+            onClick={() => setShowPhotoUploader(true)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="px-8 py-3 bg-lavender-500 text-white rounded-lg font-medium hover:bg-lavender-600 transition-colors"
+          >
+            Add Photo
+          </motion.button>
         </motion.div>
       )}
 
@@ -284,7 +528,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
         <div className="space-y-3">
           <h3 className="text-lg font-serif text-sage-800">Recent reflections</h3>
           <div className="space-y-3">
-            {entries.slice(0, 3).map((entry, index) => (
+            {entries.slice(0, 5).map((entry, index) => (
               <motion.div
                 key={entry.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -292,22 +536,110 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
                 transition={{ delay: index * 0.1 }}
                 className="p-4 bg-cream-50 rounded-lg border border-cream-100"
               >
+                {entry.title && (
+                  <h4 className="font-medium text-cream-800 mb-2">{entry.title}</h4>
+                )}
+                
                 {entry.prompt && (
                   <div className="text-xs text-cream-600 mb-2 font-medium">
                     {entry.prompt}
                   </div>
                 )}
-                <p className="text-cream-800 text-sm leading-relaxed line-clamp-3">
+                
+                <p className="text-cream-800 text-sm leading-relaxed line-clamp-3 mb-3">
                   {entry.content}
                 </p>
-                <div className="text-xs text-cream-600 mt-2">
-                  {new Date(entry.timestamp).toLocaleDateString()}
+
+                {/* Media Attachments */}
+                {entry.media && entry.media.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {entry.media.map((media) => (
+                      <div key={media.id} className="flex items-center space-x-2">
+                        {media.media_type === 'audio' ? (
+                          <motion.button
+                            onClick={() => media.signed_url && playAudio(media.signed_url, entry.id)}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="flex items-center space-x-1 px-2 py-1 bg-terracotta-100 text-terracotta-700 rounded text-xs hover:bg-terracotta-200 transition-colors"
+                          >
+                            {playingAudio === entry.id ? (
+                              <Pause className="w-3 h-3" />
+                            ) : (
+                              <Play className="w-3 h-3" />
+                            )}
+                            <span>{media.duration ? formatDuration(media.duration) : 'Audio'}</span>
+                          </motion.button>
+                        ) : (
+                          media.signed_url && (
+                            <img
+                              src={media.signed_url}
+                              alt="Journal attachment"
+                              className="w-12 h-12 object-cover rounded border border-cream-200"
+                            />
+                          )
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between">
+                  <div className="text-xs text-cream-600">
+                    {new Date(entry.created_at).toLocaleDateString()}
+                  </div>
+                  
+                  {entry.mood_rating && (
+                    <div className="flex space-x-1">
+                      {[...Array(entry.mood_rating)].map((_, i) => (
+                        <Star key={i} className="w-3 h-3 text-terracotta-500 fill-current" />
+                      ))}
+                    </div>
+                  )}
                 </div>
               </motion.div>
             ))}
           </div>
         </div>
       )}
+
+      {/* Modals */}
+      <AnimatePresence>
+        {showAudioRecorder && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          >
+            <AudioRecorder
+              onRecordingComplete={handleAudioRecordingComplete}
+              onCancel={() => setShowAudioRecorder(false)}
+            />
+          </motion.div>
+        )}
+
+        {showPhotoUploader && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          >
+            <PhotoUploader
+              onPhotoSelected={handlePhotoSelected}
+              onCancel={() => setShowPhotoUploader(false)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Safety Modal */}
+      <SafetyModal
+        isOpen={showSafetyModal}
+        onClose={() => setShowSafetyModal(false)}
+        onContinue={handleSafetyModalContinue}
+        flaggedWords={flaggedWords}
+      />
     </div>
   );
 };
