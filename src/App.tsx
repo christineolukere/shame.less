@@ -37,7 +37,6 @@ function AppContent() {
     shouldShowUpsell,
     continueAsGuest, 
     completeOnboarding,
-    setOnboardingComplete,
     dismissUpsell,
     migrateGuestData
   } = useAuth();
@@ -64,13 +63,6 @@ function AppContent() {
 
   const handleOnboardingComplete = async (data: OnboardingData) => {
     await completeOnboarding(data);
-  };
-
-  const handleOnboardingSkip = () => {
-    setOnboardingComplete(true);
-    if (isGuest) {
-      localStorage.setItem('shameless_onboarding_complete', 'true');
-    }
   };
 
   const handleUpsellSignUp = () => {
@@ -146,12 +138,11 @@ function AppContent() {
     );
   }
 
-  // Show onboarding for new users (both authenticated and guest)
+  // Show onboarding for new users (both authenticated and guest) - REQUIRED
   if ((user || isGuest) && !onboardingComplete) {
     return (
       <OnboardingQuiz
         onComplete={handleOnboardingComplete}
-        onSkip={handleOnboardingSkip}
       />
     );
   }

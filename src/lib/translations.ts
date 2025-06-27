@@ -1,11 +1,12 @@
-// Simple English-only translations for the shame.less app
-export const translations = {
+// Multi-language translations for the shame.less app
+const englishTranslations = {
   // Common
   skipForNow: "Skip for now",
   next: "Next",
   back: "Back",
   complete: "Complete",
   loading: "Loading...",
+  required: "Required",
   
   // App branding
   appName: "shame.less",
@@ -29,8 +30,8 @@ export const translations = {
   // Onboarding
   onboardingTitle: "Let's personalize your healing journey",
   onboardingSubtitle: "Help us create a space that feels right for you",
-  languageQuestion: "What language do you feel the most loved in?",
-  languageSubtitle: "Choose the language that feels most comfortable for you",
+  languageQuestion: "What language feels most comfortable for you?",
+  languageSubtitle: "Choose the language you'd like to use in the app",
   healingVisionQuestion: "What does healing look like for you?",
   healingVisionSubtitle: "Share your vision in your own words",
   healingVisionPlaceholder: "Describe what healing means to you...",
@@ -226,12 +227,97 @@ export const translations = {
   iUnderstand: "I understand",
 };
 
-export type Translations = typeof translations;
+const spanishTranslations = {
+  ...englishTranslations,
+  // Override key translations for Spanish
+  appName: "sin.vergüenza",
+  tagline: "Tu compañera diaria gentil",
+  languageQuestion: "¿Qué idioma te resulta más cómodo?",
+  languageSubtitle: "Elige el idioma que te gustaría usar en la aplicación",
+  onboardingTitle: "Personalicemos tu viaje de sanación",
+  onboardingSubtitle: "Ayúdanos a crear un espacio que se sienta adecuado para ti",
+  healingVisionQuestion: "¿Cómo se ve la sanación para ti?",
+  healingVisionSubtitle: "Comparte tu visión con tus propias palabras",
+  healingVisionPlaceholder: "Describe qué significa la sanación para ti...",
+  next: "Siguiente",
+  back: "Atrás",
+  complete: "Completar",
+  required: "Requerido",
+  goodMorning: "Buenos días",
+  goodAfternoon: "Buenas tardes",
+  goodEvening: "Buenas noches",
+  beautiful: "hermosa",
+  friend: "amiga",
+  worthyOfLove: "Mereces amor y gentileza.",
+  welcomeBackToSafeSpace: "Bienvenida de vuelta a tu espacio seguro.",
+};
 
-export function getTranslation(): Translations {
-  return translations;
+const frenchTranslations = {
+  ...englishTranslations,
+  // Override key translations for French
+  appName: "sans.honte",
+  tagline: "Votre compagne quotidienne douce",
+  languageQuestion: "Quelle langue vous semble la plus confortable?",
+  languageSubtitle: "Choisissez la langue que vous aimeriez utiliser dans l'application",
+  onboardingTitle: "Personnalisons votre parcours de guérison",
+  onboardingSubtitle: "Aidez-nous à créer un espace qui vous convient",
+  healingVisionQuestion: "À quoi ressemble la guérison pour vous?",
+  healingVisionSubtitle: "Partagez votre vision avec vos propres mots",
+  healingVisionPlaceholder: "Décrivez ce que la guérison signifie pour vous...",
+  next: "Suivant",
+  back: "Retour",
+  complete: "Terminer",
+  required: "Requis",
+  goodMorning: "Bonjour",
+  goodAfternoon: "Bon après-midi",
+  goodEvening: "Bonsoir",
+  beautiful: "belle",
+  friend: "amie",
+  worthyOfLove: "Vous méritez l'amour et la douceur.",
+  welcomeBackToSafeSpace: "Bienvenue dans votre espace sûr.",
+};
+
+const arabicTranslations = {
+  ...englishTranslations,
+  // Override key translations for Arabic
+  appName: "بلا.خجل",
+  tagline: "رفيقتك اليومية اللطيفة",
+  languageQuestion: "أي لغة تشعرين بالراحة معها أكثر؟",
+  languageSubtitle: "اختاري اللغة التي تودين استخدامها في التطبيق",
+  onboardingTitle: "لنخصص رحلة الشفاء الخاصة بك",
+  onboardingSubtitle: "ساعدينا في إنشاء مساحة تناسبك",
+  healingVisionQuestion: "كيف يبدو الشفاء بالنسبة لك؟",
+  healingVisionSubtitle: "شاركي رؤيتك بكلماتك الخاصة",
+  healingVisionPlaceholder: "صفي ما يعنيه الشفاء بالنسبة لك...",
+  next: "التالي",
+  back: "العودة",
+  complete: "إكمال",
+  required: "مطلوب",
+  goodMorning: "صباح الخير",
+  goodAfternoon: "مساء الخير",
+  goodEvening: "مساء الخير",
+  beautiful: "جميلة",
+  friend: "صديقة",
+  worthyOfLove: "أنت تستحقين الحب واللطف.",
+  welcomeBackToSafeSpace: "مرحباً بعودتك إلى مساحتك الآمنة.",
+};
+
+export const translations = englishTranslations;
+export type Translations = typeof englishTranslations;
+
+export function getTranslationsForLanguage(language: string): Translations {
+  switch (language) {
+    case 'Spanish':
+      return spanishTranslations;
+    case 'French':
+      return frenchTranslations;
+    case 'Arabic':
+      return arabicTranslations;
+    default:
+      return englishTranslations;
+  }
 }
 
 export function getAvailableLanguages(): string[] {
-  return ['English'];
+  return ['English', 'Spanish', 'French', 'Arabic'];
 }
