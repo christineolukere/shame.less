@@ -380,7 +380,7 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete }) => {
           {/* Progress Bar */}
           <div className="mb-6">
             <div className="flex items-center justify-between modal-text text-sage-600 mb-2">
-              <span>{t('skipForNow')} {currentStep + 1} {t('skipForNow')} {questions.length}</span>
+              <span>Step {currentStep + 1} of {questions.length}</span>
               <span>{Math.round(((currentStep + 1) / questions.length) * 100)}%</span>
             </div>
             <div className="w-full bg-sage-100 rounded-full h-2">
