@@ -8,7 +8,6 @@ import {
   saveJournalEntry, 
   loadJournalEntries, 
   checkContentSafety, 
-  initializeStorageBuckets,
   EnhancedJournalEntry 
 } from '../lib/journalStorage';
 import AudioRecorder from './Journal/AudioRecorder';
@@ -66,7 +65,6 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
   ] as const;
 
   useEffect(() => {
-    initializeStorageBuckets();
     loadJournalData();
   }, [user, isGuest]);
 

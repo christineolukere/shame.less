@@ -255,32 +255,3 @@ export async function loadJournalEntries(
     return { success: false, error: error.message }
   }
 }
-
-// Initialize storage buckets (call this once during app setup)
-export async function initializeStorageBuckets(): Promise<void> {
-  try {
-    // Create journal-audio bucket
-    const { error: audioError } = await supabase.storage.createBucket('journal-audio', {
-      public: false,
-      allowedMimeTypes: ['audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/webm', 'audio/ogg'],
-      fileSizeLimit: 10485760 // 10MB
-    })
-
-    if (audioError && !audioError.message.includes('already exists')) {
-      console.error('Audio bucket creation error:', audioError)
-    }
-
-    // Create journal-photos bucket
-    const { error: photoError } = await supabase.storage.createBucket('journal-photos', {
-      public: false,
-      allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
-      fileSizeLimit: 2097152 // 2MB
-    })
-
-    if (photoError && !photoError.message.includes('already exists')) {
-      console.error('Photo bucket creation error:', photoError)
-    }
-  } catch (error) {
-    console.error('Storage initialization error:', error)
-  }
-}
