@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Download, Eye, ThumbsUp, User, Refresh2, AlertCircle, Bookmark, BookmarkCheck } from 'lucide-react';
+import { X, Heart, Download, Eye, ThumbsUp, User, RefreshCw as Refresh2, AlertCircle, Bookmark, BookmarkCheck } from 'lucide-react';
 import { pixabayAPI, ProcessedMedia } from '../../lib/pixabayApi';
 
 interface MediaViewerProps {
