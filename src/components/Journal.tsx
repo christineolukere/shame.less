@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Mic, Camera, Type, Play, Pause, Image as ImageIcon, AlertCircle, CheckCircle, Star } from 'lucide-react';
+import { ArrowLeft, Mic, Camera, Type, Play, Pause, Image as ImageIcon, AlertCircle, CheckCircle, Star, Sparkles } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { GuestStorageManager } from '../lib/guestStorage';
@@ -10,9 +10,11 @@ import {
   checkContentSafety, 
   EnhancedJournalEntry 
 } from '../lib/journalStorage';
+import { saveAILetter } from '../lib/aiLetterStorage';
 import AudioRecorder from './Journal/AudioRecorder';
 import PhotoUploader from './Journal/PhotoUploader';
 import SafetyModal from './Journal/SafetyModal';
+import AILetterModal from './AILetter/AILetterModal';
 
 interface JournalProps {
   onBack: () => void;
@@ -43,6 +45,9 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
   const [flaggedWords, setFlaggedWords] = useState<string[]>([]);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
+  const [showAILetterModal, setShowAILetterModal] = useState(false);
+  const [showAILetterPrompt, setShowAILetterPrompt] = useState(false);
+  const [lastSavedEntry, setLastSavedEntry] = useState<string>('');
   
   const { translations: t } = useLocalization();
   const { user, isGuest } = useAuth();
@@ -191,6 +196,9 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
         }
       }
 
+      // Store the entry content for AI letter generation
+      setLastSavedEntry(journalText.trim());
+      
       // Reset form
       setTitle('');
       setJournalText('');
@@ -199,8 +207,9 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
       setMediaFiles([]);
       setInputMode('text');
       
-      // Show success message
+      // Show success message and AI letter prompt
       setSaveSuccess(true);
+      setShowAILetterPrompt(true);
       setTimeout(() => setSaveSuccess(false), 3000);
       
     } catch (error) {
@@ -213,6 +222,22 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
   const handleSafetyModalContinue = () => {
     setShowSafetyModal(false);
     performSave();
+  };
+
+  const handleAILetterRequest = () => {
+    setShowAILetterModal(true);
+    setShowAILetterPrompt(false);
+  };
+
+  const handleSaveAILetter = async (letter: string) => {
+    await saveAILetter(
+      letter,
+      lastSavedEntry,
+      'journal',
+      undefined,
+      user?.id,
+      isGuest ? GuestStorageManager.getGuestSessionId() : undefined
+    );
   };
 
   const playAudio = (audioUrl: string, entryId: string) => {
@@ -263,6 +288,50 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
           >
             <CheckCircle className="w-5 h-5" />
             <span>Your reflection has been saved</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* AI Letter Prompt */}
+      <AnimatePresence>
+        {showAILetterPrompt && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="bg-gradient-to-r from-terracotta-50 to-sage-50 rounded-2xl p-6 border border-terracotta-100"
+          >
+            <div className="flex items-start space-x-3">
+              <Sparkles className="w-6 h-6 text-terracotta-600 mt-1 flex-shrink-0" />
+              <div className="flex-1">
+                <h3 className="font-serif text-terracotta-800 mb-2">
+                  Would you like an AI-written letter based on what you shared?
+                </h3>
+                <p className="text-terracotta-700 text-sm mb-4 leading-relaxed">
+                  I can write you a gentle, personalized letter that reflects on your journal entry 
+                  and offers comfort and encouragement.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <motion.button
+                    onClick={handleAILetterRequest}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="px-4 py-2 bg-terracotta-500 text-white rounded-lg hover:bg-terracotta-600 transition-colors flex items-center space-x-2"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span>Yes, write me a letter</span>
+                  </motion.button>
+                  <motion.button
+                    onClick={() => setShowAILetterPrompt(false)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="px-4 py-2 bg-sage-100 text-sage-700 rounded-lg hover:bg-sage-200 transition-colors"
+                  >
+                    Maybe later
+                  </motion.button>
+                </div>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -637,6 +706,14 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
         onClose={() => setShowSafetyModal(false)}
         onContinue={handleSafetyModalContinue}
         flaggedWords={flaggedWords}
+      />
+
+      {/* AI Letter Modal */}
+      <AILetterModal
+        isOpen={showAILetterModal}
+        onClose={() => setShowAILetterModal(false)}
+        content={lastSavedEntry}
+        onSaveLetter={handleSaveAILetter}
       />
     </div>
   );

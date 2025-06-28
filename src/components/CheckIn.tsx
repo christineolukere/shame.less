@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Heart } from 'lucide-react';
+import { ArrowLeft, Heart, Sparkles } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { GuestStorageManager } from '../lib/guestStorage';
 import { supabase } from '../lib/supabase';
 import { getCheckInResponse, saveFavoriteResponse } from '../lib/checkInResponses';
+import { saveAILetter } from '../lib/aiLetterStorage';
 import CheckInResponseComponent from './CheckInResponse';
+import AILetterModal from './AILetter/AILetterModal';
 
 interface CheckInProps {
   onBack: () => void;
@@ -19,6 +21,8 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
   const [saving, setSaving] = useState(false);
   const [showResponse, setShowResponse] = useState(false);
   const [currentResponse, setCurrentResponse] = useState<any>(null);
+  const [showAILetterModal, setShowAILetterModal] = useState(false);
+  const [showAILetterPrompt, setShowAILetterPrompt] = useState(false);
   const { translations: t } = useLocalization();
   const { user, isGuest } = useAuth();
 
@@ -73,6 +77,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
       const response = getCheckInResponse(selectedMood, selectedColor);
       setCurrentResponse(response);
       setShowResponse(true);
+      setShowAILetterPrompt(true);
     } catch (error) {
       console.error('Error saving check-in:', error);
       // Could add toast notification here
@@ -96,7 +101,26 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
     setNotes('');
     setShowResponse(false);
     setCurrentResponse(null);
+    setShowAILetterPrompt(false);
     onBack();
+  };
+
+  const handleAILetterRequest = () => {
+    setShowAILetterModal(true);
+    setShowAILetterPrompt(false);
+  };
+
+  const handleSaveAILetter = async (letter: string) => {
+    const sourceContent = `Mood: ${selectedMood}, Color: ${selectedColor}${notes ? `, Notes: ${notes}` : ''}`;
+    
+    await saveAILetter(
+      letter,
+      sourceContent,
+      'checkin',
+      selectedMood,
+      user?.id,
+      isGuest ? GuestStorageManager.getGuestSessionId() : undefined
+    );
   };
 
   if (showResponse && currentResponse) {
@@ -120,6 +144,59 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
           color={selectedColor!}
           onContinue={handleContinue}
           onSaveFavorite={handleSaveFavorite}
+        />
+
+        {/* AI Letter Prompt */}
+        <AnimatePresence>
+          {showAILetterPrompt && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="mt-6 bg-gradient-to-r from-terracotta-50 to-sage-50 rounded-2xl p-6 border border-terracotta-100"
+            >
+              <div className="flex items-start space-x-3">
+                <Sparkles className="w-6 h-6 text-terracotta-600 mt-1 flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="font-serif text-terracotta-800 mb-2">
+                    Would you like an AI-written letter?
+                  </h3>
+                  <p className="text-terracotta-700 text-sm mb-4 leading-relaxed">
+                    Based on what you've shared about feeling {selectedMood?.toLowerCase()}, 
+                    I can write you a gentle, personalized letter of support and reflection.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <motion.button
+                      onClick={handleAILetterRequest}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="px-4 py-2 bg-terracotta-500 text-white rounded-lg hover:bg-terracotta-600 transition-colors flex items-center space-x-2"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      <span>Yes, write me a letter</span>
+                    </motion.button>
+                    <motion.button
+                      onClick={() => setShowAILetterPrompt(false)}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="px-4 py-2 bg-sage-100 text-sage-700 rounded-lg hover:bg-sage-200 transition-colors"
+                    >
+                      Maybe later
+                    </motion.button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* AI Letter Modal */}
+        <AILetterModal
+          isOpen={showAILetterModal}
+          onClose={() => setShowAILetterModal(false)}
+          content={`I'm feeling ${selectedMood?.toLowerCase()} today, and the color that matches my energy is ${selectedColor?.toLowerCase()}. ${notes ? `Additional thoughts: ${notes}` : ''}`}
+          emotion={selectedMood || undefined}
+          onSaveLetter={handleSaveAILetter}
         />
       </div>
     );
