@@ -11,19 +11,15 @@ interface SoundOption {
   id: string;
   name: string;
   description: string;
-  frequency: number;
-  waveType: OscillatorType;
   color: string;
 }
 
 const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
   const [activeComfort, setActiveComfort] = useState<string | null>(null);
   const [playingSound, setPlayingSound] = useState<string | null>(null);
-  const [volume, setVolume] = useState(0.8);
+  const [volume, setVolume] = useState(0.3);
   const [audioError, setAudioError] = useState<string | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const oscillatorRef = useRef<OscillatorNode | null>(null);
-  const gainNodeRef = useRef<GainNode | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const { translations: t } = useLocalization();
 
   // Cleanup audio when component unmounts
@@ -38,148 +34,113 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
       id: 'ocean',
       name: '🌊 Ocean Waves',
       description: 'Gentle ocean waves for deep relaxation',
-      frequency: 80,
-      waveType: 'sine',
       color: 'blue'
     },
     {
       id: 'rain',
       name: '🌧️ Gentle Rain',
       description: 'Soft rainfall for peaceful moments',
-      frequency: 200,
-      waveType: 'triangle',
       color: 'gray'
     },
     {
       id: 'piano',
       name: '🎵 Soft Piano',
       description: 'Gentle piano melodies for comfort',
-      frequency: 440,
-      waveType: 'sine',
       color: 'purple'
     },
     {
       id: 'forest',
       name: '🌿 Forest Sounds',
       description: 'Birds and nature for grounding',
-      frequency: 300,
-      waveType: 'sawtooth',
       color: 'green'
     }
   ];
 
   const stopAllAudio = () => {
-    try {
-      if (oscillatorRef.current) {
-        oscillatorRef.current.stop();
-        oscillatorRef.current.disconnect();
-        oscillatorRef.current = null;
-      }
-      if (gainNodeRef.current) {
-        gainNodeRef.current.disconnect();
-        gainNodeRef.current = null;
-      }
-      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-        audioContextRef.current.close();
-        audioContextRef.current = null;
-      }
-    } catch (error) {
-      console.log('Audio cleanup completed');
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current.src = '';
+      audioRef.current = null;
     }
     setPlayingSound(null);
     setAudioError(null);
   };
 
-  const createAudioContext = async (): Promise<AudioContext | null> => {
-    try {
-      // Use modern AudioContext or fallback to webkit
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+  // Generate clean audio data URLs for different sounds
+  const generateAudioDataUrl = (soundType: string): string => {
+    const sampleRate = 44100;
+    const duration = 10; // 10 seconds loop
+    const samples = sampleRate * duration;
+    const buffer = new ArrayBuffer(44 + samples * 2);
+    const view = new DataView(buffer);
+    
+    // WAV header
+    const writeString = (offset: number, string: string) => {
+      for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+      }
+    };
+    
+    writeString(0, 'RIFF');
+    view.setUint32(4, 36 + samples * 2, true);
+    writeString(8, 'WAVE');
+    writeString(12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 2, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
+    writeString(36, 'data');
+    view.setUint32(40, samples * 2, true);
+    
+    // Generate audio samples
+    let offset = 44;
+    for (let i = 0; i < samples; i++) {
+      let sample = 0;
+      const t = i / sampleRate;
       
-      if (!AudioContextClass) {
-        throw new Error('Web Audio API not supported');
+      switch (soundType) {
+        case 'ocean':
+          // Ocean waves: Low frequency sine with noise
+          sample = Math.sin(2 * Math.PI * 0.5 * t) * 0.3 + 
+                  (Math.random() - 0.5) * 0.1;
+          break;
+        case 'rain':
+          // Rain: White noise filtered
+          sample = (Math.random() - 0.5) * 0.2;
+          break;
+        case 'piano':
+          // Piano: Clean sine wave at A4 (440Hz)
+          sample = Math.sin(2 * Math.PI * 440 * t) * 0.2;
+          break;
+        case 'forest':
+          // Forest: Multiple sine waves for bird sounds
+          sample = Math.sin(2 * Math.PI * 800 * t) * 0.1 +
+                  Math.sin(2 * Math.PI * 1200 * t) * 0.05;
+          break;
+        default:
+          sample = 0;
       }
-
-      const context = new AudioContextClass({
-        sampleRate: 44100,
-        latencyHint: 'interactive'
-      });
-
-      // Resume context if suspended (required for mobile)
-      if (context.state === 'suspended') {
-        await context.resume();
-      }
-
-      return context;
-    } catch (error) {
-      console.error('Failed to create audio context:', error);
-      return null;
-    }
-  };
-
-  const createSootingTone = async (soundOption: SoundOption): Promise<boolean> => {
-    try {
-      // Stop any existing audio
-      stopAllAudio();
-
-      // Create new audio context
-      const audioContext = await createAudioContext();
-      if (!audioContext) {
-        throw new Error('Could not create audio context');
-      }
-
-      audioContextRef.current = audioContext;
-
-      // Create oscillator for base tone
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-
-      // Configure oscillator
-      oscillator.type = soundOption.waveType;
-      oscillator.frequency.setValueAtTime(soundOption.frequency, audioContext.currentTime);
-
-      // Add subtle frequency modulation for more natural sound
-      const lfo = audioContext.createOscillator();
-      const lfoGain = audioContext.createGain();
       
-      lfo.type = 'sine';
-      lfo.frequency.setValueAtTime(0.5, audioContext.currentTime); // Slow modulation
-      lfoGain.gain.setValueAtTime(2, audioContext.currentTime); // Subtle depth
-
-      lfo.connect(lfoGain);
-      lfoGain.connect(oscillator.frequency);
-
-      // Configure gain with fade-in to prevent clicks
-      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-      gainNode.gain.linearRampToValueAtTime(volume * 0.3, audioContext.currentTime + 0.1); // Gentle fade-in
-
-      // Connect audio graph
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-
-      // Store references
-      oscillatorRef.current = oscillator;
-      gainNodeRef.current = gainNode;
-
-      // Start oscillators
-      lfo.start();
-      oscillator.start();
-
-      // Handle oscillator end
-      oscillator.onended = () => {
-        setPlayingSound(null);
-      };
-
-      return true;
-    } catch (error) {
-      console.error('Failed to create audio:', error);
-      return false;
+      // Apply gentle envelope to prevent clicks
+      const envelope = Math.min(1, Math.min(t * 10, (duration - t) * 10));
+      sample *= envelope;
+      
+      // Convert to 16-bit PCM
+      const pcmSample = Math.max(-32768, Math.min(32767, sample * 32767));
+      view.setInt16(offset, pcmSample, true);
+      offset += 2;
     }
+    
+    // Create blob and data URL
+    const blob = new Blob([buffer], { type: 'audio/wav' });
+    return URL.createObjectURL(blob);
   };
 
   const playSound = async (soundId: string) => {
-    const soundOption = soundOptions.find(s => s.id === soundId);
-    if (!soundOption) return;
-
     setAudioError(null);
 
     try {
@@ -189,16 +150,43 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
         return;
       }
 
-      // Create and play new sound
-      const success = await createSootingTone(soundOption);
-      
-      if (success) {
-        setPlayingSound(soundId);
-      } else {
-        throw new Error('Failed to create audio tone');
-      }
+      // Stop any existing audio
+      stopAllAudio();
+
+      // Create new audio element
+      const audio = new Audio();
+      audioRef.current = audio;
+
+      // Set up audio properties
+      audio.loop = true;
+      audio.volume = volume;
+      audio.preload = 'auto';
+
+      // Generate clean audio data
+      const audioDataUrl = generateAudioDataUrl(soundId);
+      audio.src = audioDataUrl;
+
+      // Set up event listeners
+      audio.onloadeddata = () => {
+        audio.play().then(() => {
+          setPlayingSound(soundId);
+        }).catch((error) => {
+          console.error('Playback failed:', error);
+          setAudioError('Playback failed. Please try again.');
+        });
+      };
+
+      audio.onerror = () => {
+        setAudioError('Audio failed to load. Please try a different sound.');
+        setPlayingSound(null);
+      };
+
+      audio.onended = () => {
+        setPlayingSound(null);
+      };
+
     } catch (error) {
-      console.error('Audio playback failed:', error);
+      console.error('Audio creation failed:', error);
       setAudioError('Your gentle audio didn\'t load. Try again or choose a different tone.');
       setPlayingSound(null);
     }
@@ -207,17 +195,8 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
   const adjustVolume = (newVolume: number) => {
     setVolume(newVolume);
     
-    if (gainNodeRef.current && audioContextRef.current) {
-      try {
-        // Smooth volume transition to prevent clicks
-        gainNodeRef.current.gain.cancelScheduledValues(audioContextRef.current.currentTime);
-        gainNodeRef.current.gain.linearRampToValueAtTime(
-          newVolume * 0.3, 
-          audioContextRef.current.currentTime + 0.05
-        );
-      } catch (error) {
-        console.log('Volume adjustment completed');
-      }
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
     }
   };
 
@@ -345,7 +324,7 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
                   type="range"
                   min="0"
                   max="1"
-                  step="0.1"
+                  step="0.05"
                   value={volume}
                   onChange={(e) => adjustVolume(parseFloat(e.target.value))}
                   className="flex-1 h-2 bg-cream-200 rounded-lg appearance-none cursor-pointer slider"
@@ -420,7 +399,7 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
           {/* Audio Instructions */}
           <div className="bg-cream-50 rounded-lg p-3 border border-cream-200">
             <p className="modal-text text-cream-600 text-xs text-center">
-              💡 These are gentle, synthesized tones designed for relaxation. 
+              💡 These are clean, generated audio tones designed for relaxation. 
               Adjust volume to your comfort level.
             </p>
           </div>
