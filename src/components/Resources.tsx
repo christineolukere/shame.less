@@ -21,7 +21,7 @@ interface Resource {
 
 const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
   const [activeCategory, setActiveCategory] = useState('stories');
-  const { translations: t } = useLocalization();
+  const { t } = useLocalization();
 
   const categories = [
     { id: 'stories', label: t('stories') || 'Stories', icon: Book, color: 'terracotta' },
