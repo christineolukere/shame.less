@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LocalizationProvider } from './contexts/LocalizationContext';
+import { useOnboarding } from './hooks/useOnboarding';
 import Header from './components/Header';
 import Navigation from './components/Navigation';
 import Dashboard from './components/Dashboard';
@@ -12,12 +13,12 @@ import Affirmations from './components/Affirmations';
 import Resources from './components/Resources';
 import FavoriteResponses from './components/FavoriteResponses';
 import SoftLanding from './components/SoftLanding';
-import OnboardingQuiz from './components/Auth/OnboardingQuiz';
+import OnboardingFlow from './components/Onboarding/OnboardingFlow';
+import WelcomeComplete from './components/Onboarding/WelcomeComplete';
 import DisclaimerModal from './components/Auth/DisclaimerModal';
 import UpsellModal from './components/Auth/UpsellModal';
 import MigrationSuccessModal from './components/Auth/MigrationSuccessModal';
 import Footer from './components/Footer';
-import type { OnboardingData } from './contexts/AuthContext';
 
 type View = 'dashboard' | 'checkin' | 'wins' | 'journal' | 'affirmations' | 'resources' | 'emergency' | 'favorites';
 
@@ -29,18 +30,23 @@ function AppContent() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showMigrationSuccess, setShowMigrationSuccess] = useState(false);
   const [migratedCount, setMigratedCount] = useState(0);
+  const [showWelcomeComplete, setShowWelcomeComplete] = useState(false);
   
   const { 
     user, 
     isGuest, 
     loading, 
-    onboardingComplete, 
     shouldShowUpsell,
     continueAsGuest, 
-    completeOnboarding,
     dismissUpsell,
     migrateGuestData
   } = useAuth();
+
+  const {
+    isOnboardingComplete,
+    onboardingData,
+    completeOnboarding
+  } = useOnboarding();
 
   // Check if disclaimer has been accepted
   useEffect(() => {
@@ -62,8 +68,13 @@ function AppContent() {
     continueAsGuest();
   };
 
-  const handleOnboardingComplete = async (data: OnboardingData) => {
-    await completeOnboarding(data);
+  const handleOnboardingComplete = (data: any) => {
+    completeOnboarding(data);
+    setShowWelcomeComplete(true);
+  };
+
+  const handleWelcomeComplete = () => {
+    setShowWelcomeComplete(false);
   };
 
   const handleUpsellSignUp = () => {
@@ -141,11 +152,19 @@ function AppContent() {
     );
   }
 
-  // Show onboarding for new users (both authenticated and guest) - REQUIRED
-  if ((user || isGuest) && !onboardingComplete) {
+  // Show onboarding for new users - REQUIRED
+  if (!isOnboardingComplete) {
     return (
-      <OnboardingQuiz
-        onComplete={handleOnboardingComplete}
+      <OnboardingFlow onComplete={handleOnboardingComplete} />
+    );
+  }
+
+  // Show welcome completion screen
+  if (showWelcomeComplete && onboardingData) {
+    return (
+      <WelcomeComplete
+        onContinue={handleWelcomeComplete}
+        anchorPhrase={onboardingData.anchorPhrase}
       />
     );
   }
