@@ -1,163 +1,233 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Wind, Shield, Headphones, MessageCircle, ArrowLeft, Play, Pause, Volume2 } from 'lucide-react';
+import { X, Heart, Wind, Shield, Headphones, MessageCircle, ArrowLeft, Play, Pause, Volume2, AlertCircle } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
 
 interface SoftLandingProps {
   onClose: () => void;
 }
 
+interface SoundOption {
+  id: string;
+  name: string;
+  description: string;
+  frequency: number;
+  waveType: OscillatorType;
+  color: string;
+}
+
 const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
   const [activeComfort, setActiveComfort] = useState<string | null>(null);
   const [playingSound, setPlayingSound] = useState<string | null>(null);
-  const [volume, setVolume] = useState(0.5);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [volume, setVolume] = useState(0.8);
+  const [audioError, setAudioError] = useState<string | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const oscillatorRef = useRef<OscillatorNode | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null);
   const { translations: t } = useLocalization();
 
   // Cleanup audio when component unmounts
   useEffect(() => {
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
+      stopAllAudio();
     };
   }, []);
 
-  const soundOptions = [
+  const soundOptions: SoundOption[] = [
     {
       id: 'ocean',
       name: '🌊 Ocean Waves',
       description: 'Gentle ocean waves for deep relaxation',
-      // Using a royalty-free ocean waves sound from a reliable source
-      url: 'https://www.soundjay.com/misc/sounds/ocean-wave-1.mp3',
-      fallbackUrl: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT'
+      frequency: 80,
+      waveType: 'sine',
+      color: 'blue'
     },
     {
       id: 'rain',
       name: '🌧️ Gentle Rain',
       description: 'Soft rainfall for peaceful moments',
-      url: 'https://www.soundjay.com/misc/sounds/rain-01.mp3',
-      fallbackUrl: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT'
+      frequency: 200,
+      waveType: 'triangle',
+      color: 'gray'
     },
     {
       id: 'piano',
       name: '🎵 Soft Piano',
       description: 'Gentle piano melodies for comfort',
-      url: 'https://www.soundjay.com/misc/sounds/piano-melody.mp3',
-      fallbackUrl: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT'
+      frequency: 440,
+      waveType: 'sine',
+      color: 'purple'
     },
     {
       id: 'forest',
       name: '🌿 Forest Sounds',
       description: 'Birds and nature for grounding',
-      url: 'https://www.soundjay.com/misc/sounds/forest-birds.mp3',
-      fallbackUrl: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT'
+      frequency: 300,
+      waveType: 'sawtooth',
+      color: 'green'
     }
   ];
 
-  const playSound = async (soundId: string) => {
-    const sound = soundOptions.find(s => s.id === soundId);
-    if (!sound) return;
-
+  const stopAllAudio = () => {
     try {
-      // Stop current audio if playing
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
+      if (oscillatorRef.current) {
+        oscillatorRef.current.stop();
+        oscillatorRef.current.disconnect();
+        oscillatorRef.current = null;
       }
-
-      if (playingSound === soundId) {
-        // If clicking the same sound, stop it
-        setPlayingSound(null);
-        return;
+      if (gainNodeRef.current) {
+        gainNodeRef.current.disconnect();
+        gainNodeRef.current = null;
       }
-
-      // Create new audio element
-      const audio = new Audio();
-      
-      // Try primary URL first, fallback to generated tone if needed
-      audio.src = sound.url;
-      audio.volume = volume;
-      audio.loop = true;
-      
-      // Handle audio loading errors
-      audio.onerror = () => {
-        console.log('Primary audio source failed, using fallback');
-        // Create a simple tone as fallback
-        createFallbackAudio(soundId);
-      };
-
-      audio.onloadstart = () => {
-        setPlayingSound(soundId);
-        audioRef.current = audio;
-      };
-
-      audio.onended = () => {
-        setPlayingSound(null);
-      };
-
-      await audio.play();
+      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+        audioContextRef.current.close();
+        audioContextRef.current = null;
+      }
     } catch (error) {
-      console.log('Audio playback failed, using fallback tone');
-      createFallbackAudio(soundId);
+      console.log('Audio cleanup completed');
+    }
+    setPlayingSound(null);
+    setAudioError(null);
+  };
+
+  const createAudioContext = async (): Promise<AudioContext | null> => {
+    try {
+      // Use modern AudioContext or fallback to webkit
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      
+      if (!AudioContextClass) {
+        throw new Error('Web Audio API not supported');
+      }
+
+      const context = new AudioContextClass({
+        sampleRate: 44100,
+        latencyHint: 'interactive'
+      });
+
+      // Resume context if suspended (required for mobile)
+      if (context.state === 'suspended') {
+        await context.resume();
+      }
+
+      return context;
+    } catch (error) {
+      console.error('Failed to create audio context:', error);
+      return null;
     }
   };
 
-  const createFallbackAudio = (soundId: string) => {
-    // Create a simple audio context for fallback sounds
+  const createSootingTone = async (soundOption: SoundOption): Promise<boolean> => {
     try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      // Stop any existing audio
+      stopAllAudio();
+
+      // Create new audio context
+      const audioContext = await createAudioContext();
+      if (!audioContext) {
+        throw new Error('Could not create audio context');
+      }
+
+      audioContextRef.current = audioContext;
+
+      // Create oscillator for base tone
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
 
+      // Configure oscillator
+      oscillator.type = soundOption.waveType;
+      oscillator.frequency.setValueAtTime(soundOption.frequency, audioContext.currentTime);
+
+      // Add subtle frequency modulation for more natural sound
+      const lfo = audioContext.createOscillator();
+      const lfoGain = audioContext.createGain();
+      
+      lfo.type = 'sine';
+      lfo.frequency.setValueAtTime(0.5, audioContext.currentTime); // Slow modulation
+      lfoGain.gain.setValueAtTime(2, audioContext.currentTime); // Subtle depth
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(oscillator.frequency);
+
+      // Configure gain with fade-in to prevent clicks
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+      gainNode.gain.linearRampToValueAtTime(volume * 0.3, audioContext.currentTime + 0.1); // Gentle fade-in
+
+      // Connect audio graph
       oscillator.connect(gainNode);
       gainNode.connect(audioContext.destination);
 
-      // Different frequencies for different sounds
-      const frequencies: { [key: string]: number } = {
-        ocean: 80,
-        rain: 200,
-        piano: 440,
-        forest: 300
+      // Store references
+      oscillatorRef.current = oscillator;
+      gainNodeRef.current = gainNode;
+
+      // Start oscillators
+      lfo.start();
+      oscillator.start();
+
+      // Handle oscillator end
+      oscillator.onended = () => {
+        setPlayingSound(null);
       };
 
-      oscillator.frequency.setValueAtTime(frequencies[soundId] || 200, audioContext.currentTime);
-      oscillator.type = 'sine';
-      
-      gainNode.gain.setValueAtTime(volume * 0.1, audioContext.currentTime); // Very quiet
-      
-      oscillator.start();
-      setPlayingSound(soundId);
-
-      // Stop after 30 seconds or when user stops
-      setTimeout(() => {
-        if (playingSound === soundId) {
-          oscillator.stop();
-          setPlayingSound(null);
-        }
-      }, 30000);
-
+      return true;
     } catch (error) {
-      console.error('Fallback audio creation failed:', error);
+      console.error('Failed to create audio:', error);
+      return false;
+    }
+  };
+
+  const playSound = async (soundId: string) => {
+    const soundOption = soundOptions.find(s => s.id === soundId);
+    if (!soundOption) return;
+
+    setAudioError(null);
+
+    try {
+      if (playingSound === soundId) {
+        // Stop current sound
+        stopAllAudio();
+        return;
+      }
+
+      // Create and play new sound
+      const success = await createSootingTone(soundOption);
+      
+      if (success) {
+        setPlayingSound(soundId);
+      } else {
+        throw new Error('Failed to create audio tone');
+      }
+    } catch (error) {
+      console.error('Audio playback failed:', error);
+      setAudioError('Your gentle audio didn\'t load. Try again or choose a different tone.');
       setPlayingSound(null);
     }
   };
 
   const adjustVolume = (newVolume: number) => {
     setVolume(newVolume);
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume;
+    
+    if (gainNodeRef.current && audioContextRef.current) {
+      try {
+        // Smooth volume transition to prevent clicks
+        gainNodeRef.current.gain.cancelScheduledValues(audioContextRef.current.currentTime);
+        gainNodeRef.current.gain.linearRampToValueAtTime(
+          newVolume * 0.3, 
+          audioContextRef.current.currentTime + 0.05
+        );
+      } catch (error) {
+        console.log('Volume adjustment completed');
+      }
     }
   };
 
   const comfortOptions = [
     {
       id: 'breathe',
-      title: t.gentleBreathing,
+      title: t.gentleBreathing || 'Gentle breathing',
       icon: Wind,
       color: 'sage',
-      description: t.breathingDescription,
+      description: t.breathingDescription || 'Slow, mindful breathing',
       content: (
         <div className="text-center space-y-4">
           <div className="w-20 h-20 mx-auto bg-sage-100 rounded-full flex items-center justify-center">
@@ -178,10 +248,10 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
     },
     {
       id: 'grounding',
-      title: t.grounding,
+      title: t.grounding || 'Grounding',
       icon: Shield,
       color: 'terracotta',
-      description: t.groundingDescription,
+      description: t.groundingDescription || 'Connect with the present moment',
       content: (
         <div className="space-y-4">
           <div className="text-center mb-4">
@@ -209,10 +279,10 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
     },
     {
       id: 'affirmation',
-      title: t.emergencyAffirmation,
+      title: t.emergencyAffirmation || 'Emergency affirmation',
       icon: Heart,
       color: 'lavender',
-      description: t.affirmationDescription,
+      description: t.affirmationDescription || 'Words of comfort and safety',
       content: (
         <div className="text-center space-y-6">
           <motion.div
@@ -235,10 +305,10 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
     },
     {
       id: 'sounds',
-      title: t.soothingSounds,
+      title: t.soothingSounds || 'Soothing sounds',
       icon: Headphones,
       color: 'cream',
-      description: t.soundsDescription,
+      description: t.soundsDescription || 'Calming audio to center yourself',
       content: (
         <div className="space-y-6">
           <div className="text-center">
@@ -248,11 +318,29 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
             </p>
           </div>
 
+          {/* Audio Error Message */}
+          {audioError && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-red-50 rounded-lg p-3 border border-red-200"
+            >
+              <div className="flex items-center space-x-2">
+                <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                <p className="modal-text text-red-700">{audioError}</p>
+              </div>
+            </motion.div>
+          )}
+
           {/* Volume Control */}
           {playingSound && (
-            <div className="bg-cream-100 rounded-lg p-4">
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="bg-cream-100 rounded-lg p-4"
+            >
               <div className="flex items-center space-x-3">
-                <Volume2 className="w-4 h-4 text-cream-600" />
+                <Volume2 className="w-4 h-4 text-cream-600 flex-shrink-0" />
                 <input
                   type="range"
                   min="0"
@@ -260,11 +348,13 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
                   step="0.1"
                   value={volume}
                   onChange={(e) => adjustVolume(parseFloat(e.target.value))}
-                  className="flex-1 h-2 bg-cream-200 rounded-lg appearance-none cursor-pointer"
+                  className="flex-1 h-2 bg-cream-200 rounded-lg appearance-none cursor-pointer slider"
                 />
-                <span className="text-xs text-cream-600">{Math.round(volume * 100)}%</span>
+                <span className="text-xs text-cream-600 min-w-[3rem] text-right">
+                  {Math.round(volume * 100)}%
+                </span>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* Sound Options */}
@@ -277,8 +367,8 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
                 whileTap={{ scale: 0.98 }}
                 className={`w-full p-4 text-left rounded-xl transition-all ${
                   playingSound === sound.id
-                    ? 'bg-cream-200 border-2 border-cream-400'
-                    : 'bg-cream-100 border border-cream-200 hover:bg-cream-150'
+                    ? 'bg-cream-200 border-2 border-cream-400 shadow-md'
+                    : 'bg-cream-100 border border-cream-200 hover:bg-cream-150 hover:border-cream-300'
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -313,15 +403,27 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
 
           {/* Audio Status */}
           {playingSound && (
-            <div className="text-center">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center"
+            >
               <p className="modal-text text-cream-600">
                 Playing: {soundOptions.find(s => s.id === playingSound)?.name}
               </p>
               <p className="modal-text text-cream-500 text-xs mt-1">
                 Click the same sound again to stop, or choose a different one
               </p>
-            </div>
+            </motion.div>
           )}
+
+          {/* Audio Instructions */}
+          <div className="bg-cream-50 rounded-lg p-3 border border-cream-200">
+            <p className="modal-text text-cream-600 text-xs text-center">
+              💡 These are gentle, synthesized tones designed for relaxation. 
+              Adjust volume to your comfort level.
+            </p>
+          </div>
         </div>
       )
     }
@@ -344,10 +446,13 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
         <div className="modal-header">
           <div className="flex items-center space-x-2">
             <Shield className="w-5 h-5 text-sage-600 flex-shrink-0" />
-            <h2 className="modal-title">{t.softLanding}</h2>
+            <h2 className="modal-title">{t.softLanding || 'Soft Landing'}</h2>
           </div>
           <motion.button
-            onClick={onClose}
+            onClick={() => {
+              stopAllAudio();
+              onClose();
+            }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="p-2 rounded-full bg-sage-100 text-sage-700 touch-target flex-shrink-0"
@@ -368,9 +473,9 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
                 className="space-y-6"
               >
                 <div className="text-center space-y-2">
-                  <h3 className="modal-title">{t.youAreSafeHere}</h3>
+                  <h3 className="modal-title">{t.youAreSafeHere || 'You are safe here'}</h3>
                   <p className="modal-text text-sage-600">
-                    {t.softLandingDescription}
+                    {t.softLandingDescription || 'Take a moment to ground yourself. Choose what feels most supportive right now.'}
                   </p>
                 </div>
 
@@ -401,17 +506,17 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
                 <div className="bg-lavender-50 rounded-xl p-4 border border-lavender-100">
                   <div className="flex items-center space-x-2 mb-2">
                     <MessageCircle className="w-4 h-4 text-lavender-600 flex-shrink-0" />
-                    <h4 className="modal-text font-medium text-lavender-800">{t.needMoreSupport}</h4>
+                    <h4 className="modal-text font-medium text-lavender-800">{t.needMoreSupport || 'Need more support?'}</h4>
                   </div>
                   <p className="modal-text text-lavender-700 mb-3">
-                    {t.crisisDescription}
+                    {t.crisisDescription || 'If you\'re in crisis, please reach out for professional help.'}
                   </p>
                   <div className="space-y-2">
                     <button className="modal-button w-full bg-lavender-100 text-lavender-800 hover:bg-lavender-200">
-                      {t.crisisTextLine}
+                      {t.crisisTextLine || 'Crisis Text Line: 741741'}
                     </button>
                     <button className="modal-button w-full bg-lavender-100 text-lavender-800 hover:bg-lavender-200">
-                      {t.suicidePrevention}
+                      {t.suicidePrevention || 'Suicide Prevention: 988'}
                     </button>
                   </div>
                 </div>
@@ -428,12 +533,7 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
                   <motion.button
                     onClick={() => {
                       setActiveComfort(null);
-                      // Stop any playing audio when going back
-                      if (audioRef.current) {
-                        audioRef.current.pause();
-                        audioRef.current = null;
-                      }
-                      setPlayingSound(null);
+                      stopAllAudio();
                     }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -453,10 +553,13 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
                     Take as much time as you need. You're doing great.
                   </p>
                   <button
-                    onClick={onClose}
+                    onClick={() => {
+                      stopAllAudio();
+                      onClose();
+                    }}
                     className="modal-button bg-sage-500 text-white hover:bg-sage-600"
                   >
-                    {t.imFeelingBetter}
+                    {t.imFeelingBetter || 'I\'m feeling better'}
                   </button>
                 </div>
               </motion.div>
@@ -464,6 +567,30 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
           </AnimatePresence>
         </div>
       </motion.div>
+
+      {/* Custom CSS for slider styling */}
+      <style jsx>{`
+        .slider::-webkit-slider-thumb {
+          appearance: none;
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: #5f7a5f;
+          cursor: pointer;
+          border: 2px solid white;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .slider::-moz-range-thumb {
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: #5f7a5f;
+          cursor: pointer;
+          border: 2px solid white;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+      `}</style>
     </motion.div>
   );
 };
