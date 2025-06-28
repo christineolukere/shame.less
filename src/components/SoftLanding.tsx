@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Wind, Shield, Headphones, MessageCircle, ArrowLeft, Play, Pause, Volume2, AlertCircle } from 'lucide-react';
+import { X, Heart, Wind, Shield, Headphones, MessageCircle, ArrowLeft, Play, Pause, Volume2, AlertCircle, ExternalLink, Phone } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
+import { audioEngine } from '../lib/audioEngine';
 
 interface SoftLandingProps {
   onClose: () => void;
@@ -12,6 +13,7 @@ interface SoundOption {
   name: string;
   description: string;
   color: string;
+  type: 'ocean' | 'rain' | 'forest' | 'piano';
 }
 
 const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
@@ -19,13 +21,12 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
   const [playingSound, setPlayingSound] = useState<string | null>(null);
   const [volume, setVolume] = useState(0.3);
   const [audioError, setAudioError] = useState<string | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const { translations: t } = useLocalization();
 
   // Cleanup audio when component unmounts
   useEffect(() => {
     return () => {
-      stopAllAudio();
+      audioEngine.stopCurrent();
     };
   }, []);
 
@@ -34,111 +35,31 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
       id: 'ocean',
       name: '🌊 Ocean Waves',
       description: 'Gentle ocean waves for deep relaxation',
-      color: 'blue'
+      color: 'blue',
+      type: 'ocean'
     },
     {
       id: 'rain',
       name: '🌧️ Gentle Rain',
       description: 'Soft rainfall for peaceful moments',
-      color: 'gray'
+      color: 'gray',
+      type: 'rain'
     },
     {
       id: 'piano',
       name: '🎵 Soft Piano',
       description: 'Gentle piano melodies for comfort',
-      color: 'purple'
+      color: 'purple',
+      type: 'piano'
     },
     {
       id: 'forest',
       name: '🌿 Forest Sounds',
       description: 'Birds and nature for grounding',
-      color: 'green'
+      color: 'green',
+      type: 'forest'
     }
   ];
-
-  const stopAllAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      audioRef.current.src = '';
-      audioRef.current = null;
-    }
-    setPlayingSound(null);
-    setAudioError(null);
-  };
-
-  // Generate clean audio data URLs for different sounds
-  const generateAudioDataUrl = (soundType: string): string => {
-    const sampleRate = 44100;
-    const duration = 10; // 10 seconds loop
-    const samples = sampleRate * duration;
-    const buffer = new ArrayBuffer(44 + samples * 2);
-    const view = new DataView(buffer);
-    
-    // WAV header
-    const writeString = (offset: number, string: string) => {
-      for (let i = 0; i < string.length; i++) {
-        view.setUint8(offset + i, string.charCodeAt(i));
-      }
-    };
-    
-    writeString(0, 'RIFF');
-    view.setUint32(4, 36 + samples * 2, true);
-    writeString(8, 'WAVE');
-    writeString(12, 'fmt ');
-    view.setUint32(16, 16, true);
-    view.setUint16(20, 1, true);
-    view.setUint16(22, 1, true);
-    view.setUint32(24, sampleRate, true);
-    view.setUint32(28, sampleRate * 2, true);
-    view.setUint16(32, 2, true);
-    view.setUint16(34, 16, true);
-    writeString(36, 'data');
-    view.setUint32(40, samples * 2, true);
-    
-    // Generate audio samples
-    let offset = 44;
-    for (let i = 0; i < samples; i++) {
-      let sample = 0;
-      const t = i / sampleRate;
-      
-      switch (soundType) {
-        case 'ocean':
-          // Ocean waves: Low frequency sine with noise
-          sample = Math.sin(2 * Math.PI * 0.5 * t) * 0.3 + 
-                  (Math.random() - 0.5) * 0.1;
-          break;
-        case 'rain':
-          // Rain: White noise filtered
-          sample = (Math.random() - 0.5) * 0.2;
-          break;
-        case 'piano':
-          // Piano: Clean sine wave at A4 (440Hz)
-          sample = Math.sin(2 * Math.PI * 440 * t) * 0.2;
-          break;
-        case 'forest':
-          // Forest: Multiple sine waves for bird sounds
-          sample = Math.sin(2 * Math.PI * 800 * t) * 0.1 +
-                  Math.sin(2 * Math.PI * 1200 * t) * 0.05;
-          break;
-        default:
-          sample = 0;
-      }
-      
-      // Apply gentle envelope to prevent clicks
-      const envelope = Math.min(1, Math.min(t * 10, (duration - t) * 10));
-      sample *= envelope;
-      
-      // Convert to 16-bit PCM
-      const pcmSample = Math.max(-32768, Math.min(32767, sample * 32767));
-      view.setInt16(offset, pcmSample, true);
-      offset += 2;
-    }
-    
-    // Create blob and data URL
-    const blob = new Blob([buffer], { type: 'audio/wav' });
-    return URL.createObjectURL(blob);
-  };
 
   const playSound = async (soundId: string) => {
     setAudioError(null);
@@ -146,47 +67,36 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
     try {
       if (playingSound === soundId) {
         // Stop current sound
-        stopAllAudio();
+        audioEngine.stopCurrent();
+        setPlayingSound(null);
         return;
       }
 
       // Stop any existing audio
-      stopAllAudio();
+      audioEngine.stopCurrent();
 
-      // Create new audio element
-      const audio = new Audio();
-      audioRef.current = audio;
+      const soundOption = soundOptions.find(s => s.id === soundId);
+      if (!soundOption) return;
 
-      // Set up audio properties
-      audio.loop = true;
-      audio.volume = volume;
-      audio.preload = 'auto';
+      let buffer: AudioBuffer | null = null;
 
-      // Generate clean audio data
-      const audioDataUrl = generateAudioDataUrl(soundId);
-      audio.src = audioDataUrl;
+      if (soundOption.type === 'piano') {
+        // Generate a gentle piano-like tone (A4 = 440Hz)
+        buffer = audioEngine.generateCleanTone(440, 10, 'sine');
+      } else {
+        // Generate natural sounds
+        buffer = audioEngine.generateNaturalSound(soundOption.type, 10);
+      }
 
-      // Set up event listeners
-      audio.onloadeddata = () => {
-        audio.play().then(() => {
-          setPlayingSound(soundId);
-        }).catch((error) => {
-          console.error('Playback failed:', error);
-          setAudioError('Playback failed. Please try again.');
-        });
-      };
-
-      audio.onerror = () => {
-        setAudioError('Audio failed to load. Please try a different sound.');
-        setPlayingSound(null);
-      };
-
-      audio.onended = () => {
-        setPlayingSound(null);
-      };
+      if (buffer) {
+        await audioEngine.playBuffer(buffer, true);
+        setPlayingSound(soundId);
+      } else {
+        throw new Error('Failed to generate audio buffer');
+      }
 
     } catch (error) {
-      console.error('Audio creation failed:', error);
+      console.error('Audio playback failed:', error);
       setAudioError('Your gentle audio didn\'t load. Try again or choose a different tone.');
       setPlayingSound(null);
     }
@@ -194,9 +104,34 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
 
   const adjustVolume = (newVolume: number) => {
     setVolume(newVolume);
+    audioEngine.setVolume(newVolume);
+  };
+
+  const openCrisisLink = (type: 'text' | 'call' | 'emergency') => {
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume;
+    switch (type) {
+      case 'text':
+        if (isMobile) {
+          window.open('sms:741741?body=HOME', '_blank');
+        } else {
+          alert('Text HOME to 741741 for crisis support');
+        }
+        break;
+      case 'call':
+        if (isMobile) {
+          window.open('tel:988', '_blank');
+        } else {
+          alert('Call or text 988 for suicide prevention support');
+        }
+        break;
+      case 'emergency':
+        if (isMobile) {
+          window.open('tel:911', '_blank');
+        } else {
+          alert('Call 911 for emergency services');
+        }
+        break;
     }
   };
 
@@ -429,7 +364,7 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
           </div>
           <motion.button
             onClick={() => {
-              stopAllAudio();
+              audioEngine.stopCurrent();
               onClose();
             }}
             whileHover={{ scale: 1.05 }}
@@ -482,21 +417,45 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
                 </div>
 
                 {/* Crisis Resources */}
-                <div className="bg-lavender-50 rounded-xl p-4 border border-lavender-100">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <MessageCircle className="w-4 h-4 text-lavender-600 flex-shrink-0" />
-                    <h4 className="modal-text font-medium text-lavender-800">{t.needMoreSupport || 'Need more support?'}</h4>
+                <div className="bg-red-50 rounded-xl p-4 border border-red-100">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <Phone className="w-4 h-4 text-red-600 flex-shrink-0" />
+                    <h4 className="modal-text font-medium text-red-800">{t.needMoreSupport || 'Need more support?'}</h4>
                   </div>
-                  <p className="modal-text text-lavender-700 mb-3">
+                  <p className="modal-text text-red-700 mb-3">
                     {t.crisisDescription || 'If you\'re in crisis, please reach out for professional help.'}
                   </p>
-                  <div className="space-y-2">
-                    <button className="modal-button w-full bg-lavender-100 text-lavender-800 hover:bg-lavender-200">
-                      {t.crisisTextLine || 'Crisis Text Line: 741741'}
-                    </button>
-                    <button className="modal-button w-full bg-lavender-100 text-lavender-800 hover:bg-lavender-200">
-                      {t.suicidePrevention || 'Suicide Prevention: 988'}
-                    </button>
+                  <div className="grid grid-cols-3 gap-2">
+                    <motion.button
+                      onClick={() => openCrisisLink('text')}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="p-2 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 transition-colors text-center"
+                    >
+                      <Phone className="w-3 h-3 mx-auto mb-1" />
+                      <div className="text-xs font-medium">Crisis Text</div>
+                      <div className="text-xs">741741</div>
+                    </motion.button>
+                    <motion.button
+                      onClick={() => openCrisisLink('call')}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="p-2 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 transition-colors text-center"
+                    >
+                      <Phone className="w-3 h-3 mx-auto mb-1" />
+                      <div className="text-xs font-medium">Suicide Prevention</div>
+                      <div className="text-xs">988</div>
+                    </motion.button>
+                    <motion.button
+                      onClick={() => openCrisisLink('emergency')}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="p-2 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 transition-colors text-center"
+                    >
+                      <Phone className="w-3 h-3 mx-auto mb-1" />
+                      <div className="text-xs font-medium">Emergency</div>
+                      <div className="text-xs">911</div>
+                    </motion.button>
                   </div>
                 </div>
               </motion.div>
@@ -512,7 +471,8 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
                   <motion.button
                     onClick={() => {
                       setActiveComfort(null);
-                      stopAllAudio();
+                      audioEngine.stopCurrent();
+                      setPlayingSound(null);
                     }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -533,7 +493,7 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
                   </p>
                   <button
                     onClick={() => {
-                      stopAllAudio();
+                      audioEngine.stopCurrent();
                       onClose();
                     }}
                     className="modal-button bg-sage-500 text-white hover:bg-sage-600"

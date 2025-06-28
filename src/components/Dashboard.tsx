@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Sun, Moon, Heart, Sparkles, Trophy, BookOpen, Bookmark } from 'lucide-react';
+import { Sun, Moon, Heart, Sparkles, Trophy, BookOpen, Bookmark, Info } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { getFavoriteResponses } from '../lib/checkInResponses';
+import { GuestStorageManager } from '../lib/guestStorage';
+import { supabase } from '../lib/supabase';
 
 type View = 'dashboard' | 'checkin' | 'wins' | 'journal' | 'affirmations' | 'resources' | 'favorites';
 
@@ -11,12 +13,125 @@ interface DashboardProps {
   onNavigate: (view: View) => void;
 }
 
+interface UserProgress {
+  checkInCount: number;
+  journalCount: number;
+  winCount: number;
+  streakDays: number;
+  totalDays: number;
+}
+
 const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const { user, isGuest } = useAuth();
   const { t } = useLocalization();
+  const [progress, setProgress] = useState<UserProgress>({
+    checkInCount: 0,
+    journalCount: 0,
+    winCount: 0,
+    streakDays: 0,
+    totalDays: 0
+  });
+  const [showProgressTooltip, setShowProgressTooltip] = useState(false);
+  
   const currentHour = new Date().getHours();
   const isEvening = currentHour >= 18 || currentHour < 6;
   const favoriteCount = getFavoriteResponses().length;
+
+  useEffect(() => {
+    loadUserProgress();
+  }, [user, isGuest]);
+
+  const loadUserProgress = async () => {
+    try {
+      if (isGuest) {
+        // Load from local storage for guest users
+        const guestData = GuestStorageManager.getGuestData();
+        const checkInCount = guestData.checkIns.length;
+        const journalCount = guestData.journalEntries.length;
+        const winCount = guestData.wins.length;
+        
+        // Calculate streak and total days
+        const allDates = [
+          ...guestData.checkIns.map(c => c.timestamp),
+          ...guestData.journalEntries.map(j => j.timestamp),
+          ...guestData.wins.map(w => w.timestamp)
+        ].map(timestamp => new Date(timestamp).toDateString());
+        
+        const uniqueDates = [...new Set(allDates)].sort();
+        const totalDays = uniqueDates.length;
+        const streakDays = calculateStreak(uniqueDates);
+        
+        setProgress({
+          checkInCount,
+          journalCount,
+          winCount,
+          streakDays,
+          totalDays
+        });
+      } else if (user) {
+        // Load from Supabase for authenticated users
+        const [checkIns, journals, wins] = await Promise.all([
+          supabase.from('check_ins').select('created_at').eq('user_id', user.id),
+          supabase.from('journal_entries').select('created_at').eq('user_id', user.id),
+          supabase.from('wins').select('created_at').eq('user_id', user.id)
+        ]);
+
+        const checkInCount = checkIns.data?.length || 0;
+        const journalCount = journals.data?.length || 0;
+        const winCount = wins.data?.length || 0;
+
+        // Calculate streak and total days
+        const allDates = [
+          ...(checkIns.data || []).map(c => c.created_at),
+          ...(journals.data || []).map(j => j.created_at),
+          ...(wins.data || []).map(w => w.created_at)
+        ].map(timestamp => new Date(timestamp).toDateString());
+        
+        const uniqueDates = [...new Set(allDates)].sort();
+        const totalDays = uniqueDates.length;
+        const streakDays = calculateStreak(uniqueDates);
+
+        setProgress({
+          checkInCount,
+          journalCount,
+          winCount,
+          streakDays,
+          totalDays
+        });
+      }
+    } catch (error) {
+      console.error('Error loading user progress:', error);
+    }
+  };
+
+  const calculateStreak = (sortedDates: string[]): number => {
+    if (sortedDates.length === 0) return 0;
+    
+    let streak = 1;
+    const today = new Date().toDateString();
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toDateString();
+    
+    // Check if user has activity today or yesterday
+    const latestDate = sortedDates[sortedDates.length - 1];
+    if (latestDate !== today && latestDate !== yesterday) {
+      return 0; // Streak broken
+    }
+    
+    // Count consecutive days working backwards
+    for (let i = sortedDates.length - 2; i >= 0; i--) {
+      const currentDate = new Date(sortedDates[i + 1]);
+      const previousDate = new Date(sortedDates[i]);
+      const dayDiff = Math.floor((currentDate.getTime() - previousDate.getTime()) / (24 * 60 * 60 * 1000));
+      
+      if (dayDiff === 1) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+    
+    return streak;
+  };
   
   const getPersonalizedGreeting = () => {
     const timeGreeting = currentHour < 12 ? (t('goodMorning') || 'Good morning') : 
@@ -31,6 +146,17 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     } else {
       return `${timeGreeting}, ${t('beautiful') || 'beautiful'}`;
     }
+  };
+
+  const getGrowthRingsFilled = () => {
+    const totalActivities = progress.checkInCount + progress.journalCount + progress.winCount;
+    
+    if (totalActivities >= 50) return 5;
+    if (totalActivities >= 30) return 4;
+    if (totalActivities >= 15) return 3;
+    if (totalActivities >= 5) return 2;
+    if (totalActivities >= 1) return 1;
+    return 0;
   };
 
   const quickActions = [
@@ -67,6 +193,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       action: () => onNavigate('affirmations')
     }
   ];
+
+  const filledRings = getGrowthRingsFilled();
 
   return (
     <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
@@ -156,14 +284,46 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         </motion.div>
       )}
 
-      {/* Growth Rings - Progress Visualization */}
+      {/* Dynamic Growth Rings */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
-        className="bg-sage-50 rounded-2xl p-4 sm:p-6 border border-sage-100"
+        className="bg-sage-50 rounded-2xl p-4 sm:p-6 border border-sage-100 relative"
       >
-        <h3 className="font-serif text-base sm:text-lg text-sage-800 mb-4">{t('yourGrowthRings') || 'Your growth rings'}</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-serif text-base sm:text-lg text-sage-800">{t('yourGrowthRings') || 'Your growth rings'}</h3>
+          <motion.button
+            onHoverStart={() => setShowProgressTooltip(true)}
+            onHoverEnd={() => setShowProgressTooltip(false)}
+            onClick={() => setShowProgressTooltip(!showProgressTooltip)}
+            className="p-2 rounded-full bg-sage-100 text-sage-600 hover:bg-sage-200 transition-colors"
+          >
+            <Info className="w-4 h-4" />
+          </motion.button>
+        </div>
+
+        {/* Progress Tooltip */}
+        {showProgressTooltip && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="absolute top-16 right-4 bg-white rounded-lg shadow-lg border border-sage-200 p-4 z-10 w-64"
+          >
+            <h4 className="font-medium text-sage-800 mb-2">Your Progress</h4>
+            <div className="space-y-1 text-sm text-sage-600">
+              <div>Check-ins: {progress.checkInCount}</div>
+              <div>Journal entries: {progress.journalCount}</div>
+              <div>Wins celebrated: {progress.winCount}</div>
+              <div>Current streak: {progress.streakDays} days</div>
+              <div>Total active days: {progress.totalDays}</div>
+            </div>
+            <p className="text-xs text-sage-500 mt-2">
+              This ring shows how often you've shown up for yourself. You're doing beautifully.
+            </p>
+          </motion.div>
+        )}
+        
         <div className="flex items-center justify-center space-x-2">
           {[1, 2, 3, 4, 5].map((ring, index) => (
             <motion.div
@@ -171,17 +331,47 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.9 + index * 0.1 }}
-              className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 ${
-                index < 3 
-                  ? 'bg-sage-200 border-sage-400' 
-                  : 'border-sage-200'
+              className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 transition-all duration-500 ${
+                index < filledRings
+                  ? 'bg-sage-200 border-sage-400 shadow-sm' 
+                  : 'border-sage-200 hover:border-sage-300'
               }`}
-            />
+            >
+              {index < filledRings && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 1.2 + index * 0.1 }}
+                  className="w-full h-full rounded-full bg-gradient-to-br from-sage-300 to-sage-400"
+                />
+              )}
+            </motion.div>
           ))}
         </div>
-        <p className="text-sage-600 text-sm text-center mt-3">
-          3 {t('daysOfSelfCare') || 'days of self-care'}
-        </p>
+        
+        <div className="text-center mt-3">
+          <p className="text-sage-600 text-sm">
+            {progress.streakDays > 0 ? (
+              <>
+                {progress.streakDays} day{progress.streakDays !== 1 ? 's' : ''} streak • {progress.totalDays} {t('daysOfSelfCare') || 'days of self-care'}
+              </>
+            ) : (
+              'Start your self-care journey today'
+            )}
+          </p>
+          
+          {progress.streakDays >= 7 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mt-2"
+            >
+              <span className="inline-flex items-center px-2 py-1 bg-sage-200 text-sage-800 text-xs font-medium rounded-full">
+                🌟 Week streak achieved!
+              </span>
+            </motion.div>
+          )}
+        </div>
       </motion.div>
     </div>
   );

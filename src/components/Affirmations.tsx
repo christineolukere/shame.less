@@ -1,66 +1,213 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Shuffle, Heart, Volume2, Bookmark } from 'lucide-react';
+import { ArrowLeft, Shuffle, Heart, Volume2, VolumeX, Bookmark, Play, Pause } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
+import { getStoredSupportStyle } from '../hooks/useOnboarding';
 
 interface AffirmationsProps {
   onBack: () => void;
 }
 
+interface VoiceOption {
+  id: string;
+  name: string;
+  description: string;
+  rate: number;
+  pitch: number;
+}
+
 const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   const [currentAffirmation, setCurrentAffirmation] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [selectedVoice, setSelectedVoice] = useState<VoiceOption | null>(null);
+  const [showVoiceOptions, setShowVoiceOptions] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const { translations: t } = useLocalization();
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  const affirmations = [
+  const voiceOptions: VoiceOption[] = [
     {
-      text: "I am worthy of love and kindness, especially from myself.",
-      category: "Self-Love",
-      color: "terracotta"
+      id: 'warm_femme',
+      name: 'Warm Femme',
+      description: 'Gentle, nurturing tone',
+      rate: 0.8,
+      pitch: 1.1
     },
     {
-      text: "My feelings are valid and deserve to be acknowledged with compassion.",
-      category: "Emotional Validation",
-      color: "lavender"
+      id: 'soft_neutral',
+      name: 'Soft Neutral',
+      description: 'Calm, balanced voice',
+      rate: 0.9,
+      pitch: 1.0
     },
     {
-      text: "I choose to speak to myself with the same gentleness I would offer a dear friend.",
-      category: "Inner Voice",
-      color: "sage"
-    },
-    {
-      text: "My healing journey is unique and unfolds at exactly the right pace for me.",
-      category: "Healing",
-      color: "cream"
-    },
-    {
-      text: "I am allowed to take up space and honor my needs without apology.",
-      category: "Boundaries",
-      color: "terracotta"
-    },
-    {
-      text: "Every small step I take toward caring for myself is an act of courage.",
-      category: "Self-Care",
-      color: "sage"
-    },
-    {
-      text: "I release the need to be perfect and embrace my beautifully human experience.",
-      category: "Self-Acceptance",
-      color: "lavender"
-    },
-    {
-      text: "My ancestors' strength flows through me, and I am never truly alone.",
-      category: "Connection",
-      color: "cream"
+      id: 'soothing_deep',
+      name: 'Soothing Deep',
+      description: 'Grounding, steady tone',
+      rate: 0.7,
+      pitch: 0.9
     }
   ];
 
+  const supportStyle = getStoredSupportStyle();
+
+  const getAffirmationsForStyle = () => {
+    const baseAffirmations = [
+      {
+        text: "I am worthy of love and kindness, especially from myself.",
+        category: "Self-Love",
+        color: "terracotta"
+      },
+      {
+        text: "My feelings are valid and deserve to be acknowledged with compassion.",
+        category: "Emotional Validation",
+        color: "lavender"
+      },
+      {
+        text: "I choose to speak to myself with the same gentleness I would offer a dear friend.",
+        category: "Inner Voice",
+        color: "sage"
+      },
+      {
+        text: "My healing journey is unique and unfolds at exactly the right pace for me.",
+        category: "Healing",
+        color: "cream"
+      },
+      {
+        text: "I am allowed to take up space and honor my needs without apology.",
+        category: "Boundaries",
+        color: "terracotta"
+      },
+      {
+        text: "Every small step I take toward caring for myself is an act of courage.",
+        category: "Self-Care",
+        color: "sage"
+      },
+      {
+        text: "I release the need to be perfect and embrace my beautifully human experience.",
+        category: "Self-Acceptance",
+        color: "lavender"
+      }
+    ];
+
+    // Add culturally-specific affirmations based on support style
+    if (supportStyle === 'spirituality') {
+      return [
+        ...baseAffirmations,
+        {
+          text: "I am divinely guided and protected on this journey of healing.",
+          category: "Divine Connection",
+          color: "lavender"
+        },
+        {
+          text: "The Creator's love flows through me, healing every wounded part.",
+          category: "Spiritual Healing",
+          color: "sage"
+        }
+      ];
+    } else if (supportStyle === 'culture') {
+      return [
+        ...baseAffirmations,
+        {
+          text: "My ancestors' strength flows through me, and I am never truly alone.",
+          category: "Ancestral Wisdom",
+          color: "cream"
+        },
+        {
+          text: "I carry the resilience of generations who survived so I could thrive.",
+          category: "Cultural Strength",
+          color: "terracotta"
+        }
+      ];
+    } else if (supportStyle === 'science') {
+      return [
+        ...baseAffirmations,
+        {
+          text: "My brain is capable of forming new, healthier patterns with each kind choice I make.",
+          category: "Neuroplasticity",
+          color: "sage"
+        },
+        {
+          text: "Research shows that self-compassion leads to greater resilience and well-being.",
+          category: "Evidence-Based",
+          color: "lavender"
+        }
+      ];
+    }
+
+    return baseAffirmations;
+  };
+
+  const affirmations = getAffirmationsForStyle();
+
+  useEffect(() => {
+    // Set default voice
+    if (voiceOptions.length > 0 && !selectedVoice) {
+      setSelectedVoice(voiceOptions[0]);
+    }
+
+    // Cleanup speech synthesis on unmount
+    return () => {
+      if (speechRef.current) {
+        speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  const speakAffirmation = (text: string) => {
+    if (!selectedVoice || isMuted) return;
+
+    // Cancel any ongoing speech
+    speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = selectedVoice.rate;
+    utterance.pitch = selectedVoice.pitch;
+    utterance.volume = 0.8;
+
+    // Try to find a suitable voice
+    const voices = speechSynthesis.getVoices();
+    const femaleVoices = voices.filter(voice => 
+      voice.name.toLowerCase().includes('female') || 
+      voice.name.toLowerCase().includes('woman') ||
+      voice.name.toLowerCase().includes('samantha') ||
+      voice.name.toLowerCase().includes('karen')
+    );
+    
+    if (femaleVoices.length > 0) {
+      utterance.voice = femaleVoices[0];
+    } else if (voices.length > 0) {
+      utterance.voice = voices[0];
+    }
+
+    utterance.onstart = () => setIsPlaying(true);
+    utterance.onend = () => setIsPlaying(false);
+    utterance.onerror = () => setIsPlaying(false);
+
+    speechRef.current = utterance;
+    speechSynthesis.speak(utterance);
+  };
+
+  const togglePlayback = () => {
+    if (isPlaying) {
+      speechSynthesis.cancel();
+      setIsPlaying(false);
+    } else {
+      speakAffirmation(affirmations[currentAffirmation].text);
+    }
+  };
+
   const nextAffirmation = () => {
+    speechSynthesis.cancel();
+    setIsPlaying(false);
     setCurrentAffirmation((prev) => (prev + 1) % affirmations.length);
     setIsSaved(false);
   };
 
   const randomAffirmation = () => {
+    speechSynthesis.cancel();
+    setIsPlaying(false);
     const randomIndex = Math.floor(Math.random() * affirmations.length);
     setCurrentAffirmation(randomIndex);
     setIsSaved(false);
@@ -93,6 +240,45 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
         </motion.button>
       </div>
 
+      {/* Voice Controls */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-lavender-50 rounded-2xl p-4 border border-lavender-100"
+      >
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-serif text-lavender-800">Audio Settings</h3>
+          <motion.button
+            onClick={() => setIsMuted(!isMuted)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`p-2 rounded-full transition-colors ${
+              isMuted ? 'bg-red-100 text-red-600' : 'bg-lavender-100 text-lavender-600'
+            }`}
+          >
+            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+          </motion.button>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-lavender-700">Voice:</span>
+          <select
+            value={selectedVoice?.id || ''}
+            onChange={(e) => {
+              const voice = voiceOptions.find(v => v.id === e.target.value);
+              setSelectedVoice(voice || null);
+            }}
+            className="flex-1 p-2 bg-white border border-lavender-200 rounded-lg text-sm focus:ring-2 focus:ring-lavender-300"
+          >
+            {voiceOptions.map(voice => (
+              <option key={voice.id} value={voice.id}>
+                {voice.name} - {voice.description}
+              </option>
+            ))}
+          </select>
+        </div>
+      </motion.div>
+
       {/* Gentle Introduction */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -104,7 +290,10 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
           <h3 className="font-serif text-cream-800">{t.wordsOfLove}</h3>
         </div>
         <p className="text-cream-700 text-sm leading-relaxed">
-          {t.affirmationsDescription}
+          {supportStyle === 'spirituality' && "These affirmations are infused with spiritual wisdom to nurture your soul."}
+          {supportStyle === 'culture' && "These affirmations honor the strength and wisdom of your cultural heritage."}
+          {supportStyle === 'science' && "These affirmations are grounded in psychological research and evidence-based practices."}
+          {!supportStyle && "These gentle affirmations are crafted to nurture your heart and mind with love."}
         </p>
       </motion.div>
 
@@ -129,12 +318,20 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
           {/* Action Buttons */}
           <div className="flex items-center justify-center space-x-4">
             <motion.button
+              onClick={togglePlayback}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`p-3 rounded-full bg-${current.color}-100 text-${current.color}-700 hover:bg-${current.color}-200 transition-colors`}
-              title="Listen to affirmation"
+              disabled={isMuted}
+              className={`p-3 rounded-full transition-colors ${
+                isMuted 
+                  ? `bg-gray-100 text-gray-400 cursor-not-allowed`
+                  : isPlaying
+                    ? `bg-${current.color}-200 text-${current.color}-800`
+                    : `bg-${current.color}-100 text-${current.color}-700 hover:bg-${current.color}-200`
+              }`}
+              title={isMuted ? "Audio is muted" : isPlaying ? "Pause affirmation" : "Listen to affirmation"}
             >
-              <Volume2 className="w-5 h-5" />
+              {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
             </motion.button>
             
             <motion.button
@@ -175,7 +372,11 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
         {affirmations.map((_, index) => (
           <motion.button
             key={index}
-            onClick={() => setCurrentAffirmation(index)}
+            onClick={() => {
+              speechSynthesis.cancel();
+              setIsPlaying(false);
+              setCurrentAffirmation(index);
+            }}
             className={`w-2 h-2 rounded-full transition-colors ${
               index === currentAffirmation 
                 ? `bg-${current.color}-500` 
