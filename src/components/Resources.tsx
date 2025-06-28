@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Book, Heart, Users, Headphones, Video, ExternalLink, Star, Globe, Phone } from 'lucide-react';
+import { ArrowLeft, Book, Heart, Users, Headphones, Video, ExternalLink, Star, Globe, Phone, Image, Search } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
+import { MediaViewer } from './MediaViewer';
 
 interface ResourcesProps {
   onBack: () => void;
@@ -21,6 +22,8 @@ interface Resource {
 
 const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
   const [activeCategory, setActiveCategory] = useState('stories');
+  const [showMediaViewer, setShowMediaViewer] = useState(false);
+  const [mediaSearchQuery, setMediaSearchQuery] = useState('');
   const { t } = useLocalization();
 
   const categories = [
@@ -28,6 +31,7 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
     { id: 'healing', label: t('healing') || 'Healing', icon: Heart, color: 'sage' },
     { id: 'community', label: t('community') || 'Community', icon: Users, color: 'lavender' },
     { id: 'media', label: t('media') || 'Media', icon: Headphones, color: 'cream' },
+    { id: 'visuals', label: 'Visuals', icon: Image, color: 'sage' },
   ];
 
   const resources: Record<string, Resource[]> = {
@@ -198,11 +202,19 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
         culturalFocus: ["Black American", "LGBTQIA+", "Body Positive"],
         isVerified: true
       }
-    ]
+    ],
+    visuals: []
   };
 
   const openResource = (url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const openMediaViewer = (searchQuery?: string) => {
+    if (searchQuery) {
+      setMediaSearchQuery(searchQuery);
+    }
+    setShowMediaViewer(true);
   };
 
   const renderStars = (rating?: number) => {
@@ -220,6 +232,95 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
       </div>
     );
   };
+
+  const renderVisualsCategory = () => (
+    <div className="space-y-6">
+      <div className="text-center space-y-4">
+        <div className="w-20 h-20 bg-gradient-to-br from-sage-100 to-lavender-100 rounded-full flex items-center justify-center mx-auto">
+          <Image className="w-10 h-10 text-sage-600" />
+        </div>
+        <div>
+          <h3 className="text-lg font-serif text-sage-800 mb-2">Healing Visuals</h3>
+          <p className="text-sage-600 text-sm leading-relaxed">
+            Discover calming images and ambient videos curated to support your emotional well-being. 
+            Search by mood, theme, or let us suggest content based on your current state.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <motion.button
+          onClick={() => openMediaViewer('peaceful nature')}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="p-4 bg-sage-50 border border-sage-200 rounded-xl hover:bg-sage-100 transition-colors text-center"
+        >
+          <div className="w-12 h-12 bg-sage-200 rounded-lg flex items-center justify-center mx-auto mb-3">
+            <span className="text-2xl">🌿</span>
+          </div>
+          <h4 className="font-medium text-sage-800 mb-1">Peaceful Nature</h4>
+          <p className="text-xs text-sage-600">Serene landscapes and natural scenes</p>
+        </motion.button>
+
+        <motion.button
+          onClick={() => openMediaViewer('calming water')}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="p-4 bg-blue-50 border border-blue-200 rounded-xl hover:bg-blue-100 transition-colors text-center"
+        >
+          <div className="w-12 h-12 bg-blue-200 rounded-lg flex items-center justify-center mx-auto mb-3">
+            <span className="text-2xl">🌊</span>
+          </div>
+          <h4 className="font-medium text-blue-800 mb-1">Calming Waters</h4>
+          <p className="text-xs text-blue-600">Ocean waves, rivers, and gentle rain</p>
+        </motion.button>
+
+        <motion.button
+          onClick={() => openMediaViewer('soft colors')}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="p-4 bg-lavender-50 border border-lavender-200 rounded-xl hover:bg-lavender-100 transition-colors text-center"
+        >
+          <div className="w-12 h-12 bg-lavender-200 rounded-lg flex items-center justify-center mx-auto mb-3">
+            <span className="text-2xl">🎨</span>
+          </div>
+          <h4 className="font-medium text-lavender-800 mb-1">Soft Colors</h4>
+          <p className="text-xs text-lavender-600">Gentle pastels and soothing tones</p>
+        </motion.button>
+
+        <motion.button
+          onClick={() => openMediaViewer('healing light')}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="p-4 bg-cream-50 border border-cream-200 rounded-xl hover:bg-cream-100 transition-colors text-center"
+        >
+          <div className="w-12 h-12 bg-cream-200 rounded-lg flex items-center justify-center mx-auto mb-3">
+            <span className="text-2xl">✨</span>
+          </div>
+          <h4 className="font-medium text-cream-800 mb-1">Healing Light</h4>
+          <p className="text-xs text-cream-600">Sunrise, sunset, and golden hour</p>
+        </motion.button>
+      </div>
+
+      <div className="bg-sage-50 rounded-xl p-4 border border-sage-100">
+        <div className="flex items-center space-x-2 mb-3">
+          <Search className="w-4 h-4 text-sage-600" />
+          <h4 className="font-medium text-sage-800">Custom Search</h4>
+        </div>
+        <p className="text-sage-600 text-sm mb-3">
+          Search for specific themes, colors, or moods to find visuals that resonate with you.
+        </p>
+        <motion.button
+          onClick={() => openMediaViewer()}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full py-2 bg-sage-500 text-white rounded-lg hover:bg-sage-600 transition-colors"
+        >
+          Open Visual Search
+        </motion.button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="p-6 space-y-6">
@@ -244,13 +345,13 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
       >
         <h3 className="font-serif text-sage-800 mb-2">{t('curatedWithLove') || 'Curated with love'}</h3>
         <p className="text-sage-700 text-sm leading-relaxed">
-          A collection of healing resources, stories, and tools created by and for women of color on their wellness journeys. 
+          A collection of healing resources, stories, tools, and calming visuals created by and for women of color on their wellness journeys. 
           All links are verified and culturally responsive.
         </p>
       </motion.div>
 
       {/* Category Tabs */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-5 gap-2">
         {categories.map((category) => {
           const Icon = category.icon;
           return (
@@ -265,77 +366,81 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
                   : 'bg-white border border-sage-100 text-sage-700 hover:bg-sage-50'
               }`}
             >
-              <Icon className="w-5 h-5 mx-auto mb-1" />
+              <Icon className="w-4 h-4 mx-auto mb-1" />
               <div className="text-xs font-medium">{category.label}</div>
             </motion.button>
           );
         })}
       </div>
 
-      {/* Resources List */}
-      <div className="space-y-4">
-        {resources[activeCategory].map((resource, index) => (
-          <motion.div
-            key={resource.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className={`bg-${resource.color}-50 rounded-xl p-5 border border-${resource.color}-100 hover:shadow-md transition-all`}
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center space-x-2 mb-2">
-                  <span className={`px-2 py-1 bg-${resource.color}-100 text-${resource.color}-700 text-xs font-medium rounded-full`}>
-                    {resource.type}
-                  </span>
-                  <span className={`text-${resource.color}-600 text-xs`}>
-                    {resource.readTime}
-                  </span>
-                  {resource.isVerified && (
-                    <div className="flex items-center space-x-1">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-xs text-green-600 font-medium">Verified</span>
-                    </div>
-                  )}
-                </div>
-                
-                <h4 className={`font-serif text-lg text-${resource.color}-800 mb-2`}>
-                  {resource.title}
-                </h4>
-                
-                <p className={`text-${resource.color}-700 text-sm leading-relaxed mb-3`}>
-                  {resource.description}
-                </p>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    {renderStars(resource.rating)}
-                    {resource.culturalFocus && (
+      {/* Content */}
+      {activeCategory === 'visuals' ? (
+        renderVisualsCategory()
+      ) : (
+        <div className="space-y-4">
+          {resources[activeCategory].map((resource, index) => (
+            <motion.div
+              key={resource.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className={`bg-${resource.color}-50 rounded-xl p-5 border border-${resource.color}-100 hover:shadow-md transition-all`}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <span className={`px-2 py-1 bg-${resource.color}-100 text-${resource.color}-700 text-xs font-medium rounded-full`}>
+                      {resource.type}
+                    </span>
+                    <span className={`text-${resource.color}-600 text-xs`}>
+                      {resource.readTime}
+                    </span>
+                    {resource.isVerified && (
                       <div className="flex items-center space-x-1">
-                        <Globe className="w-3 h-3 text-sage-500" />
-                        <span className="text-xs text-sage-600">
-                          {resource.culturalFocus.slice(0, 2).join(', ')}
-                          {resource.culturalFocus.length > 2 && ` +${resource.culturalFocus.length - 2}`}
-                        </span>
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span className="text-xs text-green-600 font-medium">Verified</span>
                       </div>
                     )}
                   </div>
+                  
+                  <h4 className={`font-serif text-lg text-${resource.color}-800 mb-2`}>
+                    {resource.title}
+                  </h4>
+                  
+                  <p className={`text-${resource.color}-700 text-sm leading-relaxed mb-3`}>
+                    {resource.description}
+                  </p>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      {renderStars(resource.rating)}
+                      {resource.culturalFocus && (
+                        <div className="flex items-center space-x-1">
+                          <Globe className="w-3 h-3 text-sage-500" />
+                          <span className="text-xs text-sage-600">
+                            {resource.culturalFocus.slice(0, 2).join(', ')}
+                            {resource.culturalFocus.length > 2 && ` +${resource.culturalFocus.length - 2}`}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
+                
+                <motion.button
+                  onClick={() => openResource(resource.url)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`ml-4 p-3 rounded-full bg-${resource.color}-100 text-${resource.color}-700 hover:bg-${resource.color}-200 transition-colors flex-shrink-0`}
+                  title="Open resource in new tab"
+                >
+                  <ExternalLink className="w-5 h-5" />
+                </motion.button>
               </div>
-              
-              <motion.button
-                onClick={() => openResource(resource.url)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`ml-4 p-3 rounded-full bg-${resource.color}-100 text-${resource.color}-700 hover:bg-${resource.color}-200 transition-colors flex-shrink-0`}
-                title="Open resource in new tab"
-              >
-                <ExternalLink className="w-5 h-5" />
-              </motion.button>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
 
       {/* Crisis Resources Section */}
       <motion.div
@@ -405,6 +510,14 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
           {t('shareResource') || 'Share resource'}
         </motion.button>
       </motion.div>
+
+      {/* Media Viewer Modal */}
+      <MediaViewer
+        isOpen={showMediaViewer}
+        onClose={() => setShowMediaViewer(false)}
+        searchQuery={mediaSearchQuery}
+        contentType="both"
+      />
     </div>
   );
 };

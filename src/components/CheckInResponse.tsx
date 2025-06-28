@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Bookmark, BookmarkCheck, ArrowRight } from 'lucide-react';
+import { Heart, Bookmark, BookmarkCheck, ArrowRight, Image, Play } from 'lucide-react';
 import { CheckInResponse } from '../lib/checkInResponses';
+import { MediaViewer } from './MediaViewer';
 
 interface CheckInResponseProps {
   response: CheckInResponse;
@@ -20,12 +21,19 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
 }) => {
   const [isSaved, setIsSaved] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
+  const [showMediaViewer, setShowMediaViewer] = useState(false);
+  const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
 
   const handleSaveFavorite = () => {
     if (onSaveFavorite) {
       onSaveFavorite(response);
       setIsSaved(true);
     }
+  };
+
+  const openMediaViewer = (type: 'image' | 'video') => {
+    setMediaType(type);
+    setShowMediaViewer(true);
   };
 
   const getAnimationClass = () => {
@@ -118,6 +126,41 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
         </motion.div>
       </div>
 
+      {/* Media Integration */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
+        className="bg-gradient-to-r from-cream-50 to-lavender-50 rounded-2xl p-6 border border-cream-200"
+      >
+        <h4 className="font-serif text-sage-800 mb-3 text-center">Enhance your moment</h4>
+        <p className="text-sage-600 text-sm text-center mb-4">
+          Discover calming visuals that match your {emotion.toLowerCase()} + {color.toLowerCase()} energy
+        </p>
+        
+        <div className="flex justify-center space-x-3">
+          <motion.button
+            onClick={() => openMediaViewer('image')}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="flex items-center space-x-2 px-4 py-2 bg-sage-100 text-sage-700 rounded-lg hover:bg-sage-200 transition-colors"
+          >
+            <Image className="w-4 h-4" />
+            <span>Calming Images</span>
+          </motion.button>
+          
+          <motion.button
+            onClick={() => openMediaViewer('video')}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="flex items-center space-x-2 px-4 py-2 bg-lavender-100 text-lavender-700 rounded-lg hover:bg-lavender-200 transition-colors"
+          >
+            <Play className="w-4 h-4" />
+            <span>Ambient Videos</span>
+          </motion.button>
+        </div>
+      </motion.div>
+
       {/* Reflection Question */}
       <AnimatePresence>
         {showReflection && (
@@ -170,6 +213,15 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
           <source src={`/sounds/${response.sound}`} type="audio/mpeg" />
         </audio>
       )}
+
+      {/* Media Viewer Modal */}
+      <MediaViewer
+        isOpen={showMediaViewer}
+        onClose={() => setShowMediaViewer(false)}
+        mood={emotion.toLowerCase()}
+        color={color.toLowerCase()}
+        contentType={mediaType}
+      />
     </motion.div>
   );
 };
