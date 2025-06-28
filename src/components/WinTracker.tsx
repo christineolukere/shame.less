@@ -33,23 +33,23 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
   const [clearing, setClearing] = useState(false);
 
   const categories = [
-    { id: 'self-care', label: t.selfCare, icon: Heart, color: 'terracotta' },
-    { id: 'boundaries', label: t.boundaries, icon: Sparkles, color: 'lavender' },
-    { id: 'growth', label: t.growth, icon: Trophy, color: 'sage' },
-    { id: 'joy', label: t.joy, icon: Sparkles, color: 'cream' },
+    { id: 'self-care', label: t('selfCare') || 'Self-Care', icon: Heart, color: 'terracotta' },
+    { id: 'boundaries', label: t('boundaries') || 'Boundaries', icon: Sparkles, color: 'lavender' },
+    { id: 'growth', label: t('growth') || 'Growth', icon: Trophy, color: 'sage' },
+    { id: 'joy', label: t('joy') || 'Joy', icon: Sparkles, color: 'cream' },
   ] as const;
 
   const quickWins = [
-    t.gotOutOfBed,
-    t.drankWater,
-    t.tookShower,
-    t.ateAMeal,
-    t.setBoundary,
-    t.askedForHelp,
-    t.practicedSayingNo,
-    t.tookBreak,
-    t.movedBody,
-    t.calledSomeone,
+    t('gotOutOfBed') || 'Got out of bed',
+    t('drankWater') || 'Drank water',
+    t('tookShower') || 'Took a shower',
+    t('ateAMeal') || 'Ate a meal',
+    t('setBoundary') || 'Set a boundary',
+    t('askedForHelp') || 'Asked for help',
+    t('practicedSayingNo') || 'Practiced saying no',
+    t('tookBreak') || 'Took a break',
+    t('movedBody') || 'Moved my body',
+    t('calledSomeone') || 'Called someone',
   ];
 
   useEffect(() => {
@@ -182,11 +182,15 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
     // Determine category based on win text
     let category: Win['category'] = 'self-care';
     
-    if (winText.includes(t.setBoundary) || winText.includes(t.practicedSayingNo) || winText.includes(t.askedForHelp)) {
+    const boundaryWins = [t('setBoundary'), t('practicedSayingNo'), t('askedForHelp')].filter(Boolean);
+    const growthWins = [t('movedBody'), t('calledSomeone'), t('tookBreak')].filter(Boolean);
+    const selfCareWins = [t('drankWater'), t('tookShower'), t('ateAMeal'), t('gotOutOfBed')].filter(Boolean);
+    
+    if (boundaryWins.some(win => winText.includes(win))) {
       category = 'boundaries';
-    } else if (winText.includes(t.movedBody) || winText.includes(t.calledSomeone) || winText.includes(t.tookBreak)) {
+    } else if (growthWins.some(win => winText.includes(win))) {
       category = 'growth';
-    } else if (winText.includes(t.drankWater) || winText.includes(t.tookShower) || winText.includes(t.ateAMeal) || winText.includes(t.gotOutOfBed)) {
+    } else if (selfCareWins.some(win => winText.includes(win))) {
       category = 'self-care';
     }
 
@@ -208,7 +212,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center">
-        <div className="text-sage-600">{t.loading}</div>
+        <div className="text-sage-600">{t('loading') || 'Loading...'}</div>
       </div>
     );
   }
@@ -232,7 +236,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
           >
             <ArrowLeft className="w-5 h-5" />
           </motion.button>
-          <h1 className="text-2xl font-serif text-sage-800">{t.yourWins}</h1>
+          <h1 className="text-2xl font-serif text-sage-800">{t('yourWins') || 'Your Wins'}</h1>
         </div>
         <div className="flex items-center space-x-2">
           {wins.length > 0 && (
@@ -241,7 +245,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
-              title={t.clearAllWins}
+              title={t('clearAllWins') || 'Clear all wins'}
             >
               <Trash2 className="w-5 h-5" />
             </motion.button>
@@ -263,16 +267,16 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
         animate={{ opacity: 1, y: 0 }}
         className="bg-cream-50 rounded-2xl p-6 border border-cream-100"
       >
-        <h3 className="font-serif text-cream-800 mb-2">{t.everyStepCounts}</h3>
+        <h3 className="font-serif text-cream-800 mb-2">{t('everyStepCounts') || 'Every step counts'}</h3>
         <p className="text-cream-700 text-sm leading-relaxed">
-          {t.winsDescription}
+          {t('winsDescription') || 'Celebrating progress, no matter how small. Each win is a testament to your strength and resilience.'}
         </p>
       </motion.div>
 
       {/* Quick Add Wins */}
       {!showAddForm && (
         <div className="space-y-3">
-          <h3 className="text-lg font-serif text-sage-800">{t.quickWinsTocelebrate}</h3>
+          <h3 className="text-lg font-serif text-sage-800">{t('quickWinsTocelebrate') || 'Quick wins to celebrate'}</h3>
           <div className="grid grid-cols-2 gap-2">
             {quickWins.slice(0, 6).map((win, index) => (
               <motion.button
@@ -310,7 +314,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
             className="space-y-4"
           >
             <div className="space-y-3">
-              <h3 className="text-lg font-serif text-sage-800">{t.addYourWin}</h3>
+              <h3 className="text-lg font-serif text-sage-800">{t('addYourWin') || 'Add your win'}</h3>
               
               {/* Category Selection */}
               <div className="grid grid-cols-2 gap-2">
@@ -339,7 +343,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
               <textarea
                 value={newWin}
                 onChange={(e) => setNewWin(e.target.value)}
-                placeholder={t.whatDidYouAccomplish}
+                placeholder={t('whatDidYouAccomplish') || 'What did you accomplish today?'}
                 className="w-full p-4 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-300 focus:border-transparent resize-none"
                 rows={3}
               />
@@ -360,14 +364,14 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
                       className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
                     />
                   )}
-                  {saving ? t.celebrating : t.celebrateThisWin}
+                  {saving ? (t('celebrating') || 'Celebrating...') : (t('celebrateThisWin') || 'Celebrate this win')}
                 </motion.button>
                 <button
                   onClick={() => setShowAddForm(false)}
                   disabled={saving}
                   className="px-6 py-3 bg-sage-100 text-sage-700 rounded-lg font-medium hover:bg-sage-200 transition-colors disabled:opacity-50"
                 >
-                  {t.cancel}
+                  {t('cancel') || 'Cancel'}
                 </button>
               </div>
             </div>
@@ -396,9 +400,9 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
                 </div>
                 
                 <div>
-                  <h3 className="text-lg font-serif text-sage-800 mb-2">{t.clearAllWins}</h3>
+                  <h3 className="text-lg font-serif text-sage-800 mb-2">{t('clearAllWins') || 'Clear all wins'}</h3>
                   <p className="text-sage-600 text-sm">
-                    {t.clearWinsConfirmation}
+                    {t('clearWinsConfirmation') || 'Are you sure you want to clear all your wins? This action cannot be undone.'}
                   </p>
                 </div>
 
@@ -409,7 +413,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
                     whileTap={{ scale: 0.98 }}
                     className="flex-1 py-3 bg-sage-100 text-sage-700 rounded-lg font-medium hover:bg-sage-200 transition-colors"
                   >
-                    {t.cancel}
+                    {t('cancel') || 'Cancel'}
                   </motion.button>
                   <motion.button
                     onClick={clearAllWins}
@@ -418,7 +422,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
                     whileTap={{ scale: clearing ? 1 : 0.98 }}
                     className="flex-1 py-3 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors disabled:opacity-50"
                   >
-                    {clearing ? t.clearing : t.clearAll}
+                    {clearing ? (t('clearing') || 'Clearing...') : (t('clearAll') || 'Clear All')}
                   </motion.button>
                 </div>
               </div>
@@ -429,11 +433,11 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
 
       {/* Wins List */}
       <div className="space-y-3">
-        <h3 className="text-lg font-serif text-sage-800">{t.recentCelebrations}</h3>
+        <h3 className="text-lg font-serif text-sage-800">{t('recentCelebrations') || 'Recent celebrations'}</h3>
         {wins.length === 0 ? (
           <div className="text-center py-8 text-sage-600">
             <Trophy className="w-12 h-12 mx-auto mb-3 text-sage-400" />
-            <p>{t.noWinsYet}</p>
+            <p>{t('noWinsYet') || 'No wins yet. Add your first celebration above!'}</p>
           </div>
         ) : (
           <div className="space-y-3">
