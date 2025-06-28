@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Heart, Wind, Shield, Headphones, MessageCircle, ArrowLeft, Play, Pause, Volume2, AlertCircle, ExternalLink, Phone } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { audioEngine } from '../lib/audioEngine';
-import EmotionAudioPlayer from './Audio/EmotionAudioPlayer';
 
 interface SoftLandingProps {
   onClose: () => void;
@@ -11,7 +10,8 @@ interface SoftLandingProps {
 
 const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
   const [activeComfort, setActiveComfort] = useState<string | null>(null);
-  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [currentAudioType, setCurrentAudioType] = useState<'ocean' | 'rain' | 'forest' | null>(null);
   const { translations: t } = useLocalization();
 
   // Cleanup audio when component unmounts
@@ -47,6 +47,26 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
         }
         break;
     }
+  };
+
+  const playNaturalSound = async (soundType: 'ocean' | 'rain' | 'forest') => {
+    try {
+      audioEngine.stopCurrent();
+      const buffer = audioEngine.generateNaturalSound(soundType, 30); // 30 seconds
+      if (buffer) {
+        await audioEngine.playBuffer(buffer, true); // Loop the sound
+        setIsPlayingAudio(true);
+        setCurrentAudioType(soundType);
+      }
+    } catch (error) {
+      console.error('Failed to play natural sound:', error);
+    }
+  };
+
+  const stopAudio = () => {
+    audioEngine.stopCurrent();
+    setIsPlayingAudio(false);
+    setCurrentAudioType(null);
   };
 
   const comfortOptions = [
@@ -146,18 +166,74 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
             </p>
           </div>
 
-          {/* Enhanced Audio Player */}
-          <EmotionAudioPlayer
-            emotion="peaceful"
-            color="gentle"
-            autoLoad={true}
-            className="bg-cream-50 border-cream-200"
-          />
+          {/* Simple Audio Controls */}
+          <div className="space-y-3">
+            {[
+              { type: 'ocean' as const, label: '🌊 Ocean Waves', description: 'Gentle waves for peace' },
+              { type: 'rain' as const, label: '🌧️ Soft Rain', description: 'Calming rainfall sounds' },
+              { type: 'forest' as const, label: '🌿 Forest Sounds', description: 'Peaceful nature ambience' }
+            ].map((sound) => (
+              <motion.button
+                key={sound.type}
+                onClick={() => {
+                  if (isPlayingAudio && currentAudioType === sound.type) {
+                    stopAudio();
+                  } else {
+                    playNaturalSound(sound.type);
+                  }
+                }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className={`w-full p-4 rounded-xl text-left transition-colors ${
+                  isPlayingAudio && currentAudioType === sound.type
+                    ? 'bg-cream-200 border-2 border-cream-400'
+                    : 'bg-cream-100 border border-cream-200 hover:bg-cream-150'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium text-cream-800">{sound.label}</div>
+                    <div className="text-sm text-cream-600">{sound.description}</div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {isPlayingAudio && currentAudioType === sound.type ? (
+                      <Pause className="w-5 h-5 text-cream-700" />
+                    ) : (
+                      <Play className="w-5 h-5 text-cream-700" />
+                    )}
+                  </div>
+                </div>
+              </motion.button>
+            ))}
+          </div>
+
+          {/* Volume Control */}
+          {isPlayingAudio && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="bg-cream-50 rounded-lg p-3 border border-cream-200"
+            >
+              <div className="flex items-center space-x-3">
+                <Volume2 className="w-4 h-4 text-cream-600" />
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  defaultValue="0.3"
+                  onChange={(e) => audioEngine.setVolume(parseFloat(e.target.value))}
+                  className="flex-1 h-2 bg-cream-200 rounded-lg appearance-none cursor-pointer"
+                />
+                <span className="text-xs text-cream-600">Volume</span>
+              </div>
+            </motion.div>
+          )}
 
           {/* Audio Instructions */}
           <div className="bg-cream-50 rounded-lg p-3 border border-cream-200">
             <p className="modal-text text-cream-600 text-xs text-center">
-              💡 These sounds are carefully selected to support you during difficult moments. 
+              💡 These sounds are generated in real-time to support you during difficult moments. 
               Adjust volume to your comfort level and take as much time as you need.
             </p>
           </div>
@@ -295,6 +371,8 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
                     onClick={() => {
                       setActiveComfort(null);
                       audioEngine.stopCurrent();
+                      setIsPlayingAudio(false);
+                      setCurrentAudioType(null);
                     }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}

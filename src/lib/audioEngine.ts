@@ -1,4 +1,4 @@
-// Enhanced audio engine for reliable cross-platform playback
+// Lightweight audio engine using only Web Audio API - no external libraries
 export class AudioEngine {
   private audioContext: AudioContext | null = null;
   private gainNode: GainNode | null = null;

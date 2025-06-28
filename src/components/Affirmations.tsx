@@ -9,48 +9,14 @@ interface AffirmationsProps {
   onBack: () => void;
 }
 
-interface VoiceOption {
-  id: string;
-  name: string;
-  description: string;
-  rate: number;
-  pitch: number;
-}
-
 const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   const [currentAffirmation, setCurrentAffirmation] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [selectedVoice, setSelectedVoice] = useState<VoiceOption | null>(null);
-  const [showVoiceOptions, setShowVoiceOptions] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [showMediaViewer, setShowMediaViewer] = useState(false);
   const { translations: t } = useLocalization();
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
-
-  const voiceOptions: VoiceOption[] = [
-    {
-      id: 'warm_femme',
-      name: 'Warm Femme',
-      description: 'Gentle, nurturing tone',
-      rate: 0.8,
-      pitch: 1.1
-    },
-    {
-      id: 'soft_neutral',
-      name: 'Soft Neutral',
-      description: 'Calm, balanced voice',
-      rate: 0.9,
-      pitch: 1.0
-    },
-    {
-      id: 'soothing_deep',
-      name: 'Soothing Deep',
-      description: 'Grounding, steady tone',
-      rate: 0.7,
-      pitch: 0.9
-    }
-  ];
 
   const supportStyle = getStoredSupportStyle();
 
@@ -157,11 +123,6 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   const affirmations = getAffirmationsForStyle();
 
   useEffect(() => {
-    // Set default voice
-    if (voiceOptions.length > 0 && !selectedVoice) {
-      setSelectedVoice(voiceOptions[0]);
-    }
-
     // Cleanup speech synthesis on unmount
     return () => {
       if (speechRef.current) {
@@ -171,14 +132,14 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   }, []);
 
   const speakAffirmation = (text: string) => {
-    if (!selectedVoice || isMuted) return;
+    if (isMuted) return;
 
     // Cancel any ongoing speech
     speechSynthesis.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = selectedVoice.rate;
-    utterance.pitch = selectedVoice.pitch;
+    utterance.rate = 0.8;
+    utterance.pitch = 1.1;
     utterance.volume = 0.8;
 
     // Try to find a suitable voice
@@ -259,14 +220,14 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
         </motion.button>
       </div>
 
-      {/* Voice Controls */}
+      {/* Audio Controls */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-lavender-50 rounded-2xl p-4 border border-lavender-100"
       >
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-serif text-lavender-800">Audio Settings</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="font-serif text-lavender-800">Audio Playback</h3>
           <motion.button
             onClick={() => setIsMuted(!isMuted)}
             whileHover={{ scale: 1.05 }}
@@ -279,23 +240,9 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
           </motion.button>
         </div>
         
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-lavender-700">Voice:</span>
-          <select
-            value={selectedVoice?.id || ''}
-            onChange={(e) => {
-              const voice = voiceOptions.find(v => v.id === e.target.value);
-              setSelectedVoice(voice || null);
-            }}
-            className="flex-1 p-2 bg-white border border-lavender-200 rounded-lg text-sm focus:ring-2 focus:ring-lavender-300"
-          >
-            {voiceOptions.map(voice => (
-              <option key={voice.id} value={voice.id}>
-                {voice.name} - {voice.description}
-              </option>
-            ))}
-          </select>
-        </div>
+        <p className="text-sm text-lavender-600 mt-2">
+          {isMuted ? 'Audio is muted' : 'Click the play button to hear affirmations read aloud'}
+        </p>
       </motion.div>
 
       {/* Gentle Introduction */}
