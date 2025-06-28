@@ -3,24 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Heart, Wind, Shield, Headphones, MessageCircle, ArrowLeft, Play, Pause, Volume2, AlertCircle, ExternalLink, Phone } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { audioEngine } from '../lib/audioEngine';
+import EmotionAudioPlayer from './Audio/EmotionAudioPlayer';
 
 interface SoftLandingProps {
   onClose: () => void;
 }
 
-interface SoundOption {
-  id: string;
-  name: string;
-  description: string;
-  color: string;
-  type: 'ocean' | 'rain' | 'forest' | 'piano';
-}
-
 const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
   const [activeComfort, setActiveComfort] = useState<string | null>(null);
-  const [playingSound, setPlayingSound] = useState<string | null>(null);
-  const [volume, setVolume] = useState(0.3);
-  const [audioError, setAudioError] = useState<string | null>(null);
+  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const { translations: t } = useLocalization();
 
   // Cleanup audio when component unmounts
@@ -29,83 +20,6 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
       audioEngine.stopCurrent();
     };
   }, []);
-
-  const soundOptions: SoundOption[] = [
-    {
-      id: 'ocean',
-      name: '🌊 Ocean Waves',
-      description: 'Gentle ocean waves for deep relaxation',
-      color: 'blue',
-      type: 'ocean'
-    },
-    {
-      id: 'rain',
-      name: '🌧️ Gentle Rain',
-      description: 'Soft rainfall for peaceful moments',
-      color: 'gray',
-      type: 'rain'
-    },
-    {
-      id: 'piano',
-      name: '🎵 Soft Piano',
-      description: 'Gentle piano melodies for comfort',
-      color: 'purple',
-      type: 'piano'
-    },
-    {
-      id: 'forest',
-      name: '🌿 Forest Sounds',
-      description: 'Birds and nature for grounding',
-      color: 'green',
-      type: 'forest'
-    }
-  ];
-
-  const playSound = async (soundId: string) => {
-    setAudioError(null);
-
-    try {
-      if (playingSound === soundId) {
-        // Stop current sound
-        audioEngine.stopCurrent();
-        setPlayingSound(null);
-        return;
-      }
-
-      // Stop any existing audio
-      audioEngine.stopCurrent();
-
-      const soundOption = soundOptions.find(s => s.id === soundId);
-      if (!soundOption) return;
-
-      let buffer: AudioBuffer | null = null;
-
-      if (soundOption.type === 'piano') {
-        // Generate a gentle piano-like tone (A4 = 440Hz)
-        buffer = audioEngine.generateCleanTone(440, 10, 'sine');
-      } else {
-        // Generate natural sounds
-        buffer = audioEngine.generateNaturalSound(soundOption.type, 10);
-      }
-
-      if (buffer) {
-        await audioEngine.playBuffer(buffer, true);
-        setPlayingSound(soundId);
-      } else {
-        throw new Error('Failed to generate audio buffer');
-      }
-
-    } catch (error) {
-      console.error('Audio playback failed:', error);
-      setAudioError('Your gentle audio didn\'t load. Try again or choose a different tone.');
-      setPlayingSound(null);
-    }
-  };
-
-  const adjustVolume = (newVolume: number) => {
-    setVolume(newVolume);
-    audioEngine.setVolume(newVolume);
-  };
 
   const openCrisisLink = (type: 'text' | 'call' | 'emergency') => {
     const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -228,114 +142,23 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
           <div className="text-center">
             <Headphones className="w-10 h-10 text-cream-600 mx-auto mb-4" />
             <p className="modal-text text-cream-700 mb-4">
-              Choose a sound to help you feel centered and calm
+              Choose gentle sounds to help you feel centered and calm
             </p>
           </div>
 
-          {/* Audio Error Message */}
-          {audioError && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-red-50 rounded-lg p-3 border border-red-200"
-            >
-              <div className="flex items-center space-x-2">
-                <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
-                <p className="modal-text text-red-700">{audioError}</p>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Volume Control */}
-          {playingSound && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className="bg-cream-100 rounded-lg p-4"
-            >
-              <div className="flex items-center space-x-3">
-                <Volume2 className="w-4 h-4 text-cream-600 flex-shrink-0" />
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.05"
-                  value={volume}
-                  onChange={(e) => adjustVolume(parseFloat(e.target.value))}
-                  className="flex-1 h-2 bg-cream-200 rounded-lg appearance-none cursor-pointer slider"
-                />
-                <span className="text-xs text-cream-600 min-w-[3rem] text-right">
-                  {Math.round(volume * 100)}%
-                </span>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Sound Options */}
-          <div className="space-y-3">
-            {soundOptions.map((sound) => (
-              <motion.button
-                key={sound.id}
-                onClick={() => playSound(sound.id)}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className={`w-full p-4 text-left rounded-xl transition-all ${
-                  playingSound === sound.id
-                    ? 'bg-cream-200 border-2 border-cream-400 shadow-md'
-                    : 'bg-cream-100 border border-cream-200 hover:bg-cream-150 hover:border-cream-300'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <span className="modal-text font-medium text-cream-800">
-                        {sound.name}
-                      </span>
-                      {playingSound === sound.id && (
-                        <motion.div
-                          animate={{ scale: [1, 1.2, 1] }}
-                          transition={{ duration: 1, repeat: Infinity }}
-                          className="w-2 h-2 bg-cream-600 rounded-full"
-                        />
-                      )}
-                    </div>
-                    <p className="modal-text text-cream-600 text-xs">
-                      {sound.description}
-                    </p>
-                  </div>
-                  <div className="ml-3">
-                    {playingSound === sound.id ? (
-                      <Pause className="w-5 h-5 text-cream-600" />
-                    ) : (
-                      <Play className="w-5 h-5 text-cream-600" />
-                    )}
-                  </div>
-                </div>
-              </motion.button>
-            ))}
-          </div>
-
-          {/* Audio Status */}
-          {playingSound && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center"
-            >
-              <p className="modal-text text-cream-600">
-                Playing: {soundOptions.find(s => s.id === playingSound)?.name}
-              </p>
-              <p className="modal-text text-cream-500 text-xs mt-1">
-                Click the same sound again to stop, or choose a different one
-              </p>
-            </motion.div>
-          )}
+          {/* Enhanced Audio Player */}
+          <EmotionAudioPlayer
+            emotion="peaceful"
+            color="gentle"
+            autoLoad={true}
+            className="bg-cream-50 border-cream-200"
+          />
 
           {/* Audio Instructions */}
           <div className="bg-cream-50 rounded-lg p-3 border border-cream-200">
             <p className="modal-text text-cream-600 text-xs text-center">
-              💡 These are clean, generated audio tones designed for relaxation. 
-              Adjust volume to your comfort level.
+              💡 These sounds are carefully selected to support you during difficult moments. 
+              Adjust volume to your comfort level and take as much time as you need.
             </p>
           </div>
         </div>
@@ -472,7 +295,6 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
                     onClick={() => {
                       setActiveComfort(null);
                       audioEngine.stopCurrent();
-                      setPlayingSound(null);
                     }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -506,30 +328,6 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
           </AnimatePresence>
         </div>
       </motion.div>
-
-      {/* Custom CSS for slider styling */}
-      <style jsx>{`
-        .slider::-webkit-slider-thumb {
-          appearance: none;
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background: #5f7a5f;
-          cursor: pointer;
-          border: 2px solid white;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .slider::-moz-range-thumb {
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background: #5f7a5f;
-          cursor: pointer;
-          border: 2px solid white;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-      `}</style>
     </motion.div>
   );
 };

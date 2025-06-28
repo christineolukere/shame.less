@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Bookmark, BookmarkCheck, ArrowRight, Image, Play } from 'lucide-react';
+import { Heart, Bookmark, BookmarkCheck, ArrowRight, Image, Play, Headphones } from 'lucide-react';
 import { CheckInResponse } from '../lib/checkInResponses';
 import { MediaViewer } from './MediaViewer';
+import EmotionAudioPlayer from './Audio/EmotionAudioPlayer';
 
 interface CheckInResponseProps {
   response: CheckInResponse;
@@ -23,6 +24,7 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
   const [showReflection, setShowReflection] = useState(false);
   const [showMediaViewer, setShowMediaViewer] = useState(false);
   const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
+  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
 
   const handleSaveFavorite = () => {
     if (onSaveFavorite) {
@@ -126,7 +128,7 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
         </motion.div>
       </div>
 
-      {/* Media Integration */}
+      {/* Enhanced Media & Audio Integration */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -135,15 +137,15 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
       >
         <h4 className="font-serif text-sage-800 mb-3 text-center">Enhance your moment</h4>
         <p className="text-sage-600 text-sm text-center mb-4">
-          Discover calming visuals that match your {emotion.toLowerCase()} + {color.toLowerCase()} energy
+          Discover calming visuals and gentle sounds that match your {emotion.toLowerCase()} + {color.toLowerCase()} energy
         </p>
         
-        <div className="flex justify-center space-x-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <motion.button
             onClick={() => openMediaViewer('image')}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="flex items-center space-x-2 px-4 py-2 bg-sage-100 text-sage-700 rounded-lg hover:bg-sage-200 transition-colors"
+            className="flex items-center space-x-2 px-4 py-3 bg-sage-100 text-sage-700 rounded-lg hover:bg-sage-200 transition-colors"
           >
             <Image className="w-4 h-4" />
             <span>Calming Images</span>
@@ -153,13 +155,40 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
             onClick={() => openMediaViewer('video')}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="flex items-center space-x-2 px-4 py-2 bg-lavender-100 text-lavender-700 rounded-lg hover:bg-lavender-200 transition-colors"
+            className="flex items-center space-x-2 px-4 py-3 bg-lavender-100 text-lavender-700 rounded-lg hover:bg-lavender-200 transition-colors"
           >
             <Play className="w-4 h-4" />
             <span>Ambient Videos</span>
           </motion.button>
+
+          <motion.button
+            onClick={() => setShowAudioPlayer(!showAudioPlayer)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="flex items-center space-x-2 px-4 py-3 bg-terracotta-100 text-terracotta-700 rounded-lg hover:bg-terracotta-200 transition-colors"
+          >
+            <Headphones className="w-4 h-4" />
+            <span>Gentle Audio</span>
+          </motion.button>
         </div>
       </motion.div>
+
+      {/* Audio Player */}
+      <AnimatePresence>
+        {showAudioPlayer && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+          >
+            <EmotionAudioPlayer
+              emotion={emotion.toLowerCase()}
+              color={color.toLowerCase()}
+              autoLoad={true}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Reflection Question */}
       <AnimatePresence>
@@ -206,13 +235,6 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
           <ArrowRight className="w-4 h-4" />
         </motion.button>
       </motion.div>
-
-      {/* Audio element for sound responses */}
-      {response.sound && (
-        <audio autoPlay loop className="hidden">
-          <source src={`/sounds/${response.sound}`} type="audio/mpeg" />
-        </audio>
-      )}
 
       {/* Media Viewer Modal */}
       <MediaViewer
