@@ -4,7 +4,7 @@ import { translations, type Translations, getTranslationsForLanguage, getAvailab
 interface LocalizationContextType {
   currentLanguage: string;
   translations: Translations;
-  setLanguage: (language: string) => void;
+  setLanguage: (language: string) => Promise<void>;
   availableLanguages: { code: string; name: string; nativeName: string }[];
   t: (key: string) => string;
   isUpdatingLanguage: boolean;
@@ -28,13 +28,13 @@ export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Load saved language preference on mount
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('shameless_preferred_language');
-    if (savedLanguage) {
-      setCurrentLanguage(savedLanguage);
-    }
+    const savedLanguage = localStorage.getItem('shameless_preferred_language') || 
+                         localStorage.getItem('user_language') || 
+                         'English';
+    setCurrentLanguage(savedLanguage);
   }, []);
 
-  const setLanguage = async (language: string) => {
+  const setLanguage = async (language: string): Promise<void> => {
     if (language === currentLanguage) return;
     
     setIsUpdatingLanguage(true);
@@ -44,6 +44,7 @@ export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     
     setCurrentLanguage(language);
     localStorage.setItem('shameless_preferred_language', language);
+    localStorage.setItem('user_language', language);
     
     setIsUpdatingLanguage(false);
     
@@ -54,8 +55,15 @@ export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Translation function with fallback
   const t = (key: string): string => {
-    const currentTranslations = getTranslationsForLanguage(currentLanguage);
-    return getTranslation(key, currentTranslations);
+    try {
+      const currentTranslations = getTranslationsForLanguage(currentLanguage);
+      return getTranslation(key, currentTranslations);
+    } catch (error) {
+      console.warn(`Translation missing for key: ${key}, language: ${currentLanguage}`);
+      // Fallback to English
+      const englishTranslations = getTranslationsForLanguage('English');
+      return getTranslation(key, englishTranslations);
+    }
   };
 
   const value = {
