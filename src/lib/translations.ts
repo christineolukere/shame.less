@@ -12,6 +12,9 @@ const englishTranslations = {
   edit: "Edit",
   delete: "Delete",
   confirm: "Confirm",
+  clearAll: "Clear All",
+  clearing: "Clearing...",
+  celebrating: "Celebrating...",
   
   // App branding
   appName: "shame.less",
@@ -137,6 +140,9 @@ const englishTranslations = {
   whatDidYouAccomplish: "What did you accomplish today?",
   celebrateThisWin: "Celebrate this win",
   recentCelebrations: "Recent celebrations",
+  noWinsYet: "No wins yet. Add your first celebration above!",
+  clearAllWins: "Clear all wins",
+  clearWinsConfirmation: "Are you sure you want to clear all your wins? This action cannot be undone.",
   
   // Win categories
   selfCare: "Self-Care",
@@ -246,6 +252,9 @@ const spanishTranslations = {
   edit: "Editar",
   delete: "Eliminar",
   confirm: "Confirmar",
+  clearAll: "Limpiar Todo",
+  clearing: "Limpiando...",
+  celebrating: "Celebrando...",
   
   // App branding
   appName: "sin.vergüenza",
@@ -371,6 +380,9 @@ const spanishTranslations = {
   whatDidYouAccomplish: "¿Qué lograste hoy?",
   celebrateThisWin: "Celebra este logro",
   recentCelebrations: "Celebraciones recientes",
+  noWinsYet: "¡Aún no hay logros. Agrega tu primera celebración arriba!",
+  clearAllWins: "Limpiar todos los logros",
+  clearWinsConfirmation: "¿Estás segura de que quieres limpiar todos tus logros? Esta acción no se puede deshacer.",
   
   // Win categories
   selfCare: "Autocuidado",
@@ -480,6 +492,9 @@ const frenchTranslations = {
   edit: "Modifier",
   delete: "Supprimer",
   confirm: "Confirmer",
+  clearAll: "Tout Effacer",
+  clearing: "Effacement...",
+  celebrating: "Célébrant...",
   
   // App branding
   appName: "sans.honte",
@@ -605,6 +620,9 @@ const frenchTranslations = {
   whatDidYouAccomplish: "Qu'avez-vous accompli aujourd'hui?",
   celebrateThisWin: "Célébrez cette victoire",
   recentCelebrations: "Célébrations récentes",
+  noWinsYet: "Aucune victoire encore. Ajoutez votre première célébration ci-dessus!",
+  clearAllWins: "Effacer toutes les victoires",
+  clearWinsConfirmation: "Êtes-vous sûre de vouloir effacer toutes vos victoires? Cette action ne peut pas être annulée.",
   
   // Win categories
   selfCare: "Soins Personnels",
@@ -714,6 +732,9 @@ const swahiliTranslations = {
   edit: "Hariri",
   delete: "Futa",
   confirm: "Thibitisha",
+  clearAll: "Futa Yote",
+  clearing: "Inafuta...",
+  celebrating: "Inasherehekea...",
   
   // App branding
   appName: "bila.aibu",
@@ -839,6 +860,9 @@ const swahiliTranslations = {
   whatDidYouAccomplish: "Ulifanikisha nini leo?",
   celebrateThisWin: "Sherehekea ushindi huu",
   recentCelebrations: "Sherehe za hivi karibuni",
+  noWinsYet: "Hakuna ushindi bado. Ongeza sherehe yako ya kwanza hapo juu!",
+  clearAllWins: "Futa ushindi wote",
+  clearWinsConfirmation: "Una uhakika unataka kufuta ushindi wako wote? Kitendo hiki hakiwezi kutenduliwa.",
   
   // Win categories
   selfCare: "Kujitunza",

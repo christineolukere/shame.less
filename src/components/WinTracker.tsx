@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Plus, Trophy, Heart, Sparkles } from 'lucide-react';
+import { ArrowLeft, Plus, Trophy, Heart, Sparkles, Trash2, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { GuestStorageManager } from '../lib/guestStorage';
@@ -20,7 +20,7 @@ interface WinTrackerProps {
 }
 
 const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
-  const { translations: t } = useLocalization();
+  const { t } = useLocalization();
   const { user, isGuest } = useAuth();
   const [wins, setWins] = useState<Win[]>([]);
   const [newWin, setNewWin] = useState('');
@@ -29,6 +29,8 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [currentCelebration, setCurrentCelebration] = useState<CelebrationConfig | null>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [clearing, setClearing] = useState(false);
 
   const categories = [
     { id: 'self-care', label: t.selfCare, icon: Heart, color: 'terracotta' },
@@ -149,15 +151,42 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
     }
   };
 
+  const clearAllWins = async () => {
+    setClearing(true);
+    try {
+      if (isGuest) {
+        // Clear from local storage for guest users
+        const guestData = GuestStorageManager.getGuestData();
+        guestData.wins = [];
+        GuestStorageManager.saveGuestData(guestData);
+      } else if (user) {
+        // Clear from Supabase for authenticated users
+        const { error } = await supabase
+          .from('wins')
+          .delete()
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+      }
+
+      setWins([]);
+      setShowClearConfirm(false);
+    } catch (error) {
+      console.error('Error clearing wins:', error);
+    } finally {
+      setClearing(false);
+    }
+  };
+
   const handleQuickWin = async (winText: string) => {
     // Determine category based on win text
     let category: Win['category'] = 'self-care';
     
-    if (winText.includes('boundary') || winText.includes('saying no') || winText.includes('help')) {
+    if (winText.includes(t.setBoundary) || winText.includes(t.practicedSayingNo) || winText.includes(t.askedForHelp)) {
       category = 'boundaries';
-    } else if (winText.includes('moved') || winText.includes('called') || winText.includes('break')) {
+    } else if (winText.includes(t.movedBody) || winText.includes(t.calledSomeone) || winText.includes(t.tookBreak)) {
       category = 'growth';
-    } else if (winText.includes('water') || winText.includes('shower') || winText.includes('meal') || winText.includes('bed')) {
+    } else if (winText.includes(t.drankWater) || winText.includes(t.tookShower) || winText.includes(t.ateAMeal) || winText.includes(t.gotOutOfBed)) {
       category = 'self-care';
     }
 
@@ -179,7 +208,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center">
-        <div className="text-sage-600">Loading your wins...</div>
+        <div className="text-sage-600">{t.loading}</div>
       </div>
     );
   }
@@ -205,14 +234,27 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
           </motion.button>
           <h1 className="text-2xl font-serif text-sage-800">{t.yourWins}</h1>
         </div>
-        <motion.button
-          onClick={() => setShowAddForm(true)}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="p-2 rounded-full bg-terracotta-100 text-terracotta-700"
-        >
-          <Plus className="w-5 h-5" />
-        </motion.button>
+        <div className="flex items-center space-x-2">
+          {wins.length > 0 && (
+            <motion.button
+              onClick={() => setShowClearConfirm(true)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+              title={t.clearAllWins}
+            >
+              <Trash2 className="w-5 h-5" />
+            </motion.button>
+          )}
+          <motion.button
+            onClick={() => setShowAddForm(true)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="p-2 rounded-full bg-terracotta-100 text-terracotta-700"
+          >
+            <Plus className="w-5 h-5" />
+          </motion.button>
+        </div>
       </div>
 
       {/* Encouragement */}
@@ -318,7 +360,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
                       className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
                     />
                   )}
-                  {saving ? 'Celebrating...' : t.celebrateThisWin}
+                  {saving ? t.celebrating : t.celebrateThisWin}
                 </motion.button>
                 <button
                   onClick={() => setShowAddForm(false)}
@@ -333,18 +375,71 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
         )}
       </AnimatePresence>
 
+      {/* Clear Confirmation Modal */}
+      <AnimatePresence>
+        {showClearConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-2xl p-6 w-full max-w-md"
+            >
+              <div className="text-center space-y-4">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+                  <AlertTriangle className="w-8 h-8 text-red-600" />
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-serif text-sage-800 mb-2">{t.clearAllWins}</h3>
+                  <p className="text-sage-600 text-sm">
+                    {t.clearWinsConfirmation}
+                  </p>
+                </div>
+
+                <div className="flex space-x-3">
+                  <motion.button
+                    onClick={() => setShowClearConfirm(false)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex-1 py-3 bg-sage-100 text-sage-700 rounded-lg font-medium hover:bg-sage-200 transition-colors"
+                  >
+                    {t.cancel}
+                  </motion.button>
+                  <motion.button
+                    onClick={clearAllWins}
+                    disabled={clearing}
+                    whileHover={{ scale: clearing ? 1 : 1.02 }}
+                    whileTap={{ scale: clearing ? 1 : 0.98 }}
+                    className="flex-1 py-3 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors disabled:opacity-50"
+                  >
+                    {clearing ? t.clearing : t.clearAll}
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Wins List */}
       <div className="space-y-3">
         <h3 className="text-lg font-serif text-sage-800">{t.recentCelebrations}</h3>
         {wins.length === 0 ? (
           <div className="text-center py-8 text-sage-600">
             <Trophy className="w-12 h-12 mx-auto mb-3 text-sage-400" />
-            <p>No wins yet. Add your first celebration above!</p>
+            <p>{t.noWinsYet}</p>
           </div>
         ) : (
           <div className="space-y-3">
             {wins.map((win, index) => {
               const color = getCategoryColor(win.category);
+              const categoryLabel = categories.find(c => c.id === win.category)?.label || win.category;
               return (
                 <motion.div
                   key={win.id}
@@ -356,6 +451,11 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
                   <div className="flex items-start space-x-3">
                     <Trophy className={`w-5 h-5 text-${color}-600 mt-0.5 flex-shrink-0`} />
                     <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className={`px-2 py-1 bg-${color}-100 text-${color}-700 text-xs font-medium rounded-full`}>
+                          {categoryLabel}
+                        </span>
+                      </div>
                       <p className={`text-${color}-800 font-medium`}>{win.text}</p>
                       <p className={`text-${color}-600 text-xs mt-1`}>
                         {new Date(win.timestamp).toLocaleDateString()}
