@@ -130,7 +130,7 @@ const WelcomeComplete: React.FC<WelcomeCompleteProps> = ({ onContinue, anchorPhr
           <p className="text-sage-600 text-sm italic">
             Remember: You are worthy of love, care, and gentleness—especially from yourself. 💛
           </p>
-        </div>
+        </motion.div>
       </motion.div>
     </div>
   )
