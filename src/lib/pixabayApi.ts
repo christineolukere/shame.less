@@ -1,8 +1,14 @@
 interface PixabayImage {
   id: number;
   webformatURL: string;
+  largeImageURL: string;
+  previewURL: string;
   tags: string;
   user: string;
+  views: number;
+  likes: number;
+  imageWidth: number;
+  imageHeight: number;
 }
 
 interface PixabayVideo {
@@ -11,14 +17,40 @@ interface PixabayVideo {
     medium: {
       url: string;
     };
+    large?: {
+      url: string;
+    };
   };
   tags: string;
   user: string;
+  views: number;
+  likes: number;
+  duration: number;
 }
 
 interface PixabayResponse {
   hits: PixabayImage[] | PixabayVideo[];
   total: number;
+}
+
+export interface ProcessedMedia {
+  id: number;
+  url: string;
+  previewUrl?: string;
+  title: string;
+  tags: string[];
+  author: string;
+  type: 'image' | 'video';
+  duration?: number;
+  stats: {
+    views: number;
+    likes: number;
+  };
+}
+
+export interface MoodBasedContent {
+  images: ProcessedMedia[];
+  videos: ProcessedMedia[];
 }
 
 // Fallback images from Pexels (curated for mental wellness)
@@ -39,6 +71,7 @@ class PixabayAPI {
   private cache = new Map<string, { data: any; timestamp: number }>();
   private cacheTimeout = 5 * 60 * 1000; // 5 minutes
   private isApiAvailable = true;
+  private favoriteMedia = new Set<number>();
 
   constructor() {
     this.apiKey = import.meta.env.VITE_PIXABAY_API_KEY || '';
@@ -48,6 +81,43 @@ class PixabayAPI {
       console.info('Pixabay API key not configured. Using fallback images.');
       this.isApiAvailable = false;
     }
+
+    // Load favorites from localStorage
+    this.loadFavorites();
+  }
+
+  private loadFavorites(): void {
+    try {
+      const saved = localStorage.getItem('pixabay_favorites');
+      if (saved) {
+        const favorites = JSON.parse(saved);
+        this.favoriteMedia = new Set(favorites);
+      }
+    } catch (error) {
+      console.warn('Failed to load favorites:', error);
+    }
+  }
+
+  private saveFavorites(): void {
+    try {
+      localStorage.setItem('pixabay_favorites', JSON.stringify([...this.favoriteMedia]));
+    } catch (error) {
+      console.warn('Failed to save favorites:', error);
+    }
+  }
+
+  public saveFavoriteMedia(media: ProcessedMedia): void {
+    this.favoriteMedia.add(media.id);
+    this.saveFavorites();
+  }
+
+  public removeFavoriteMedia(mediaId: number): void {
+    this.favoriteMedia.delete(mediaId);
+    this.saveFavorites();
+  }
+
+  public isFavorited(mediaId: number): boolean {
+    return this.favoriteMedia.has(mediaId);
   }
 
   private getCacheKey(query: string, type: 'image' | 'video'): string {
@@ -102,7 +172,12 @@ class PixabayAPI {
       tender: ['soft light', 'gentle', 'warm colors', 'comfort'],
       growing: ['sunrise', 'plants', 'growth', 'new beginnings'],
       joyful: ['bright', 'flowers', 'sunshine', 'happiness'],
-      reflective: ['quiet', 'contemplation', 'serene', 'mindful']
+      reflective: ['quiet', 'contemplation', 'serene', 'mindful'],
+      content: ['satisfaction', 'harmony', 'balance', 'contentment'],
+      heavy: ['clouds', 'rain', 'contemplative', 'moody'],
+      frustrated: ['storm', 'waves', 'dynamic', 'energy'],
+      hopeful: ['dawn', 'light', 'hope', 'optimism'],
+      tired: ['rest', 'quiet', 'soft', 'gentle']
     };
 
     const colorTerms: Record<string, string[]> = {
@@ -125,23 +200,78 @@ class PixabayAPI {
     return terms;
   }
 
-  private getFallbackImages(count: number = 8): Array<{ url: string; tags: string }> {
+  private getFallbackImages(count: number = 8): ProcessedMedia[] {
     const shuffled = [...FALLBACK_IMAGES].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, count).map((url, index) => ({
+      id: 1000000 + index, // Use high IDs to avoid conflicts
       url,
-      tags: `peaceful nature calming wellness ${index}`
+      previewUrl: url,
+      title: `Peaceful Nature ${index + 1}`,
+      tags: ['peaceful', 'nature', 'calming', 'wellness'],
+      author: 'Pexels',
+      type: 'image' as const,
+      stats: {
+        views: Math.floor(Math.random() * 10000) + 1000,
+        likes: Math.floor(Math.random() * 1000) + 100
+      }
     }));
   }
 
-  async searchCalmingImages(mood?: string, color?: string): Promise<Array<{ url: string; tags: string }>> {
+  private processPixabayImage(hit: PixabayImage): ProcessedMedia {
+    return {
+      id: hit.id,
+      url: hit.largeImageURL || hit.webformatURL,
+      previewUrl: hit.previewURL || hit.webformatURL,
+      title: hit.tags.split(',')[0]?.trim() || 'Peaceful Image',
+      tags: hit.tags.split(',').map(tag => tag.trim()),
+      author: hit.user || 'Unknown',
+      type: 'image',
+      stats: {
+        views: hit.views || 0,
+        likes: hit.likes || 0
+      }
+    };
+  }
+
+  private processPixabayVideo(hit: PixabayVideo): ProcessedMedia {
+    return {
+      id: hit.id,
+      url: hit.videos?.large?.url || hit.videos?.medium?.url || '',
+      previewUrl: hit.videos?.medium?.url,
+      title: hit.tags.split(',')[0]?.trim() || 'Peaceful Video',
+      tags: hit.tags.split(',').map(tag => tag.trim()),
+      author: hit.user || 'Unknown',
+      type: 'video',
+      duration: hit.duration || 0,
+      stats: {
+        views: hit.views || 0,
+        likes: hit.likes || 0
+      }
+    };
+  }
+
+  async searchCalmingImages(options: {
+    query?: string;
+    mood?: string;
+    color?: string;
+    safeSearch?: boolean;
+  } = {}): Promise<ProcessedMedia[]> {
     // If API is not available, return fallback images immediately
     if (!this.isApiAvailable) {
       return this.getFallbackImages();
     }
 
-    const searchTerms = this.generateSearchTerms(mood, color);
-    const query = searchTerms[Math.floor(Math.random() * searchTerms.length)];
-    const cacheKey = this.getCacheKey(query, 'image');
+    const { query, mood, color } = options;
+    let searchQuery: string;
+
+    if (query) {
+      searchQuery = query;
+    } else {
+      const searchTerms = this.generateSearchTerms(mood, color);
+      searchQuery = searchTerms[Math.floor(Math.random() * searchTerms.length)];
+    }
+
+    const cacheKey = this.getCacheKey(searchQuery, 'image');
 
     // Check cache first
     const cached = this.cache.get(cacheKey);
@@ -151,7 +281,7 @@ class PixabayAPI {
 
     try {
       const response = await this.makeRequest('', {
-        q: query,
+        q: searchQuery,
         image_type: 'photo',
         orientation: 'horizontal',
         min_width: 640,
@@ -160,10 +290,7 @@ class PixabayAPI {
       });
 
       if (response.hits && response.hits.length > 0) {
-        const images = (response.hits as PixabayImage[]).map(hit => ({
-          url: hit.webformatURL,
-          tags: hit.tags
-        }));
+        const images = (response.hits as PixabayImage[]).map(hit => this.processPixabayImage(hit));
 
         // Cache the results
         this.cache.set(cacheKey, {
@@ -182,15 +309,28 @@ class PixabayAPI {
     }
   }
 
-  async searchCalmingVideos(mood?: string, color?: string): Promise<Array<{ url: string; tags: string }>> {
+  async searchCalmingVideos(options: {
+    query?: string;
+    mood?: string;
+    color?: string;
+    safeSearch?: boolean;
+  } = {}): Promise<ProcessedMedia[]> {
     // If API is not available, return empty array (no video fallbacks)
     if (!this.isApiAvailable) {
       return [];
     }
 
-    const searchTerms = this.generateSearchTerms(mood, color);
-    const query = searchTerms[Math.floor(Math.random() * searchTerms.length)];
-    const cacheKey = this.getCacheKey(query, 'video');
+    const { query, mood, color } = options;
+    let searchQuery: string;
+
+    if (query) {
+      searchQuery = query;
+    } else {
+      const searchTerms = this.generateSearchTerms(mood, color);
+      searchQuery = searchTerms[Math.floor(Math.random() * searchTerms.length)];
+    }
+
+    const cacheKey = this.getCacheKey(searchQuery, 'video');
 
     // Check cache first
     const cached = this.cache.get(cacheKey);
@@ -200,7 +340,7 @@ class PixabayAPI {
 
     try {
       const response = await this.makeRequest('videos/', {
-        q: query,
+        q: searchQuery,
         category: 'nature',
         min_width: 640,
         min_height: 480,
@@ -210,10 +350,7 @@ class PixabayAPI {
       if (response.hits && response.hits.length > 0) {
         const videos = (response.hits as PixabayVideo[])
           .filter(hit => hit.videos?.medium?.url)
-          .map(hit => ({
-            url: hit.videos.medium.url,
-            tags: hit.tags
-          }));
+          .map(hit => this.processPixabayVideo(hit));
 
         // Cache the results
         this.cache.set(cacheKey, {
@@ -228,6 +365,27 @@ class PixabayAPI {
     }
 
     return [];
+  }
+
+  async getMoodBasedContent(
+    mood?: string,
+    color?: string,
+    contentType: 'image' | 'video' | 'both' = 'both'
+  ): Promise<MoodBasedContent> {
+    const results: MoodBasedContent = {
+      images: [],
+      videos: []
+    };
+
+    if (contentType === 'image' || contentType === 'both') {
+      results.images = await this.searchCalmingImages({ mood, color });
+    }
+
+    if (contentType === 'video' || contentType === 'both') {
+      results.videos = await this.searchCalmingVideos({ mood, color });
+    }
+
+    return results;
   }
 
   // Method to check if API is available
