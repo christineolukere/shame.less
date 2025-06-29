@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
-import { motion } from 'framer-motion'
-import { AlertTriangle, Heart, Shield, Phone, ExternalLink } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { AlertTriangle, Heart, Shield, Phone, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react'
 import DisclaimerModal from './Auth/DisclaimerModal'
 import { useLocalization } from '../contexts/LocalizationContext'
 
 const Footer: React.FC = () => {
   const [showDisclaimer, setShowDisclaimer] = useState(false)
+  const [showCrisisSupport, setShowCrisisSupport] = useState(false)
   const { translations: t } = useLocalization()
 
   const openCrisisTextLine = () => {
@@ -41,55 +42,76 @@ const Footer: React.FC = () => {
   return (
     <>
       <footer className="bg-sage-50 border-t border-sage-100 p-4 text-center">
-        <div className="max-w-md mx-auto space-y-4">
-          {/* Crisis Support Banner */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-lavender-50 border border-lavender-200 rounded-xl p-4"
+        <div className="max-w-md mx-auto space-y-3">
+          {/* Compact Crisis Support Toggle */}
+          <motion.button
+            onClick={() => setShowCrisisSupport(!showCrisisSupport)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full flex items-center justify-between p-3 bg-lavender-50 border border-lavender-200 rounded-xl hover:bg-lavender-100 transition-colors touch-target"
           >
-            <div className="flex items-center justify-center space-x-2 mb-3">
+            <div className="flex items-center space-x-2">
               <Shield className="w-4 h-4 text-lavender-600 flex-shrink-0" />
               <span className="text-lavender-800 text-sm font-medium">
-                If you're in crisis, help is always one tap away
+                Crisis support available
               </span>
             </div>
-            
-            <div className="grid grid-cols-3 gap-2">
-              <motion.button
-                onClick={openCrisisTextLine}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="p-2 bg-lavender-100 text-lavender-700 rounded-lg hover:bg-lavender-200 transition-colors text-xs font-medium flex flex-col items-center space-y-1 touch-target"
+            {showCrisisSupport ? (
+              <ChevronUp className="w-4 h-4 text-lavender-600 flex-shrink-0" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-lavender-600 flex-shrink-0" />
+            )}
+          </motion.button>
+
+          {/* Expandable Crisis Support */}
+          <AnimatePresence>
+            {showCrisisSupport && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden"
               >
-                <Phone className="w-3 h-3" />
-                <span>Crisis Text</span>
-                <span className="text-xs opacity-75">741741</span>
-              </motion.button>
-              
-              <motion.button
-                onClick={openSuicidePrevention}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="p-2 bg-lavender-100 text-lavender-700 rounded-lg hover:bg-lavender-200 transition-colors text-xs font-medium flex flex-col items-center space-y-1 touch-target"
-              >
-                <Phone className="w-3 h-3" />
-                <span>Suicide Prevention</span>
-                <span className="text-xs opacity-75">988</span>
-              </motion.button>
-              
-              <motion.button
-                onClick={openEmergency}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-xs font-medium flex flex-col items-center space-y-1 touch-target"
-              >
-                <Phone className="w-3 h-3" />
-                <span>Emergency</span>
-                <span className="text-xs opacity-75">911</span>
-              </motion.button>
-            </div>
-          </motion.div>
+                <div className="bg-lavender-50 border border-lavender-200 rounded-xl p-4">
+                  <div className="grid grid-cols-3 gap-2">
+                    <motion.button
+                      onClick={openCrisisTextLine}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="p-2 bg-lavender-100 text-lavender-700 rounded-lg hover:bg-lavender-200 transition-colors text-xs font-medium flex flex-col items-center space-y-1 touch-target"
+                    >
+                      <Phone className="w-3 h-3" />
+                      <span>Crisis Text</span>
+                      <span className="text-xs opacity-75">741741</span>
+                    </motion.button>
+                    
+                    <motion.button
+                      onClick={openSuicidePrevention}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="p-2 bg-lavender-100 text-lavender-700 rounded-lg hover:bg-lavender-200 transition-colors text-xs font-medium flex flex-col items-center space-y-1 touch-target"
+                    >
+                      <Phone className="w-3 h-3" />
+                      <span>Suicide Prevention</span>
+                      <span className="text-xs opacity-75">988</span>
+                    </motion.button>
+                    
+                    <motion.button
+                      onClick={openEmergency}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-xs font-medium flex flex-col items-center space-y-1 touch-target"
+                    >
+                      <Phone className="w-3 h-3" />
+                      <span>Emergency</span>
+                      <span className="text-xs opacity-75">911</span>
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Main Disclaimer */}
           <motion.button
