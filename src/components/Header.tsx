@@ -9,9 +9,10 @@ import ProfileMenu from './Auth/ProfileMenu';
 interface HeaderProps {
   onEmergency: () => void;
   onGuestContinue?: () => void;
+  onNavigateHome?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue }) => {
+const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue, onNavigateHome }) => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { user, loading, isGuest } = useAuth();
   const { t } = useLocalization();
@@ -24,21 +25,30 @@ const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue }) => {
     setShowAuthModal(false);
   };
 
+  const handleTitleClick = () => {
+    if (onNavigateHome) {
+      onNavigateHome();
+    }
+  };
+
   return (
     <>
       <header className="bg-white/90 backdrop-blur-sm border-b border-sage-100 px-4 sm:px-6 py-3 sm:py-4 sticky top-0 z-10">
         <div className="flex items-center justify-between">
-          <motion.div 
-            className="flex items-center space-x-2 min-w-0 flex-1"
+          <motion.button
+            onClick={handleTitleClick}
+            className="flex items-center space-x-2 min-w-0 flex-1 text-left"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
             <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-terracotta-500 fill-current flex-shrink-0" />
-            <h1 className="text-lg sm:text-xl font-serif font-medium text-sage-800 truncate">
+            <h1 className="text-lg sm:text-xl font-serif font-medium text-sage-800 truncate hover:text-terracotta-600 transition-colors">
               {t('appName')}
             </h1>
-          </motion.div>
+          </motion.button>
 
           <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
             <motion.button

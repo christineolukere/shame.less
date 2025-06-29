@@ -86,6 +86,10 @@ function AppContent() {
     dismissUpsell();
   };
 
+  const handleNavigateHome = () => {
+    setCurrentView('dashboard');
+  };
+
   // Handle successful authentication - migrate guest data
   useEffect(() => {
     const handleMigration = async () => {
@@ -175,6 +179,7 @@ function AppContent() {
         <Header 
           onEmergency={() => setShowEmergency(true)} 
           onGuestContinue={handleGuestContinue}
+          onNavigateHome={handleNavigateHome}
         />
         
         <main className="flex-1 pb-20">
