@@ -1,8 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Shuffle, Heart, Volume2, VolumeX, Bookmark, Play, Pause, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Shuffle, Heart, Volume2, VolumeX, Bookmark, Play, Pause, RotateCcw, Loader2, Sparkles } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { getCurrentTheme, getThemedAffirmations } from '../lib/themeManager';
+import { openaiAffirmations } from '../lib/openaiAffirmations';
+import { elevenLabsTTS } from '../lib/elevenLabsTTS';
+import { getStoredSupportStyle } from '../hooks/useOnboarding';
 
 interface AffirmationsProps {
   onBack: () => void;
@@ -14,9 +17,12 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [audioError, setAudioError] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const [customAffirmation, setCustomAffirmation] = useState<string | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const { t } = useLocalization();
-  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const currentTheme = getCurrentTheme();
 
@@ -66,107 +72,168 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   const affirmations = getAffirmationsForTheme();
 
   useEffect(() => {
-    // Initialize audio context for better audio control
-    if (!audioContextRef.current && window.AudioContext) {
-      audioContextRef.current = new AudioContext();
-    }
-
-    // Cleanup speech synthesis on unmount
+    // Cleanup audio on unmount
     return () => {
-      if (speechRef.current) {
-        speechSynthesis.cancel();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
       }
     };
-  }, []);
+  }, [audioUrl]);
 
-  const speakAffirmation = (text: string) => {
-    if (isMuted || audioError) return;
+  const generatePersonalizedAffirmation = async () => {
+    setIsGenerating(true);
+    setAudioError(false);
 
     try {
-      // Cancel any ongoing speech
-      speechSynthesis.cancel();
-
-      const utterance = new SpeechSynthesisUtterance(text);
+      // Get user preferences
+      const supportStyle = getStoredSupportStyle();
+      const onboardingData = JSON.parse(localStorage.getItem('onboarding_data') || '{}');
       
-      // Normalize audio settings based on theme
-      utterance.rate = currentTheme.affirmationTone === 'spiritual' ? 0.7 : 0.75; // Slower for spiritual
-      utterance.pitch = currentTheme.affirmationTone === 'ancestral' ? 1.1 : 1.0; // Slightly higher for ancestral
-      utterance.volume = 0.8;
-
-      // Try to find a suitable voice with fallback
-      const voices = speechSynthesis.getVoices();
-      const preferredVoices = voices.filter(voice => 
-        voice.name.toLowerCase().includes('female') || 
-        voice.name.toLowerCase().includes('woman') ||
-        voice.name.toLowerCase().includes('samantha') ||
-        voice.name.toLowerCase().includes('karen') ||
-        voice.name.toLowerCase().includes('zira') ||
-        voice.lang.startsWith('en')
-      );
-      
-      if (preferredVoices.length > 0) {
-        utterance.voice = preferredVoices[0];
-      } else if (voices.length > 0) {
-        utterance.voice = voices[0];
-      }
-
-      // Audio fade in effect
-      utterance.onstart = () => {
-        setIsPlaying(true);
-        setAudioError(false);
+      // Use a default mood/color combination for generation
+      const request = {
+        mood: 'peaceful',
+        color: 'Warm Sage',
+        culturalBackground: onboardingData.culturalBackground || [],
+        spiritualPreference: onboardingData.spiritualPreference,
+        supportStyle: supportStyle || 'gentle'
       };
 
-      utterance.onend = () => {
-        setIsPlaying(false);
-      };
-
-      utterance.onerror = (event) => {
-        console.error('Speech synthesis error:', event);
-        setIsPlaying(false);
+      const response = await openaiAffirmations.generateAffirmation(request);
+      
+      if (response.success && response.affirmation) {
+        setCustomAffirmation(response.affirmation);
+        
+        // Generate audio for the new affirmation
+        await generateAudio(response.affirmation);
+      } else {
         setAudioError(true);
-      };
-
-      speechRef.current = utterance;
-      speechSynthesis.speak(utterance);
+      }
     } catch (error) {
-      console.error('Error with speech synthesis:', error);
+      console.error('Error generating personalized affirmation:', error);
       setAudioError(true);
-      setIsPlaying(false);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
-  const togglePlayback = () => {
-    if (isPlaying) {
-      speechSynthesis.cancel();
+  const generateAudio = async (text: string) => {
+    if (isMuted) return;
+
+    setIsLoadingAudio(true);
+    setAudioError(false);
+
+    try {
+      const response = await elevenLabsTTS.synthesizeSpeech(text, undefined, {
+        stability: 0.6,
+        similarity_boost: 0.8,
+        style: 0.2,
+        use_speaker_boost: true
+      });
+
+      if (response.success && response.audioUrl) {
+        // Clean up previous audio
+        if (audioUrl) {
+          URL.revokeObjectURL(audioUrl);
+        }
+        
+        setAudioUrl(response.audioUrl);
+        setAudioError(false);
+      } else {
+        setAudioError(true);
+      }
+    } catch (error) {
+      console.error('Error generating audio:', error);
+      setAudioError(true);
+    } finally {
+      setIsLoadingAudio(false);
+    }
+  };
+
+  const togglePlayback = async () => {
+    if (isLoadingAudio) return;
+
+    const currentText = customAffirmation || affirmations[currentAffirmation].text;
+
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
       setIsPlaying(false);
-    } else {
-      speakAffirmation(affirmations[currentAffirmation].text);
+      return;
+    }
+
+    // Generate audio if we don't have it
+    if (!audioUrl) {
+      await generateAudio(currentText);
+      return;
+    }
+
+    // Play audio
+    if (audioUrl) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+
+      audioRef.current = new Audio(audioUrl);
+      audioRef.current.onplay = () => setIsPlaying(true);
+      audioRef.current.onpause = () => setIsPlaying(false);
+      audioRef.current.onended = () => setIsPlaying(false);
+      audioRef.current.onerror = () => {
+        setAudioError(true);
+        setIsPlaying(false);
+      };
+
+      try {
+        await audioRef.current.play();
+      } catch (error) {
+        console.error('Audio playback error:', error);
+        setAudioError(true);
+        setIsPlaying(false);
+      }
     }
   };
 
   const nextAffirmation = () => {
-    speechSynthesis.cancel();
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
     setIsPlaying(false);
+    setCustomAffirmation(null);
+    setAudioUrl(null);
     setCurrentAffirmation((prev) => (prev + 1) % affirmations.length);
     setIsSaved(false);
   };
 
   const randomAffirmation = () => {
-    speechSynthesis.cancel();
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
     setIsPlaying(false);
+    setCustomAffirmation(null);
+    setAudioUrl(null);
     const randomIndex = Math.floor(Math.random() * affirmations.length);
     setCurrentAffirmation(randomIndex);
     setIsSaved(false);
   };
 
   const resetAudio = () => {
-    speechSynthesis.cancel();
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
     setIsPlaying(false);
     setAudioError(false);
     setIsMuted(false);
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl);
+      setAudioUrl(null);
+    }
   };
 
   const current = affirmations[currentAffirmation];
+  const displayText = customAffirmation || current.text;
+  const displayCategory = customAffirmation ? "Personalized" : current.category;
 
   return (
     <div className="p-6 space-y-6">
@@ -193,6 +260,41 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
         </motion.button>
       </div>
 
+      {/* AI Generation Button */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`bg-gradient-to-r from-${currentTheme.colors.primary.replace('-500', '-50')} to-${currentTheme.colors.secondary.replace('-400', '-50')} rounded-xl p-4 border border-${currentTheme.colors.primary.replace('-500', '-100')}`}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <h3 className={`font-serif text-${currentTheme.colors.text} mb-1`}>Personalized Affirmation</h3>
+            <p className={`text-${currentTheme.colors.text.replace('-900', '-600')} text-sm`}>
+              Generate a custom affirmation just for you with AI
+            </p>
+          </div>
+          <motion.button
+            onClick={generatePersonalizedAffirmation}
+            disabled={isGenerating}
+            whileHover={{ scale: isGenerating ? 1 : 1.05 }}
+            whileTap={{ scale: isGenerating ? 1 : 0.95 }}
+            className={`ml-4 px-4 py-2 bg-${currentTheme.colors.primary} text-white rounded-lg hover:bg-${currentTheme.colors.primary.replace('-500', '-600')} transition-colors disabled:opacity-50 flex items-center space-x-2 touch-target`}
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Creating...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                <span>Generate</span>
+              </>
+            )}
+          </motion.button>
+        </div>
+      </motion.div>
+
       {/* Audio Controls */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -200,7 +302,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
         className={`bg-${currentTheme.colors.surface} rounded-xl p-3 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
       >
         <div className="flex items-center justify-between">
-          <h3 className={`font-serif text-${currentTheme.colors.text} text-sm`}>Audio Playback</h3>
+          <h3 className={`font-serif text-${currentTheme.colors.text} text-sm`}>AI Voice Playback</h3>
           <div className="flex items-center space-x-2">
             {audioError && (
               <motion.button
@@ -227,46 +329,30 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
         </div>
         
         <p className={`text-xs text-${currentTheme.colors.text.replace('-900', '-600')} mt-1`}>
-          {audioError ? 'Audio unavailable - text fallback active' : 
+          {audioError ? 'Audio unavailable - try regenerating' : 
            isMuted ? 'Audio is muted' : 
-           'Click the play button to hear affirmations read aloud'}
-        </p>
-      </motion.div>
-
-      {/* Gentle Introduction */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={`bg-${currentTheme.colors.background} rounded-xl p-4 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
-      >
-        <div className="flex items-center space-x-2 mb-2">
-          <Heart className={`w-4 h-4 text-${currentTheme.colors.accent.replace('-600', '-600')}`} />
-          <h3 className={`font-serif text-${currentTheme.colors.text} text-sm`}>{t('wordsOfLove')}</h3>
-        </div>
-        <p className={`text-${currentTheme.colors.text.replace('-900', '-700')} text-xs leading-relaxed`}>
-          {currentTheme.affirmationTone === 'spiritual' && "These affirmations are infused with spiritual wisdom to nurture your soul."}
-          {currentTheme.affirmationTone === 'ancestral' && "These affirmations honor the strength and wisdom of your cultural heritage."}
-          {currentTheme.affirmationTone === 'secular' && "These affirmations are grounded in psychological research and evidence-based practices."}
-          {currentTheme.affirmationTone === 'gentle' && "These gentle affirmations are crafted to nurture your heart and mind with love."}
+           isLoadingAudio ? 'Generating audio...' :
+           'AI-powered voice synthesis with warm, feminine tone'}
         </p>
       </motion.div>
 
       {/* Main Affirmation Card */}
       <AnimatePresence mode="wait">
         <motion.div
-          key={currentAffirmation}
+          key={customAffirmation ? 'custom' : currentAffirmation}
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: -20 }}
           transition={{ duration: 0.4 }}
           className={`bg-${current.color}-50 rounded-2xl p-6 border border-${current.color}-100 text-center space-y-4`}
         >
-          <div className={`inline-block px-2 py-1 bg-${current.color}-100 text-${current.color}-700 text-xs font-medium rounded-full`}>
-            {current.category}
+          <div className={`inline-flex items-center space-x-2 px-3 py-1 bg-${current.color}-100 text-${current.color}-700 text-xs font-medium rounded-full`}>
+            {customAffirmation && <Sparkles className="w-3 h-3" />}
+            <span>{displayCategory}</span>
           </div>
           
           <blockquote className={`text-lg font-serif text-${current.color}-800 leading-relaxed`}>
-            "{current.text}"
+            "{displayText}"
           </blockquote>
 
           {/* Action Buttons */}
@@ -275,17 +361,30 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
               onClick={togglePlayback}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              disabled={isMuted || audioError}
+              disabled={isMuted || (isLoadingAudio && !audioUrl)}
               className={`p-2.5 rounded-full transition-colors touch-target ${
                 isMuted || audioError
                   ? `bg-gray-100 text-gray-400 cursor-not-allowed`
-                  : isPlaying
-                    ? `bg-${current.color}-200 text-${current.color}-800`
-                    : `bg-${current.color}-100 text-${current.color}-700 hover:bg-${current.color}-200`
+                  : isLoadingAudio
+                    ? `bg-${current.color}-100 text-${current.color}-600`
+                    : isPlaying
+                      ? `bg-${current.color}-200 text-${current.color}-800`
+                      : `bg-${current.color}-100 text-${current.color}-700 hover:bg-${current.color}-200`
               }`}
-              title={audioError ? "Audio unavailable" : isMuted ? "Audio is muted" : isPlaying ? "Pause affirmation" : "Listen to affirmation"}
+              title={
+                audioError ? "Audio unavailable" : 
+                isMuted ? "Audio is muted" : 
+                isLoadingAudio ? "Generating audio..." :
+                isPlaying ? "Pause affirmation" : "Listen to affirmation"
+              }
             >
-              {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+              {isLoadingAudio ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : isPlaying ? (
+                <Pause className="w-4 h-4" />
+              ) : (
+                <Play className="w-4 h-4" />
+              )}
             </motion.button>
             
             <motion.button
@@ -308,7 +407,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
       {/* Navigation */}
       <div className="flex items-center justify-between">
         <div className={`text-xs text-${currentTheme.colors.text.replace('-900', '-600')}`}>
-          {currentAffirmation + 1} of {affirmations.length}
+          {customAffirmation ? 'Custom' : `${currentAffirmation + 1} of ${affirmations.length}`}
         </div>
         
         <motion.button
@@ -322,24 +421,29 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
       </div>
 
       {/* Progress Dots */}
-      <div className="flex items-center justify-center space-x-1.5">
-        {affirmations.map((_, index) => (
-          <motion.button
-            key={index}
-            onClick={() => {
-              speechSynthesis.cancel();
-              setIsPlaying(false);
-              setCurrentAffirmation(index);
-            }}
-            className={`w-1.5 h-1.5 rounded-full transition-colors touch-target ${
-              index === currentAffirmation 
-                ? `bg-${current.color}-500` 
-                : `bg-${currentTheme.colors.text.replace('-900', '-200')} hover:bg-${currentTheme.colors.text.replace('-900', '-300')}`
-            }`}
-            whileHover={{ scale: 1.3 }}
-          />
-        ))}
-      </div>
+      {!customAffirmation && (
+        <div className="flex items-center justify-center space-x-1.5">
+          {affirmations.map((_, index) => (
+            <motion.button
+              key={index}
+              onClick={() => {
+                if (audioRef.current) {
+                  audioRef.current.pause();
+                }
+                setIsPlaying(false);
+                setCurrentAffirmation(index);
+                setAudioUrl(null);
+              }}
+              className={`w-1.5 h-1.5 rounded-full transition-colors touch-target ${
+                index === currentAffirmation 
+                  ? `bg-${current.color}-500` 
+                  : `bg-${currentTheme.colors.text.replace('-900', '-200')} hover:bg-${currentTheme.colors.text.replace('-900', '-300')}`
+              }`}
+              whileHover={{ scale: 1.3 }}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Reflection Prompt */}
       <motion.div
