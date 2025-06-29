@@ -21,9 +21,9 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [customAffirmation, setCustomAffirmation] = useState<string | null>(null);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const { t, currentLanguage } = useLocalization();
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioBlobUrlRef = useRef<string | null>(null);
 
   const currentTheme = getCurrentTheme();
   const currentVoice = multilingualVoice.getCurrentVoiceInfo();
@@ -49,23 +49,30 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
     baseColors
   );
 
+  // Helper function to clear and revoke audio
+  const clearAndRevokeAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    if (audioBlobUrlRef.current) {
+      URL.revokeObjectURL(audioBlobUrlRef.current);
+      audioBlobUrlRef.current = null;
+    }
+    setIsPlaying(false);
+  };
+
   useEffect(() => {
     // Pre-cache affirmations for current language
     if (multilingualVoice.isAvailable()) {
       multilingualVoice.preCacheAffirmations(currentLanguage);
     }
 
-    // Cleanup audio on unmount
+    // Cleanup audio on unmount or language change
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      if (audioUrl) {
-        URL.revokeObjectURL(audioUrl);
-      }
+      clearAndRevokeAudio();
     };
-  }, [currentLanguage, audioUrl]);
+  }, [currentLanguage]);
 
   const generatePersonalizedAffirmation = async () => {
     setIsGenerating(true);
@@ -122,12 +129,12 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
       });
 
       if (response.success && response.audioUrl) {
-        // Clean up previous audio
-        if (audioUrl) {
-          URL.revokeObjectURL(audioUrl);
+        // Clean up previous audio URL
+        if (audioBlobUrlRef.current) {
+          URL.revokeObjectURL(audioBlobUrlRef.current);
         }
         
-        setAudioUrl(response.audioUrl);
+        audioBlobUrlRef.current = response.audioUrl;
         setAudioError(false);
       } else {
         setAudioError(true);
@@ -153,13 +160,13 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
     }
 
     // If no audio URL exists, generate it first
-    if (!audioUrl) {
+    if (!audioBlobUrlRef.current) {
       await generateAudio(currentText);
-      return;
+      // Don't return here - let the function continue to attempt playback
     }
 
     // Validate audio URL before attempting playback
-    if (!audioUrl || audioUrl === '') {
+    if (!audioBlobUrlRef.current || audioBlobUrlRef.current === '') {
       console.error('Invalid audio URL');
       setAudioError(true);
       return;
@@ -208,7 +215,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
       };
 
       // Set the audio source
-      audio.src = audioUrl;
+      audio.src = audioBlobUrlRef.current;
       audioRef.current = audio;
 
       // Attempt to play
@@ -223,7 +230,10 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
           // If it's a source error, try regenerating audio
           if (error.name === 'NotSupportedError' || error.message.includes('source')) {
             console.log('Attempting to regenerate audio due to source error');
-            setAudioUrl(null);
+            if (audioBlobUrlRef.current) {
+              URL.revokeObjectURL(audioBlobUrlRef.current);
+              audioBlobUrlRef.current = null;
+            }
             generateAudio(currentText);
           }
         });
@@ -236,45 +246,24 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   };
 
   const nextAffirmation = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-    setIsPlaying(false);
+    clearAndRevokeAudio();
     setCustomAffirmation(null);
-    if (audioUrl) {
-      URL.revokeObjectURL(audioUrl);
-      setAudioUrl(null);
-    }
     setCurrentAffirmation((prev) => (prev + 1) % affirmations.length);
     setIsSaved(false);
   };
 
   const randomAffirmation = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-    setIsPlaying(false);
+    clearAndRevokeAudio();
     setCustomAffirmation(null);
-    if (audioUrl) {
-      URL.revokeObjectURL(audioUrl);
-      setAudioUrl(null);
-    }
     const randomIndex = Math.floor(Math.random() * affirmations.length);
     setCurrentAffirmation(randomIndex);
     setIsSaved(false);
   };
 
   const resetAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-    setIsPlaying(false);
+    clearAndRevokeAudio();
     setAudioError(false);
     setIsMuted(false);
-    if (audioUrl) {
-      URL.revokeObjectURL(audioUrl);
-      setAudioUrl(null);
-    }
   };
 
   const current = affirmations[currentAffirmation];
@@ -418,7 +407,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
               onClick={togglePlayback}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              disabled={isMuted || (isLoadingAudio && !audioUrl) || !multilingualVoice.isAvailable()}
+              disabled={isMuted || (isLoadingAudio && !audioBlobUrlRef.current) || !multilingualVoice.isAvailable()}
               className={`p-2.5 rounded-full transition-colors touch-target ${
                 isMuted || audioError || !multilingualVoice.isAvailable()
                   ? `bg-gray-100 text-gray-400 cursor-not-allowed`
@@ -485,15 +474,8 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
             <motion.button
               key={index}
               onClick={() => {
-                if (audioRef.current) {
-                  audioRef.current.pause();
-                }
-                setIsPlaying(false);
+                clearAndRevokeAudio();
                 setCurrentAffirmation(index);
-                if (audioUrl) {
-                  URL.revokeObjectURL(audioUrl);
-                  setAudioUrl(null);
-                }
               }}
               className={`w-1.5 h-1.5 rounded-full transition-colors touch-target ${
                 index === currentAffirmation 

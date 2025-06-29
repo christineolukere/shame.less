@@ -25,24 +25,31 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioError, setAudioError] = useState(false);
   
   const { currentLanguage } = useLocalization();
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioBlobUrlRef = useRef<string | null>(null);
+
+  // Helper function to clear and revoke audio
+  const clearAndRevokeAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    if (audioBlobUrlRef.current) {
+      URL.revokeObjectURL(audioBlobUrlRef.current);
+      audioBlobUrlRef.current = null;
+    }
+    setIsPlaying(false);
+  };
 
   useEffect(() => {
     // Cleanup audio on unmount
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      if (audioUrl) {
-        URL.revokeObjectURL(audioUrl);
-      }
+      clearAndRevokeAudio();
     };
-  }, [audioUrl]);
+  }, []);
 
   const handleSaveFavorite = () => {
     if (onSaveFavorite) {
@@ -70,12 +77,12 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
       });
 
       if (ttsResponse.success && ttsResponse.audioUrl) {
-        // Clean up previous audio
-        if (audioUrl) {
-          URL.revokeObjectURL(audioUrl);
+        // Clean up previous audio URL
+        if (audioBlobUrlRef.current) {
+          URL.revokeObjectURL(audioBlobUrlRef.current);
         }
         
-        setAudioUrl(ttsResponse.audioUrl);
+        audioBlobUrlRef.current = ttsResponse.audioUrl;
         setAudioError(false);
       } else {
         setAudioError(true);
@@ -98,18 +105,18 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
     }
 
     // Generate audio if we don't have it
-    if (!audioUrl) {
+    if (!audioBlobUrlRef.current) {
       await generateAudio(response.affirmation);
-      return;
+      // Don't return here - let the function continue to attempt playback
     }
 
     // Play audio
-    if (audioUrl) {
+    if (audioBlobUrlRef.current) {
       if (audioRef.current) {
         audioRef.current.pause();
       }
 
-      audioRef.current = new Audio(audioUrl);
+      audioRef.current = new Audio(audioBlobUrlRef.current);
       audioRef.current.onplay = () => setIsPlaying(true);
       audioRef.current.onpause = () => setIsPlaying(false);
       audioRef.current.onended = () => setIsPlaying(false);
