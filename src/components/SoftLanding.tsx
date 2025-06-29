@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Wind, Shield, Headphones, MessageCircle, ArrowLeft, Play, Pause, Volume2, AlertCircle, ExternalLink, Phone } from 'lucide-react';
+import { X, Heart, Wind, Shield, Phone, ArrowLeft } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
-import { audioEngine } from '../lib/audioEngine';
+import GentleSoundPlayer from './GentleSoundPlayer';
 
 interface SoftLandingProps {
   onClose: () => void;
@@ -10,16 +10,7 @@ interface SoftLandingProps {
 
 const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
   const [activeComfort, setActiveComfort] = useState<string | null>(null);
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
-  const [currentAudioType, setCurrentAudioType] = useState<'ocean' | 'rain' | 'forest' | null>(null);
   const { translations: t } = useLocalization();
-
-  // Cleanup audio when component unmounts
-  useEffect(() => {
-    return () => {
-      audioEngine.stopCurrent();
-    };
-  }, []);
 
   const openCrisisLink = (type: 'text' | 'call' | 'emergency') => {
     const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -49,26 +40,6 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
     }
   };
 
-  const playNaturalSound = async (soundType: 'ocean' | 'rain' | 'forest') => {
-    try {
-      audioEngine.stopCurrent();
-      const buffer = audioEngine.generateNaturalSound(soundType, 30); // 30 seconds
-      if (buffer) {
-        await audioEngine.playBuffer(buffer, true); // Loop the sound
-        setIsPlayingAudio(true);
-        setCurrentAudioType(soundType);
-      }
-    } catch (error) {
-      console.error('Failed to play natural sound:', error);
-    }
-  };
-
-  const stopAudio = () => {
-    audioEngine.stopCurrent();
-    setIsPlayingAudio(false);
-    setCurrentAudioType(null);
-  };
-
   const comfortOptions = [
     {
       id: 'breathe',
@@ -86,11 +57,11 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
             />
           </div>
           <div className="space-y-2">
-            <p className="modal-text text-sage-700">Breathe in for 4 counts</p>
-            <p className="modal-text text-sage-700">Hold for 4 counts</p>
-            <p className="modal-text text-sage-700">Breathe out for 6 counts</p>
+            <p className="text-sage-700">Breathe in for 4 counts</p>
+            <p className="text-sage-700">Hold for 4 counts</p>
+            <p className="text-sage-700">Breathe out for 6 counts</p>
           </div>
-          <p className="modal-text text-sage-600">Follow the circle and breathe with it</p>
+          <p className="text-sage-600">Follow the circle and breathe with it</p>
         </div>
       )
     },
@@ -103,23 +74,23 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
       content: (
         <div className="space-y-4">
           <div className="text-center mb-4">
-            <h4 className="modal-title text-terracotta-800 mb-2">Notice around you:</h4>
+            <h4 className="font-serif text-terracotta-800 mb-2">Notice around you:</h4>
           </div>
           <div className="space-y-3">
             <div className="p-3 bg-terracotta-100 rounded-lg">
-              <span className="modal-text font-medium text-terracotta-800">5 things you can see</span>
+              <span className="font-medium text-terracotta-800">5 things you can see</span>
             </div>
             <div className="p-3 bg-terracotta-100 rounded-lg">
-              <span className="modal-text font-medium text-terracotta-800">4 things you can touch</span>
+              <span className="font-medium text-terracotta-800">4 things you can touch</span>
             </div>
             <div className="p-3 bg-terracotta-100 rounded-lg">
-              <span className="modal-text font-medium text-terracotta-800">3 things you can hear</span>
+              <span className="font-medium text-terracotta-800">3 things you can hear</span>
             </div>
             <div className="p-3 bg-terracotta-100 rounded-lg">
-              <span className="modal-text font-medium text-terracotta-800">2 things you can smell</span>
+              <span className="font-medium text-terracotta-800">2 things you can smell</span>
             </div>
             <div className="p-3 bg-terracotta-100 rounded-lg">
-              <span className="modal-text font-medium text-terracotta-800">1 thing you can taste</span>
+              <span className="font-medium text-terracotta-800">1 thing you can taste</span>
             </div>
           </div>
         </div>
@@ -139,14 +110,14 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
             className="space-y-4"
           >
             <Heart className="w-10 h-10 text-lavender-600 mx-auto" />
-            <blockquote className="modal-title text-lavender-800">
+            <blockquote className="text-lg font-serif text-lavender-800">
               "You are safe. You are loved. This feeling will pass. You are not alone."
             </blockquote>
           </motion.div>
           <div className="space-y-2">
-            <p className="modal-text text-lavender-700">Repeat these words to yourself</p>
-            <p className="modal-text text-lavender-700">Place your hand on your heart</p>
-            <p className="modal-text text-lavender-700">Feel your own warmth and presence</p>
+            <p className="text-lavender-700">Repeat these words to yourself</p>
+            <p className="text-lavender-700">Place your hand on your heart</p>
+            <p className="text-lavender-700">Feel your own warmth and presence</p>
           </div>
         </div>
       )
@@ -154,89 +125,18 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
     {
       id: 'sounds',
       title: t.soothingSounds || 'Soothing sounds',
-      icon: Headphones,
+      icon: Heart,
       color: 'cream',
       description: t.soundsDescription || 'Calming audio to center yourself',
       content: (
         <div className="space-y-6">
           <div className="text-center">
-            <Headphones className="w-10 h-10 text-cream-600 mx-auto mb-4" />
-            <p className="modal-text text-cream-700 mb-4">
+            <Heart className="w-10 h-10 text-cream-600 mx-auto mb-4" />
+            <p className="text-cream-700 mb-4">
               Choose gentle sounds to help you feel centered and calm
             </p>
           </div>
-
-          {/* Simple Audio Controls */}
-          <div className="space-y-3">
-            {[
-              { type: 'ocean' as const, label: '🌊 Ocean Waves', description: 'Gentle waves for peace' },
-              { type: 'rain' as const, label: '🌧️ Soft Rain', description: 'Calming rainfall sounds' },
-              { type: 'forest' as const, label: '🌿 Forest Sounds', description: 'Peaceful nature ambience' }
-            ].map((sound) => (
-              <motion.button
-                key={sound.type}
-                onClick={() => {
-                  if (isPlayingAudio && currentAudioType === sound.type) {
-                    stopAudio();
-                  } else {
-                    playNaturalSound(sound.type);
-                  }
-                }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className={`w-full p-4 rounded-xl text-left transition-colors ${
-                  isPlayingAudio && currentAudioType === sound.type
-                    ? 'bg-cream-200 border-2 border-cream-400'
-                    : 'bg-cream-100 border border-cream-200 hover:bg-cream-150'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-cream-800">{sound.label}</div>
-                    <div className="text-sm text-cream-600">{sound.description}</div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    {isPlayingAudio && currentAudioType === sound.type ? (
-                      <Pause className="w-5 h-5 text-cream-700" />
-                    ) : (
-                      <Play className="w-5 h-5 text-cream-700" />
-                    )}
-                  </div>
-                </div>
-              </motion.button>
-            ))}
-          </div>
-
-          {/* Volume Control */}
-          {isPlayingAudio && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className="bg-cream-50 rounded-lg p-3 border border-cream-200"
-            >
-              <div className="flex items-center space-x-3">
-                <Volume2 className="w-4 h-4 text-cream-600" />
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                  defaultValue="0.3"
-                  onChange={(e) => audioEngine.setVolume(parseFloat(e.target.value))}
-                  className="flex-1 h-2 bg-cream-200 rounded-lg appearance-none cursor-pointer"
-                />
-                <span className="text-xs text-cream-600">Volume</span>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Audio Instructions */}
-          <div className="bg-cream-50 rounded-lg p-3 border border-cream-200">
-            <p className="modal-text text-cream-600 text-xs text-center">
-              💡 These sounds are generated in real-time to support you during difficult moments. 
-              Adjust volume to your comfort level and take as much time as you need.
-            </p>
-          </div>
+          <GentleSoundPlayer />
         </div>
       )
     }
@@ -247,35 +147,32 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="modal-container"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="modal-content"
+        className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl"
       >
         {/* Header */}
-        <div className="modal-header">
+        <div className="flex items-center justify-between p-6 border-b border-sage-100 sticky top-0 bg-white rounded-t-2xl">
           <div className="flex items-center space-x-2">
-            <Shield className="w-5 h-5 text-sage-600 flex-shrink-0" />
-            <h2 className="modal-title">{t.softLanding || 'Soft Landing'}</h2>
+            <Shield className="w-5 h-5 text-sage-600" />
+            <h2 className="text-lg font-serif text-sage-800">{t.softLanding || 'Soft Landing'}</h2>
           </div>
           <motion.button
-            onClick={() => {
-              audioEngine.stopCurrent();
-              onClose();
-            }}
+            onClick={onClose}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="p-2 rounded-full bg-sage-100 text-sage-700 touch-target flex-shrink-0"
+            className="p-2 rounded-full bg-sage-100 text-sage-700"
           >
             <X className="w-4 h-4" />
           </motion.button>
         </div>
 
         {/* Content */}
-        <div className="modal-body">
+        <div className="p-6">
           <AnimatePresence mode="wait">
             {!activeComfort ? (
               <motion.div
@@ -286,8 +183,8 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
                 className="space-y-6"
               >
                 <div className="text-center space-y-2">
-                  <h3 className="modal-title">{t.youAreSafeHere || 'You are safe here'}</h3>
-                  <p className="modal-text text-sage-600">
+                  <h3 className="text-lg font-serif text-sage-800">{t.youAreSafeHere || 'You are safe here'}</h3>
+                  <p className="text-sage-600 text-sm">
                     {t.softLandingDescription || 'Take a moment to ground yourself. Choose what feels most supportive right now.'}
                   </p>
                 </div>
@@ -304,10 +201,10 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
                         className={`w-full p-4 rounded-xl text-left transition-all bg-${option.color}-50 border border-${option.color}-100 hover:bg-${option.color}-100`}
                       >
                         <div className="flex items-center space-x-3">
-                          <Icon className={`w-5 h-5 text-${option.color}-600 flex-shrink-0`} />
+                          <Icon className={`w-5 h-5 text-${option.color}-600`} />
                           <div>
-                            <h4 className={`modal-text font-medium text-${option.color}-800`}>{option.title}</h4>
-                            <p className={`modal-text text-${option.color}-600`}>{option.description}</p>
+                            <h4 className={`font-medium text-${option.color}-800`}>{option.title}</h4>
+                            <p className={`text-sm text-${option.color}-600`}>{option.description}</p>
                           </div>
                         </div>
                       </motion.button>
@@ -318,10 +215,10 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
                 {/* Crisis Resources */}
                 <div className="bg-red-50 rounded-xl p-4 border border-red-100">
                   <div className="flex items-center space-x-2 mb-3">
-                    <Phone className="w-4 h-4 text-red-600 flex-shrink-0" />
-                    <h4 className="modal-text font-medium text-red-800">{t.needMoreSupport || 'Need more support?'}</h4>
+                    <Phone className="w-4 h-4 text-red-600" />
+                    <h4 className="font-medium text-red-800">{t.needMoreSupport || 'Need more support?'}</h4>
                   </div>
-                  <p className="modal-text text-red-700 mb-3">
+                  <p className="text-red-700 text-sm mb-3">
                     {t.crisisDescription || 'If you\'re in crisis, please reach out for professional help.'}
                   </p>
                   <div className="grid grid-cols-3 gap-2">
@@ -368,19 +265,14 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
               >
                 <div className="flex items-center space-x-3">
                   <motion.button
-                    onClick={() => {
-                      setActiveComfort(null);
-                      audioEngine.stopCurrent();
-                      setIsPlayingAudio(false);
-                      setCurrentAudioType(null);
-                    }}
+                    onClick={() => setActiveComfort(null)}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="p-2 rounded-full bg-sage-100 text-sage-700 touch-target flex-shrink-0"
+                    className="p-2 rounded-full bg-sage-100 text-sage-700"
                   >
                     <ArrowLeft className="w-4 h-4" />
                   </motion.button>
-                  <h3 className="modal-title">
+                  <h3 className="text-lg font-serif text-sage-800">
                     {comfortOptions.find(o => o.id === activeComfort)?.title}
                   </h3>
                 </div>
@@ -388,15 +280,12 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
                 {comfortOptions.find(o => o.id === activeComfort)?.content}
 
                 <div className="text-center">
-                  <p className="modal-text text-sage-600 mb-4">
+                  <p className="text-sage-600 mb-4 text-sm">
                     Take as much time as you need. You're doing great.
                   </p>
                   <button
-                    onClick={() => {
-                      audioEngine.stopCurrent();
-                      onClose();
-                    }}
-                    className="modal-button bg-sage-500 text-white hover:bg-sage-600"
+                    onClick={onClose}
+                    className="px-6 py-3 bg-sage-500 text-white rounded-lg font-medium hover:bg-sage-600 transition-colors"
                   >
                     {t.imFeelingBetter || 'I\'m feeling better'}
                   </button>

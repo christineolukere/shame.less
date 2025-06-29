@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Shuffle, Heart, Volume2, VolumeX, Bookmark, Play, Pause, Image } from 'lucide-react';
+import { ArrowLeft, Shuffle, Heart, Volume2, VolumeX, Bookmark, Play, Pause } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { getStoredSupportStyle } from '../hooks/useOnboarding';
-import { MediaViewer } from './MediaViewer';
+import GentleSoundPlayer from './GentleSoundPlayer';
 
 interface AffirmationsProps {
   onBack: () => void;
@@ -14,7 +14,6 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   const [isSaved, setIsSaved] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [showMediaViewer, setShowMediaViewer] = useState(false);
   const { translations: t } = useLocalization();
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -25,44 +24,37 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
       {
         text: "I am worthy of love and kindness, especially from myself.",
         category: "Self-Love",
-        color: "terracotta",
-        visualTheme: "self love gentle"
+        color: "terracotta"
       },
       {
         text: "My feelings are valid and deserve to be acknowledged with compassion.",
         category: "Emotional Validation",
-        color: "lavender",
-        visualTheme: "emotional healing soft"
+        color: "lavender"
       },
       {
         text: "I choose to speak to myself with the same gentleness I would offer a dear friend.",
         category: "Inner Voice",
-        color: "sage",
-        visualTheme: "inner peace gentle"
+        color: "sage"
       },
       {
         text: "My healing journey is unique and unfolds at exactly the right pace for me.",
         category: "Healing",
-        color: "cream",
-        visualTheme: "healing journey nature"
+        color: "cream"
       },
       {
         text: "I am allowed to take up space and honor my needs without apology.",
         category: "Boundaries",
-        color: "terracotta",
-        visualTheme: "empowerment strength"
+        color: "terracotta"
       },
       {
         text: "Every small step I take toward caring for myself is an act of courage.",
         category: "Self-Care",
-        color: "sage",
-        visualTheme: "self care courage"
+        color: "sage"
       },
       {
         text: "I release the need to be perfect and embrace my beautifully human experience.",
         category: "Self-Acceptance",
-        color: "lavender",
-        visualTheme: "acceptance imperfection beauty"
+        color: "lavender"
       }
     ];
 
@@ -73,14 +65,12 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
         {
           text: "I am divinely guided and protected on this journey of healing.",
           category: "Divine Connection",
-          color: "lavender",
-          visualTheme: "spiritual divine light"
+          color: "lavender"
         },
         {
           text: "The Creator's love flows through me, healing every wounded part.",
           category: "Spiritual Healing",
-          color: "sage",
-          visualTheme: "divine love healing"
+          color: "sage"
         }
       ];
     } else if (supportStyle === 'culture') {
@@ -89,14 +79,12 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
         {
           text: "My ancestors' strength flows through me, and I am never truly alone.",
           category: "Ancestral Wisdom",
-          color: "cream",
-          visualTheme: "ancestral strength heritage"
+          color: "cream"
         },
         {
           text: "I carry the resilience of generations who survived so I could thrive.",
           category: "Cultural Strength",
-          color: "terracotta",
-          visualTheme: "generational strength resilience"
+          color: "terracotta"
         }
       ];
     } else if (supportStyle === 'science') {
@@ -105,14 +93,12 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
         {
           text: "My brain is capable of forming new, healthier patterns with each kind choice I make.",
           category: "Neuroplasticity",
-          color: "sage",
-          visualTheme: "brain healing neuroplasticity"
+          color: "sage"
         },
         {
           text: "Research shows that self-compassion leads to greater resilience and well-being.",
           category: "Evidence-Based",
-          color: "lavender",
-          visualTheme: "research compassion wellbeing"
+          color: "lavender"
         }
       ];
     }
@@ -187,10 +173,6 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
     const randomIndex = Math.floor(Math.random() * affirmations.length);
     setCurrentAffirmation(randomIndex);
     setIsSaved(false);
-  };
-
-  const openVisualCompanion = () => {
-    setShowMediaViewer(true);
   };
 
   const current = affirmations[currentAffirmation];
@@ -299,16 +281,6 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
             >
               {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
             </motion.button>
-
-            <motion.button
-              onClick={openVisualCompanion}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`p-3 rounded-full bg-${current.color}-100 text-${current.color}-700 hover:bg-${current.color}-200 transition-colors`}
-              title="View calming visuals"
-            >
-              <Image className="w-5 h-5" />
-            </motion.button>
             
             <motion.button
               onClick={() => setIsSaved(!isSaved)}
@@ -327,30 +299,13 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
         </motion.div>
       </AnimatePresence>
 
-      {/* Visual Companion Prompt */}
+      {/* Ambient Sound Player */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="bg-gradient-to-r from-sage-50 to-lavender-50 rounded-2xl p-4 border border-sage-100"
       >
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <h4 className="font-serif text-sage-800 mb-1">Visual Companion</h4>
-            <p className="text-sage-600 text-sm">
-              Enhance your affirmation with calming visuals that match this theme
-            </p>
-          </div>
-          <motion.button
-            onClick={openVisualCompanion}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="px-4 py-2 bg-sage-100 text-sage-700 rounded-lg hover:bg-sage-200 transition-colors flex items-center space-x-2"
-          >
-            <Image className="w-4 h-4" />
-            <span>View</span>
-          </motion.button>
-        </div>
+        <GentleSoundPlayer />
       </motion.div>
 
       {/* Navigation */}
@@ -401,14 +356,6 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
           {t.reflectionPrompt}
         </p>
       </motion.div>
-
-      {/* Media Viewer Modal */}
-      <MediaViewer
-        isOpen={showMediaViewer}
-        onClose={() => setShowMediaViewer(false)}
-        searchQuery={current.visualTheme}
-        contentType="image"
-      />
     </div>
   );
 };

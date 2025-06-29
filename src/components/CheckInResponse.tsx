@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Bookmark, BookmarkCheck, ArrowRight, Image, Play, Headphones } from 'lucide-react';
+import { Heart, Bookmark, BookmarkCheck, ArrowRight } from 'lucide-react';
 import { CheckInResponse } from '../lib/checkInResponses';
-import { MediaViewer } from './MediaViewer';
-import EmotionAudioPlayer from './Audio/EmotionAudioPlayer';
+import GentleSoundPlayer from './GentleSoundPlayer';
 
 interface CheckInResponseProps {
   response: CheckInResponse;
@@ -22,20 +21,12 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
 }) => {
   const [isSaved, setIsSaved] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
-  const [showMediaViewer, setShowMediaViewer] = useState(false);
-  const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
-  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
 
   const handleSaveFavorite = () => {
     if (onSaveFavorite) {
       onSaveFavorite(response);
       setIsSaved(true);
     }
-  };
-
-  const openMediaViewer = (type: 'image' | 'video') => {
-    setMediaType(type);
-    setShowMediaViewer(true);
   };
 
   const getAnimationClass = () => {
@@ -128,67 +119,14 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
         </motion.div>
       </div>
 
-      {/* Enhanced Media & Audio Integration */}
+      {/* Gentle Sound Player */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
-        className="bg-gradient-to-r from-cream-50 to-lavender-50 rounded-2xl p-6 border border-cream-200"
       >
-        <h4 className="font-serif text-sage-800 mb-3 text-center">Enhance your moment</h4>
-        <p className="text-sage-600 text-sm text-center mb-4">
-          Discover calming visuals and gentle sounds that match your {emotion.toLowerCase()} + {color.toLowerCase()} energy
-        </p>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <motion.button
-            onClick={() => openMediaViewer('image')}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="flex items-center space-x-2 px-4 py-3 bg-sage-100 text-sage-700 rounded-lg hover:bg-sage-200 transition-colors"
-          >
-            <Image className="w-4 h-4" />
-            <span>Calming Images</span>
-          </motion.button>
-          
-          <motion.button
-            onClick={() => openMediaViewer('video')}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="flex items-center space-x-2 px-4 py-3 bg-lavender-100 text-lavender-700 rounded-lg hover:bg-lavender-200 transition-colors"
-          >
-            <Play className="w-4 h-4" />
-            <span>Ambient Videos</span>
-          </motion.button>
-
-          <motion.button
-            onClick={() => setShowAudioPlayer(!showAudioPlayer)}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="flex items-center space-x-2 px-4 py-3 bg-terracotta-100 text-terracotta-700 rounded-lg hover:bg-terracotta-200 transition-colors"
-          >
-            <Headphones className="w-4 h-4" />
-            <span>Gentle Audio</span>
-          </motion.button>
-        </div>
+        <GentleSoundPlayer />
       </motion.div>
-
-      {/* Audio Player */}
-      <AnimatePresence>
-        {showAudioPlayer && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-          >
-            <EmotionAudioPlayer
-              emotion={emotion.toLowerCase()}
-              color={color.toLowerCase()}
-              autoLoad={true}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Reflection Question */}
       <AnimatePresence>
@@ -235,15 +173,6 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
           <ArrowRight className="w-4 h-4" />
         </motion.button>
       </motion.div>
-
-      {/* Media Viewer Modal */}
-      <MediaViewer
-        isOpen={showMediaViewer}
-        onClose={() => setShowMediaViewer(false)}
-        mood={emotion.toLowerCase()}
-        color={color.toLowerCase()}
-        contentType={mediaType}
-      />
     </motion.div>
   );
 };
