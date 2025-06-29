@@ -237,57 +237,57 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
         </motion.button>
       </div>
 
-      {/* Audio Controls */}
+      {/* Audio Controls - Smaller */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-lavender-50 rounded-2xl p-4 border border-lavender-100"
+        className="bg-lavender-50 rounded-xl p-3 border border-lavender-100"
       >
         <div className="flex items-center justify-between">
-          <h3 className="font-serif text-lavender-800">Audio Playback</h3>
+          <h3 className="font-serif text-lavender-800 text-sm">Audio Playback</h3>
           <div className="flex items-center space-x-2">
             {audioError && (
               <motion.button
                 onClick={resetAudio}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="p-2 rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors touch-target"
+                className="p-1.5 rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors touch-target"
                 title="Reset audio"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="w-3 h-3" />
               </motion.button>
             )}
             <motion.button
               onClick={() => setIsMuted(!isMuted)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`p-2 rounded-full transition-colors touch-target ${
+              className={`p-1.5 rounded-full transition-colors touch-target ${
                 isMuted ? 'bg-red-100 text-red-600' : 'bg-lavender-100 text-lavender-600'
               }`}
             >
-              {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+              {isMuted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
             </motion.button>
           </div>
         </div>
         
-        <p className="text-sm text-lavender-600 mt-2">
+        <p className="text-xs text-lavender-600 mt-1">
           {audioError ? 'Audio unavailable - text fallback active' : 
            isMuted ? 'Audio is muted' : 
            'Click the play button to hear affirmations read aloud'}
         </p>
       </motion.div>
 
-      {/* Gentle Introduction */}
+      {/* Gentle Introduction - Smaller */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-cream-50 rounded-2xl p-6 border border-cream-100"
+        className="bg-cream-50 rounded-xl p-4 border border-cream-100"
       >
-        <div className="flex items-center space-x-2 mb-3">
-          <Heart className="w-5 h-5 text-cream-600" />
-          <h3 className="font-serif text-cream-800">{t('wordsOfLove')}</h3>
+        <div className="flex items-center space-x-2 mb-2">
+          <Heart className="w-4 h-4 text-cream-600" />
+          <h3 className="font-serif text-cream-800 text-sm">{t('wordsOfLove')}</h3>
         </div>
-        <p className="text-cream-700 text-sm leading-relaxed">
+        <p className="text-cream-700 text-xs leading-relaxed">
           {supportStyle === 'spirituality' && "These affirmations are infused with spiritual wisdom to nurture your soul."}
           {supportStyle === 'culture' && "These affirmations honor the strength and wisdom of your cultural heritage."}
           {supportStyle === 'science' && "These affirmations are grounded in psychological research and evidence-based practices."}
@@ -295,7 +295,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
         </p>
       </motion.div>
 
-      {/* Main Affirmation Card */}
+      {/* Main Affirmation Card - Smaller */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentAffirmation}
@@ -303,24 +303,24 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: -20 }}
           transition={{ duration: 0.4 }}
-          className={`bg-${current.color}-50 rounded-3xl p-8 border border-${current.color}-100 text-center space-y-6`}
+          className={`bg-${current.color}-50 rounded-2xl p-6 border border-${current.color}-100 text-center space-y-4`}
         >
-          <div className={`inline-block px-3 py-1 bg-${current.color}-100 text-${current.color}-700 text-xs font-medium rounded-full`}>
+          <div className={`inline-block px-2 py-1 bg-${current.color}-100 text-${current.color}-700 text-xs font-medium rounded-full`}>
             {current.category}
           </div>
           
-          <blockquote className={`text-xl font-serif text-${current.color}-800 leading-relaxed`}>
+          <blockquote className={`text-lg font-serif text-${current.color}-800 leading-relaxed`}>
             "{current.text}"
           </blockquote>
 
-          {/* Action Buttons */}
-          <div className="flex items-center justify-center space-x-4">
+          {/* Action Buttons - Smaller */}
+          <div className="flex items-center justify-center space-x-3">
             <motion.button
               onClick={togglePlayback}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               disabled={isMuted || audioError}
-              className={`p-3 rounded-full transition-colors touch-target ${
+              className={`p-2.5 rounded-full transition-colors touch-target ${
                 isMuted || audioError
                   ? `bg-gray-100 text-gray-400 cursor-not-allowed`
                   : isPlaying
@@ -329,29 +329,29 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
               }`}
               title={audioError ? "Audio unavailable" : isMuted ? "Audio is muted" : isPlaying ? "Pause affirmation" : "Listen to affirmation"}
             >
-              {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+              {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
             </motion.button>
             
             <motion.button
               onClick={() => setIsSaved(!isSaved)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`p-3 rounded-full transition-colors touch-target ${
+              className={`p-2.5 rounded-full transition-colors touch-target ${
                 isSaved 
                   ? `bg-${current.color}-200 text-${current.color}-800` 
                   : `bg-${current.color}-100 text-${current.color}-700 hover:bg-${current.color}-200`
               }`}
               title="Save affirmation"
             >
-              <Bookmark className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} />
+              <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
             </motion.button>
           </div>
         </motion.div>
       </AnimatePresence>
 
-      {/* Navigation */}
+      {/* Navigation - Smaller */}
       <div className="flex items-center justify-between">
-        <div className="text-sm text-sage-600">
+        <div className="text-xs text-sage-600">
           {currentAffirmation + 1} of {affirmations.length}
         </div>
         
@@ -359,14 +359,14 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
           onClick={nextAffirmation}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="px-6 py-3 bg-sage-500 text-white rounded-lg font-medium hover:bg-sage-600 transition-colors touch-target"
+          className="px-4 py-2 bg-sage-500 text-white rounded-lg text-sm font-medium hover:bg-sage-600 transition-colors touch-target"
         >
           {t('nextAffirmation')}
         </motion.button>
       </div>
 
-      {/* Progress Dots */}
-      <div className="flex items-center justify-center space-x-2">
+      {/* Progress Dots - Smaller */}
+      <div className="flex items-center justify-center space-x-1.5">
         {affirmations.map((_, index) => (
           <motion.button
             key={index}
@@ -375,25 +375,25 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
               setIsPlaying(false);
               setCurrentAffirmation(index);
             }}
-            className={`w-2 h-2 rounded-full transition-colors touch-target ${
+            className={`w-1.5 h-1.5 rounded-full transition-colors touch-target ${
               index === currentAffirmation 
                 ? `bg-${current.color}-500` 
                 : 'bg-sage-200 hover:bg-sage-300'
             }`}
-            whileHover={{ scale: 1.2 }}
+            whileHover={{ scale: 1.3 }}
           />
         ))}
       </div>
 
-      {/* Reflection Prompt */}
+      {/* Reflection Prompt - Smaller */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.7 }}
-        className="bg-lavender-50 rounded-2xl p-6 border border-lavender-100"
+        className="bg-lavender-50 rounded-xl p-4 border border-lavender-100"
       >
-        <h3 className="font-serif text-lavender-800 mb-2">{t('gentleReflection')}</h3>
-        <p className="text-lavender-700 text-sm leading-relaxed">
+        <h3 className="font-serif text-lavender-800 mb-2 text-sm">{t('gentleReflection')}</h3>
+        <p className="text-lavender-700 text-xs leading-relaxed">
           {t('reflectionPrompt')}
         </p>
       </motion.div>
