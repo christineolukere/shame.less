@@ -12,6 +12,7 @@ interface UseOnboardingReturn {
   onboardingData: OnboardingData | null
   completeOnboarding: (data: OnboardingData) => void
   resetOnboarding: () => void
+  skipOnboarding: () => void
 }
 
 export const useOnboarding = (): UseOnboardingReturn => {
@@ -21,7 +22,8 @@ export const useOnboarding = (): UseOnboardingReturn => {
   useEffect(() => {
     // Check if onboarding is complete
     const isComplete = localStorage.getItem('onboarding_complete') === 'true'
-    setIsOnboardingComplete(isComplete)
+    const isSkipped = localStorage.getItem('onboarding_skipped') === 'true'
+    setIsOnboardingComplete(isComplete || isSkipped)
 
     // Load onboarding data if it exists
     const savedData = localStorage.getItem('onboarding_data')
@@ -34,6 +36,15 @@ export const useOnboarding = (): UseOnboardingReturn => {
         // Reset if data is corrupted
         resetOnboarding()
       }
+    } else if (isSkipped) {
+      // Set default data for skipped onboarding
+      const defaultData: OnboardingData = {
+        language: 'English',
+        supportStyle: null,
+        themePreference: 'warm_sage',
+        anchorPhrase: 'Softness is sacred'
+      }
+      setOnboardingData(defaultData)
     }
   }, [])
 
@@ -45,15 +56,37 @@ export const useOnboarding = (): UseOnboardingReturn => {
     localStorage.setItem('support_style', data.supportStyle || 'null')
     localStorage.setItem('theme_preference', data.themePreference)
     localStorage.setItem('anchor_phrase', data.anchorPhrase)
+    localStorage.removeItem('onboarding_skipped')
 
     // Update state
     setIsOnboardingComplete(true)
     setOnboardingData(data)
   }
 
+  const skipOnboarding = () => {
+    // Set default values and mark as skipped
+    const defaultData: OnboardingData = {
+      language: 'English',
+      supportStyle: null,
+      themePreference: 'warm_sage',
+      anchorPhrase: 'Softness is sacred'
+    }
+
+    localStorage.setItem('onboarding_skipped', 'true')
+    localStorage.setItem('onboarding_data', JSON.stringify(defaultData))
+    localStorage.setItem('user_language', defaultData.language)
+    localStorage.setItem('support_style', 'null')
+    localStorage.setItem('theme_preference', defaultData.themePreference)
+    localStorage.setItem('anchor_phrase', defaultData.anchorPhrase)
+
+    setIsOnboardingComplete(true)
+    setOnboardingData(defaultData)
+  }
+
   const resetOnboarding = () => {
     // Clear localStorage
     localStorage.removeItem('onboarding_complete')
+    localStorage.removeItem('onboarding_skipped')
     localStorage.removeItem('onboarding_data')
     localStorage.removeItem('user_language')
     localStorage.removeItem('support_style')
@@ -69,7 +102,8 @@ export const useOnboarding = (): UseOnboardingReturn => {
     isOnboardingComplete,
     onboardingData,
     completeOnboarding,
-    resetOnboarding
+    resetOnboarding,
+    skipOnboarding
   }
 }
 

@@ -44,7 +44,8 @@ function AppContent() {
   const {
     isOnboardingComplete,
     onboardingData,
-    completeOnboarding
+    completeOnboarding,
+    skipOnboarding
   } = useOnboarding();
 
   // Check if disclaimer has been accepted
@@ -70,6 +71,10 @@ function AppContent() {
   const handleOnboardingComplete = (data: any) => {
     completeOnboarding(data);
     setShowWelcomeComplete(true);
+  };
+
+  const handleOnboardingSkip = () => {
+    skipOnboarding();
   };
 
   const handleWelcomeComplete = () => {
@@ -155,10 +160,13 @@ function AppContent() {
     );
   }
 
-  // Show onboarding for new users - REQUIRED
+  // Show onboarding for new users - REQUIRED unless skipped
   if (!isOnboardingComplete) {
     return (
-      <OnboardingFlow onComplete={handleOnboardingComplete} />
+      <OnboardingFlow 
+        onComplete={handleOnboardingComplete} 
+        onSkip={handleOnboardingSkip}
+      />
     );
   }
 

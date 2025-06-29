@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Sun, Moon, Heart, Sparkles, Trophy, BookOpen, Bookmark, Info } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocalization } from '../contexts/LocalizationContext';
@@ -32,6 +32,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     totalDays: 0
   });
   const [showProgressTooltip, setShowProgressTooltip] = useState(false);
+  const [showGrowthToast, setShowGrowthToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
   
   const currentHour = new Date().getHours();
   const isEvening = currentHour >= 18 || currentHour < 6;
@@ -132,6 +134,30 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     
     return streak;
   };
+
+  const showGrowthFeedback = (message: string) => {
+    setToastMessage(message);
+    setShowGrowthToast(true);
+    setTimeout(() => setShowGrowthToast(false), 3000);
+  };
+
+  const handleGrowthRingClick = () => {
+    const totalActivities = progress.checkInCount + progress.journalCount + progress.winCount;
+    
+    if (totalActivities === 0) {
+      showGrowthFeedback("Start your journey! Each activity you complete grows your rings. 🌱");
+    } else if (totalActivities < 5) {
+      showGrowthFeedback(`${totalActivities} activities completed! Keep nurturing your growth. 💚`);
+    } else if (totalActivities < 15) {
+      showGrowthFeedback(`${totalActivities} activities! You're building beautiful momentum. ✨`);
+    } else if (totalActivities < 30) {
+      showGrowthFeedback(`${totalActivities} activities! Your dedication is inspiring. 🌟`);
+    } else if (totalActivities < 50) {
+      showGrowthFeedback(`${totalActivities} activities! You're creating lasting change. 🦋`);
+    } else {
+      showGrowthFeedback(`${totalActivities} activities! Your growth is extraordinary. 🌳`);
+    }
+  };
   
   const getPersonalizedGreeting = () => {
     const timeGreeting = currentHour < 12 ? (t('goodMorning') || 'Good morning') : 
@@ -198,6 +224,20 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
   return (
     <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+      {/* Growth Toast */}
+      <AnimatePresence>
+        {showGrowthToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -50, scale: 0.9 }}
+            className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-sage-500 text-white px-6 py-3 rounded-lg shadow-lg max-w-sm text-center"
+          >
+            <span className="text-sm font-medium">{toastMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Personalized Greeting */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -276,7 +316,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               onClick={() => onNavigate('favorites')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="p-3 bg-lavender-100 text-lavender-700 rounded-lg hover:bg-lavender-200 transition-colors"
+              className="p-3 bg-lavender-100 text-lavender-700 rounded-lg hover:bg-lavender-200 transition-colors touch-target"
             >
               <Bookmark className="w-5 h-5" />
             </motion.button>
@@ -284,7 +324,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         </motion.div>
       )}
 
-      {/* Dynamic Growth Rings */}
+      {/* Interactive Growth Rings */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -297,41 +337,49 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             onHoverStart={() => setShowProgressTooltip(true)}
             onHoverEnd={() => setShowProgressTooltip(false)}
             onClick={() => setShowProgressTooltip(!showProgressTooltip)}
-            className="p-2 rounded-full bg-sage-100 text-sage-600 hover:bg-sage-200 transition-colors"
+            className="p-2 rounded-full bg-sage-100 text-sage-600 hover:bg-sage-200 transition-colors touch-target"
           >
             <Info className="w-4 h-4" />
           </motion.button>
         </div>
 
         {/* Progress Tooltip */}
-        {showProgressTooltip && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="absolute top-16 right-4 bg-white rounded-lg shadow-lg border border-sage-200 p-4 z-10 w-64"
-          >
-            <h4 className="font-medium text-sage-800 mb-2">Your Progress</h4>
-            <div className="space-y-1 text-sm text-sage-600">
-              <div>Check-ins: {progress.checkInCount}</div>
-              <div>Journal entries: {progress.journalCount}</div>
-              <div>Wins celebrated: {progress.winCount}</div>
-              <div>Current streak: {progress.streakDays} days</div>
-              <div>Total active days: {progress.totalDays}</div>
-            </div>
-            <p className="text-xs text-sage-500 mt-2">
-              This ring shows how often you've shown up for yourself. You're doing beautifully.
-            </p>
-          </motion.div>
-        )}
+        <AnimatePresence>
+          {showProgressTooltip && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute top-16 right-4 bg-white rounded-lg shadow-lg border border-sage-200 p-4 z-10 w-64"
+            >
+              <h4 className="font-medium text-sage-800 mb-2">Your Progress</h4>
+              <div className="space-y-1 text-sm text-sage-600">
+                <div>Check-ins: {progress.checkInCount}</div>
+                <div>Journal entries: {progress.journalCount}</div>
+                <div>Wins celebrated: {progress.winCount}</div>
+                <div>Current streak: {progress.streakDays} days</div>
+                <div>Total active days: {progress.totalDays}</div>
+              </div>
+              <p className="text-xs text-sage-500 mt-2">
+                This ring shows how often you've shown up for yourself. You're doing beautifully.
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
         
-        <div className="flex items-center justify-center space-x-2">
+        <motion.div 
+          className="flex items-center justify-center space-x-2 cursor-pointer"
+          onClick={handleGrowthRingClick}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
           {[1, 2, 3, 4, 5].map((ring, index) => (
             <motion.div
               key={ring}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.9 + index * 0.1 }}
-              className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 transition-all duration-500 ${
+              className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 transition-all duration-500 touch-target ${
                 index < filledRings
                   ? 'bg-sage-200 border-sage-400 shadow-sm' 
                   : 'border-sage-200 hover:border-sage-300'
@@ -347,7 +395,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               )}
             </motion.div>
           ))}
-        </div>
+        </motion.div>
         
         <div className="text-center mt-3">
           <p className="text-sage-600 text-sm">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, ArrowLeft, Heart, Globe, Palette, Sparkles, CheckCircle } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Heart, Globe, Palette, Sparkles, CheckCircle, X } from 'lucide-react'
 import { useLocalization } from '../../contexts/LocalizationContext'
 
 interface OnboardingData {
@@ -12,9 +12,10 @@ interface OnboardingData {
 
 interface OnboardingFlowProps {
   onComplete: (data: OnboardingData) => void
+  onSkip?: () => void
 }
 
-const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
+const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSkip }) => {
   const [currentStep, setCurrentStep] = useState(0)
   const [showToast, setShowToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
@@ -190,6 +191,12 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
     nextStep()
   }
 
+  const handleSkipOnboarding = () => {
+    if (onSkip) {
+      onSkip()
+    }
+  }
+
   const completeOnboarding = () => {
     const finalData: OnboardingData = {
       language: answers.language || 'English',
@@ -220,7 +227,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   disabled={isUpdatingLanguage}
-                  className={`p-4 text-left rounded-xl transition-all ${
+                  className={`p-4 text-left rounded-xl transition-all touch-target ${
                     answers.language === lang.code
                       ? 'bg-terracotta-100 border-2 border-terracotta-300 text-terracotta-800'
                       : 'bg-white border border-sage-200 text-sage-700 hover:bg-sage-50'
@@ -253,7 +260,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
                 onClick={() => handleSupportSelect(option.id)}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`w-full p-4 text-left rounded-xl transition-all ${
+                className={`w-full p-4 text-left rounded-xl transition-all touch-target ${
                   answers.supportStyle === option.id
                     ? 'bg-sage-100 border-2 border-sage-300 text-sage-800'
                     : 'bg-white border border-sage-200 text-sage-700 hover:bg-sage-50'
@@ -283,7 +290,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
                 onClick={() => handleThemeSelect(theme.id)}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`p-4 rounded-xl transition-all ${
+                className={`p-4 rounded-xl transition-all touch-target ${
                   answers.themePreference === theme.id
                     ? 'ring-2 ring-lavender-400 ring-offset-2'
                     : 'hover:ring-2 hover:ring-lavender-200 hover:ring-offset-1'
@@ -311,7 +318,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
                 onClick={() => handlePhraseSelect(phrase)}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`w-full p-4 text-center rounded-xl transition-all ${
+                className={`w-full p-4 text-center rounded-xl transition-all touch-target ${
                   answers.anchorPhrase === phrase
                     ? 'bg-cream-100 border-2 border-cream-300 text-cream-800'
                     : 'bg-white border border-sage-200 text-sage-700 hover:bg-sage-50'
@@ -356,8 +363,21 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8 w-full max-w-lg"
+        className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8 w-full max-w-lg relative"
       >
+        {/* Skip Button */}
+        {onSkip && (
+          <motion.button
+            onClick={handleSkipOnboarding}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="absolute top-4 right-4 p-2 rounded-full bg-sage-100 text-sage-600 hover:bg-sage-200 transition-colors touch-target"
+            title="Skip onboarding"
+          >
+            <X className="w-4 h-4" />
+          </motion.button>
+        )}
+
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 mb-4">
@@ -418,7 +438,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
                 onClick={prevStep}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center space-x-2 px-4 py-2 bg-sage-100 text-sage-700 rounded-lg hover:bg-sage-200 transition-colors"
+                className="flex items-center space-x-2 px-4 py-2 bg-sage-100 text-sage-700 rounded-lg hover:bg-sage-200 transition-colors touch-target"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Back</span>
@@ -431,7 +451,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
               onClick={skipStep}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-4 py-2 text-sage-600 hover:text-sage-800 transition-colors"
+              className="px-4 py-2 text-sage-600 hover:text-sage-800 transition-colors touch-target"
             >
               Skip
             </motion.button>
@@ -441,7 +461,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               disabled={isUpdatingLanguage}
-              className={`flex items-center space-x-2 px-6 py-2 bg-${currentStepData.color}-500 text-white rounded-lg hover:bg-${currentStepData.color}-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`flex items-center space-x-2 px-6 py-2 bg-${currentStepData.color}-500 text-white rounded-lg hover:bg-${currentStepData.color}-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-target`}
             >
               <span>{currentStep === steps.length - 1 ? 'Complete' : 'Continue'}</span>
               <ArrowRight className="w-4 h-4" />

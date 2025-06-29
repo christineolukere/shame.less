@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Shuffle, Heart, Volume2, VolumeX, Bookmark, Play, Pause } from 'lucide-react';
+import { ArrowLeft, Shuffle, Heart, Volume2, VolumeX, Bookmark, Play, Pause, RotateCcw } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { getStoredSupportStyle } from '../hooks/useOnboarding';
 
@@ -13,8 +13,10 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   const [isSaved, setIsSaved] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [audioError, setAudioError] = useState(false);
   const { t } = useLocalization();
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
 
   const supportStyle = getStoredSupportStyle();
 
@@ -108,6 +110,11 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   const affirmations = getAffirmationsForStyle();
 
   useEffect(() => {
+    // Initialize audio context for better audio control
+    if (!audioContextRef.current && window.AudioContext) {
+      audioContextRef.current = new AudioContext();
+    }
+
     // Cleanup speech synthesis on unmount
     return () => {
       if (speechRef.current) {
@@ -117,37 +124,59 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   }, []);
 
   const speakAffirmation = (text: string) => {
-    if (isMuted) return;
+    if (isMuted || audioError) return;
 
-    // Cancel any ongoing speech
-    speechSynthesis.cancel();
+    try {
+      // Cancel any ongoing speech
+      speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.8;
-    utterance.pitch = 1.1;
-    utterance.volume = 0.8;
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Normalize audio settings
+      utterance.rate = 0.75; // Slower, more meditative pace
+      utterance.pitch = 1.0; // Natural pitch
+      utterance.volume = 0.8; // Slightly softer volume
 
-    // Try to find a suitable voice
-    const voices = speechSynthesis.getVoices();
-    const femaleVoices = voices.filter(voice => 
-      voice.name.toLowerCase().includes('female') || 
-      voice.name.toLowerCase().includes('woman') ||
-      voice.name.toLowerCase().includes('samantha') ||
-      voice.name.toLowerCase().includes('karen')
-    );
-    
-    if (femaleVoices.length > 0) {
-      utterance.voice = femaleVoices[0];
-    } else if (voices.length > 0) {
-      utterance.voice = voices[0];
+      // Try to find a suitable voice with fallback
+      const voices = speechSynthesis.getVoices();
+      const preferredVoices = voices.filter(voice => 
+        voice.name.toLowerCase().includes('female') || 
+        voice.name.toLowerCase().includes('woman') ||
+        voice.name.toLowerCase().includes('samantha') ||
+        voice.name.toLowerCase().includes('karen') ||
+        voice.name.toLowerCase().includes('zira') ||
+        voice.lang.startsWith('en')
+      );
+      
+      if (preferredVoices.length > 0) {
+        utterance.voice = preferredVoices[0];
+      } else if (voices.length > 0) {
+        utterance.voice = voices[0];
+      }
+
+      // Audio fade in effect
+      utterance.onstart = () => {
+        setIsPlaying(true);
+        setAudioError(false);
+      };
+
+      utterance.onend = () => {
+        setIsPlaying(false);
+      };
+
+      utterance.onerror = (event) => {
+        console.error('Speech synthesis error:', event);
+        setIsPlaying(false);
+        setAudioError(true);
+      };
+
+      speechRef.current = utterance;
+      speechSynthesis.speak(utterance);
+    } catch (error) {
+      console.error('Error with speech synthesis:', error);
+      setAudioError(true);
+      setIsPlaying(false);
     }
-
-    utterance.onstart = () => setIsPlaying(true);
-    utterance.onend = () => setIsPlaying(false);
-    utterance.onerror = () => setIsPlaying(false);
-
-    speechRef.current = utterance;
-    speechSynthesis.speak(utterance);
   };
 
   const togglePlayback = () => {
@@ -174,6 +203,13 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
     setIsSaved(false);
   };
 
+  const resetAudio = () => {
+    speechSynthesis.cancel();
+    setIsPlaying(false);
+    setAudioError(false);
+    setIsMuted(false);
+  };
+
   const current = affirmations[currentAffirmation];
 
   return (
@@ -185,7 +221,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
             onClick={onBack}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="p-2 rounded-full bg-sage-100 text-sage-700"
+            className="p-2 rounded-full bg-sage-100 text-sage-700 touch-target"
           >
             <ArrowLeft className="w-5 h-5" />
           </motion.button>
@@ -195,7 +231,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
           onClick={randomAffirmation}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="p-2 rounded-full bg-terracotta-100 text-terracotta-700"
+          className="p-2 rounded-full bg-terracotta-100 text-terracotta-700 touch-target"
         >
           <Shuffle className="w-5 h-5" />
         </motion.button>
@@ -209,20 +245,35 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
       >
         <div className="flex items-center justify-between">
           <h3 className="font-serif text-lavender-800">Audio Playback</h3>
-          <motion.button
-            onClick={() => setIsMuted(!isMuted)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={`p-2 rounded-full transition-colors ${
-              isMuted ? 'bg-red-100 text-red-600' : 'bg-lavender-100 text-lavender-600'
-            }`}
-          >
-            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-          </motion.button>
+          <div className="flex items-center space-x-2">
+            {audioError && (
+              <motion.button
+                onClick={resetAudio}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="p-2 rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors touch-target"
+                title="Reset audio"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </motion.button>
+            )}
+            <motion.button
+              onClick={() => setIsMuted(!isMuted)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`p-2 rounded-full transition-colors touch-target ${
+                isMuted ? 'bg-red-100 text-red-600' : 'bg-lavender-100 text-lavender-600'
+              }`}
+            >
+              {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            </motion.button>
+          </div>
         </div>
         
         <p className="text-sm text-lavender-600 mt-2">
-          {isMuted ? 'Audio is muted' : 'Click the play button to hear affirmations read aloud'}
+          {audioError ? 'Audio unavailable - text fallback active' : 
+           isMuted ? 'Audio is muted' : 
+           'Click the play button to hear affirmations read aloud'}
         </p>
       </motion.div>
 
@@ -268,15 +319,15 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
               onClick={togglePlayback}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              disabled={isMuted}
-              className={`p-3 rounded-full transition-colors ${
-                isMuted 
+              disabled={isMuted || audioError}
+              className={`p-3 rounded-full transition-colors touch-target ${
+                isMuted || audioError
                   ? `bg-gray-100 text-gray-400 cursor-not-allowed`
                   : isPlaying
                     ? `bg-${current.color}-200 text-${current.color}-800`
                     : `bg-${current.color}-100 text-${current.color}-700 hover:bg-${current.color}-200`
               }`}
-              title={isMuted ? "Audio is muted" : isPlaying ? "Pause affirmation" : "Listen to affirmation"}
+              title={audioError ? "Audio unavailable" : isMuted ? "Audio is muted" : isPlaying ? "Pause affirmation" : "Listen to affirmation"}
             >
               {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
             </motion.button>
@@ -285,7 +336,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
               onClick={() => setIsSaved(!isSaved)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`p-3 rounded-full transition-colors ${
+              className={`p-3 rounded-full transition-colors touch-target ${
                 isSaved 
                   ? `bg-${current.color}-200 text-${current.color}-800` 
                   : `bg-${current.color}-100 text-${current.color}-700 hover:bg-${current.color}-200`
@@ -308,7 +359,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
           onClick={nextAffirmation}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="px-6 py-3 bg-sage-500 text-white rounded-lg font-medium hover:bg-sage-600 transition-colors"
+          className="px-6 py-3 bg-sage-500 text-white rounded-lg font-medium hover:bg-sage-600 transition-colors touch-target"
         >
           {t('nextAffirmation')}
         </motion.button>
@@ -324,7 +375,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
               setIsPlaying(false);
               setCurrentAffirmation(index);
             }}
-            className={`w-2 h-2 rounded-full transition-colors ${
+            className={`w-2 h-2 rounded-full transition-colors touch-target ${
               index === currentAffirmation 
                 ? `bg-${current.color}-500` 
                 : 'bg-sage-200 hover:bg-sage-300'
