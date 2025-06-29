@@ -13,10 +13,11 @@ interface Resource {
   type: string;
   readTime: string;
   color: string;
-  url: string;
+  url?: string;
   rating?: number;
   culturalFocus?: string[];
   isVerified?: boolean;
+  isPlaceholder?: boolean;
 }
 
 const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
@@ -38,10 +39,10 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
         type: "Personal Story",
         readTime: "5 min read",
         color: "terracotta",
-        url: "https://www.therapyforblackgirls.com/blog/perfectionism-healing",
         rating: 5,
         culturalFocus: ["Black American", "Professional Women"],
-        isVerified: true
+        isVerified: true,
+        isPlaceholder: true
       },
       {
         title: "Breaking Generational Patterns",
@@ -49,10 +50,10 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
         type: "Healing Journey",
         readTime: "7 min read",
         color: "sage",
-        url: "https://www.latinxtherapy.com/generational-healing",
         rating: 5,
         culturalFocus: ["Latina/Hispanic", "Family Dynamics"],
-        isVerified: true
+        isVerified: true,
+        isPlaceholder: true
       },
       {
         title: "The Power of Saying No",
@@ -60,10 +61,10 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
         type: "Boundary Setting",
         readTime: "4 min read",
         color: "lavender",
-        url: "https://www.psychologytoday.com/us/blog/culturally-speaking/boundaries-women-color",
         rating: 4,
         culturalFocus: ["Multicultural", "Boundaries"],
-        isVerified: true
+        isVerified: true,
+        isPlaceholder: true
       }
     ],
     healing: [
@@ -73,9 +74,9 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
         type: "Audio Guide",
         readTime: "5 min",
         color: "sage",
-        url: "https://www.headspace.com/meditation/anxiety",
         rating: 5,
-        isVerified: true
+        isVerified: true,
+        isPlaceholder: true
       },
       {
         title: "Cultural Healing Practices",
@@ -83,10 +84,10 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
         type: "Educational",
         readTime: "10 min read",
         color: "cream",
-        url: "https://www.verywellmind.com/cultural-healing-practices-5223847",
         rating: 4,
         culturalFocus: ["African", "Indigenous", "Asian"],
-        isVerified: true
+        isVerified: true,
+        isPlaceholder: true
       },
       {
         title: "Shame Resilience Toolkit",
@@ -94,10 +95,10 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
         type: "Toolkit",
         readTime: "15 min read",
         color: "terracotta",
-        url: "https://brenebrown.com/resources/shame-resilience-theory/",
         rating: 5,
         culturalFocus: ["Women of Color"],
-        isVerified: true
+        isVerified: true,
+        isPlaceholder: true
       },
       {
         title: "Trauma-Informed Yoga",
@@ -105,9 +106,9 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
         type: "Video Series",
         readTime: "20-45 min",
         color: "lavender",
-        url: "https://www.traumasensitiveyoga.com/",
         rating: 5,
-        isVerified: true
+        isVerified: true,
+        isPlaceholder: true
       }
     ],
     community: [
@@ -184,25 +185,27 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
         type: "Music",
         readTime: "2 hours",
         color: "cream",
-        url: "https://open.spotify.com/playlist/healing-sounds-woc",
-        rating: 4
+        rating: 4,
+        isPlaceholder: true
       },
       {
-        title: "Mindful Movement with Jessamyn Stanley",
-        description: "Body-positive yoga and movement practices led by a Black, queer instructor focused on accessibility.",
+        title: "Mindful Movement Resources",
+        description: "Body-positive movement practices focused on accessibility and cultural sensitivity.",
         type: "Video",
         readTime: "10-60 min",
         color: "lavender",
-        url: "https://www.jessamynstanley.com/",
         rating: 5,
-        culturalFocus: ["Black American", "LGBTQIA+", "Body Positive"],
-        isVerified: true
+        culturalFocus: ["Body Positive", "Accessible"],
+        isVerified: true,
+        isPlaceholder: true
       }
     ]
   };
 
-  const openResource = (url: string) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
+  const openResource = (url?: string) => {
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
   };
 
   const renderStars = (rating?: number) => {
@@ -297,6 +300,12 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
                       <span className="text-xs text-green-600 font-medium">Verified</span>
                     </div>
                   )}
+                  {resource.isPlaceholder && (
+                    <div className="flex items-center space-x-1">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <span className="text-xs text-blue-600 font-medium">Coming Soon</span>
+                    </div>
+                  )}
                 </div>
                 
                 <h4 className={`font-serif text-lg text-${resource.color}-800 mb-2`}>
@@ -323,15 +332,17 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
                 </div>
               </div>
               
-              <motion.button
-                onClick={() => openResource(resource.url)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`ml-4 p-3 rounded-full bg-${resource.color}-100 text-${resource.color}-700 hover:bg-${resource.color}-200 transition-colors`}
-                title="Open resource in new tab"
-              >
-                <ExternalLink className="w-5 h-5" />
-              </motion.button>
+              {resource.url && !resource.isPlaceholder && (
+                <motion.button
+                  onClick={() => openResource(resource.url)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`ml-4 p-3 rounded-full bg-${resource.color}-100 text-${resource.color}-700 hover:bg-${resource.color}-200 transition-colors`}
+                  title="Open resource in new tab"
+                >
+                  <ExternalLink className="w-5 h-5" />
+                </motion.button>
+              )}
             </div>
           </motion.div>
         ))}
@@ -351,7 +362,13 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
         
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <motion.button
-            onClick={() => window.open('tel:988', '_blank')}
+            onClick={() => {
+              if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                window.open('tel:988', '_blank');
+              } else {
+                alert('Call or text 988 for suicide prevention support');
+              }
+            }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className="p-3 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 transition-colors text-center"
@@ -362,7 +379,13 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
           </motion.button>
           
           <motion.button
-            onClick={() => window.open('sms:741741?body=HOME', '_blank')}
+            onClick={() => {
+              if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                window.open('sms:741741?body=HOME', '_blank');
+              } else {
+                alert('Text HOME to 741741 for crisis support');
+              }
+            }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className="p-3 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 transition-colors text-center"
@@ -373,7 +396,13 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
           </motion.button>
           
           <motion.button
-            onClick={() => window.open('tel:911', '_blank')}
+            onClick={() => {
+              if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                window.open('tel:911', '_blank');
+              } else {
+                alert('Call 911 for emergency services');
+              }
+            }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className="p-3 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 transition-colors text-center"
@@ -383,7 +412,7 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
             <div className="text-xs">Call 911</div>
           </motion.button>
         </div>
-      </motion.div>
+      </div>
 
       {/* Call to Action */}
       <motion.div
@@ -397,13 +426,18 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
           Know of a resource that would help others? We'd love to hear about it and add it to our garden.
         </p>
         <motion.button
-          onClick={() => window.open('mailto:resources@shameless.app?subject=Resource Suggestion', '_blank')}
+          onClick={() => {
+            // Create a safe mailto link that won't break
+            const subject = encodeURIComponent('Resource Suggestion for shame.less');
+            const body = encodeURIComponent('Hi! I have a resource suggestion for the shame.less app:\n\nResource Name:\nURL:\nDescription:\nWhy it would help:\n\nThank you!');
+            window.location.href = `mailto:hello@shameless.site?subject=${subject}&body=${body}`;
+          }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           className="px-6 py-3 bg-lavender-500 text-white rounded-lg font-medium hover:bg-lavender-600 transition-colors"
         >
           {t('shareResource') || 'Share resource'}
-        </motion.button>
+        </p>
       </motion.div>
     </div>
   );
