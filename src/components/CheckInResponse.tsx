@@ -61,6 +61,9 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
   const generateAudio = async (text: string) => {
     if (isMuted || !multilingualVoice.isAvailable()) return;
 
+    // Clear any existing audio first
+    clearAndRevokeAudio();
+
     setIsLoadingAudio(true);
     setAudioError(false);
 
@@ -77,18 +80,17 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
       });
 
       if (ttsResponse.success && ttsResponse.audioUrl) {
-        // Clean up previous audio URL
-        if (audioBlobUrlRef.current) {
-          URL.revokeObjectURL(audioBlobUrlRef.current);
-        }
-        
         audioBlobUrlRef.current = ttsResponse.audioUrl;
         setAudioError(false);
       } else {
+        // Clear audio reference on failure
+        clearAndRevokeAudio();
         setAudioError(true);
       }
     } catch (error) {
       console.error('Error generating audio:', error);
+      // Clear audio reference on error
+      clearAndRevokeAudio();
       setAudioError(true);
     } finally {
       setIsLoadingAudio(false);
@@ -107,7 +109,10 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
     // Generate audio if we don't have it
     if (!audioBlobUrlRef.current) {
       await generateAudio(response.affirmation);
-      // Don't return here - let the function continue to attempt playback
+      // Don't continue if generation failed
+      if (!audioBlobUrlRef.current) {
+        return;
+      }
     }
 
     // Play audio
@@ -123,6 +128,8 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
       audioRef.current.onerror = () => {
         setAudioError(true);
         setIsPlaying(false);
+        // Clear the invalid audio reference
+        clearAndRevokeAudio();
       };
 
       try {
@@ -131,6 +138,8 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
         console.error('Audio playback error:', error);
         setAudioError(true);
         setIsPlaying(false);
+        // Clear the invalid audio reference
+        clearAndRevokeAudio();
       }
     }
   };

@@ -113,6 +113,9 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   const generateAudio = async (text: string) => {
     if (isMuted || !multilingualVoice.isAvailable()) return;
 
+    // Clear any existing audio first
+    clearAndRevokeAudio();
+
     setIsLoadingAudio(true);
     setAudioError(false);
 
@@ -129,18 +132,17 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
       });
 
       if (response.success && response.audioUrl) {
-        // Clean up previous audio URL
-        if (audioBlobUrlRef.current) {
-          URL.revokeObjectURL(audioBlobUrlRef.current);
-        }
-        
         audioBlobUrlRef.current = response.audioUrl;
         setAudioError(false);
       } else {
+        // Clear audio reference on failure
+        clearAndRevokeAudio();
         setAudioError(true);
       }
     } catch (error) {
       console.error('Error generating audio:', error);
+      // Clear audio reference on error
+      clearAndRevokeAudio();
       setAudioError(true);
     } finally {
       setIsLoadingAudio(false);
@@ -162,7 +164,10 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
     // If no audio URL exists, generate it first
     if (!audioBlobUrlRef.current) {
       await generateAudio(currentText);
-      // Don't return here - let the function continue to attempt playback
+      // Don't continue if generation failed
+      if (!audioBlobUrlRef.current) {
+        return;
+      }
     }
 
     // Validate audio URL before attempting playback
@@ -208,6 +213,8 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
         console.error('Audio error event:', e);
         setAudioError(true);
         setIsPlaying(false);
+        // Clear the invalid audio reference
+        clearAndRevokeAudio();
       };
 
       audio.onloadeddata = () => {
@@ -227,13 +234,12 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
           setAudioError(true);
           setIsPlaying(false);
           
+          // Clear the invalid audio reference
+          clearAndRevokeAudio();
+          
           // If it's a source error, try regenerating audio
           if (error.name === 'NotSupportedError' || error.message.includes('source')) {
             console.log('Attempting to regenerate audio due to source error');
-            if (audioBlobUrlRef.current) {
-              URL.revokeObjectURL(audioBlobUrlRef.current);
-              audioBlobUrlRef.current = null;
-            }
             generateAudio(currentText);
           }
         });
@@ -242,6 +248,8 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
       console.error('Audio setup error:', error);
       setAudioError(true);
       setIsPlaying(false);
+      // Clear the invalid audio reference
+      clearAndRevokeAudio();
     }
   };
 
