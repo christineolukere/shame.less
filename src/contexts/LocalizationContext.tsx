@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { translations, type Translations, getTranslationsForLanguage, getAvailableLanguages, getTranslation } from '../lib/translations';
+import { multilingualVoice } from '../lib/multilingualVoice';
 
 interface LocalizationContextType {
   currentLanguage: string;
@@ -45,6 +46,11 @@ export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setCurrentLanguage(language);
     localStorage.setItem('shameless_preferred_language', language);
     localStorage.setItem('user_language', language);
+    
+    // Pre-cache affirmations for the new language
+    if (multilingualVoice.isAvailable()) {
+      multilingualVoice.preCacheAffirmations(language);
+    }
     
     setIsUpdatingLanguage(false);
     

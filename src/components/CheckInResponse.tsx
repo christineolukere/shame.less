@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Bookmark, BookmarkCheck, ArrowRight } from 'lucide-react';
+import { Heart, Bookmark, BookmarkCheck, ArrowRight, Volume2, VolumeX, Play, Pause, Loader2 } from 'lucide-react';
 import { CheckInResponse } from '../lib/checkInResponses';
+import { multilingualVoice } from '../lib/multilingualVoice';
+import { useLocalization } from '../contexts/LocalizationContext';
 
 interface CheckInResponseProps {
   response: CheckInResponse;
@@ -20,11 +22,109 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
 }) => {
   const [isSaved, setIsSaved] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [audioError, setAudioError] = useState(false);
+  
+  const { currentLanguage } = useLocalization();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // Cleanup audio on unmount
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+      }
+    };
+  }, [audioUrl]);
 
   const handleSaveFavorite = () => {
     if (onSaveFavorite) {
       onSaveFavorite(response);
       setIsSaved(true);
+    }
+  };
+
+  const generateAudio = async (text: string) => {
+    if (isMuted || !multilingualVoice.isAvailable()) return;
+
+    setIsLoadingAudio(true);
+    setAudioError(false);
+
+    try {
+      const ttsResponse = await multilingualVoice.synthesizeSpeech({
+        text,
+        language: currentLanguage,
+        settings: {
+          stability: 0.7,
+          similarity_boost: 0.8,
+          style: 0.1,
+          use_speaker_boost: true
+        }
+      });
+
+      if (ttsResponse.success && ttsResponse.audioUrl) {
+        // Clean up previous audio
+        if (audioUrl) {
+          URL.revokeObjectURL(audioUrl);
+        }
+        
+        setAudioUrl(ttsResponse.audioUrl);
+        setAudioError(false);
+      } else {
+        setAudioError(true);
+      }
+    } catch (error) {
+      console.error('Error generating audio:', error);
+      setAudioError(true);
+    } finally {
+      setIsLoadingAudio(false);
+    }
+  };
+
+  const togglePlayback = async () => {
+    if (isLoadingAudio) return;
+
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+      return;
+    }
+
+    // Generate audio if we don't have it
+    if (!audioUrl) {
+      await generateAudio(response.affirmation);
+      return;
+    }
+
+    // Play audio
+    if (audioUrl) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+
+      audioRef.current = new Audio(audioUrl);
+      audioRef.current.onplay = () => setIsPlaying(true);
+      audioRef.current.onpause = () => setIsPlaying(false);
+      audioRef.current.onended = () => setIsPlaying(false);
+      audioRef.current.onerror = () => {
+        setAudioError(true);
+        setIsPlaying(false);
+      };
+
+      try {
+        await audioRef.current.play();
+      } catch (error) {
+        console.error('Audio playback error:', error);
+        setAudioError(true);
+        setIsPlaying(false);
+      }
     }
   };
 
@@ -91,6 +191,47 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
           transition={{ delay: 0.7 }}
           className="flex items-center justify-center space-x-4 mt-6"
         >
+          {/* Audio Controls */}
+          <div className="flex items-center space-x-2">
+            <motion.button
+              onClick={() => setIsMuted(!isMuted)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`p-2 rounded-lg transition-colors ${
+                isMuted ? 'bg-red-100 text-red-600' : 'bg-white/80 text-sage-700 hover:bg-white'
+              }`}
+              title={isMuted ? "Unmute" : "Mute"}
+            >
+              {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            </motion.button>
+
+            <motion.button
+              onClick={togglePlayback}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              disabled={isMuted || !multilingualVoice.isAvailable()}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2 ${
+                isMuted || !multilingualVoice.isAvailable()
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white/80 text-sage-700 hover:bg-white'
+              }`}
+              title={
+                !multilingualVoice.isAvailable() ? "Voice unavailable" :
+                isMuted ? "Audio is muted" :
+                isPlaying ? "Pause affirmation" : "Listen to affirmation"
+              }
+            >
+              {isLoadingAudio ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : isPlaying ? (
+                <Pause className="w-4 h-4" />
+              ) : (
+                <Play className="w-4 h-4" />
+              )}
+              <span>{isLoadingAudio ? 'Loading...' : isPlaying ? 'Pause' : 'Listen'}</span>
+            </motion.button>
+          </div>
+
           <motion.button
             onClick={() => setShowReflection(!showReflection)}
             whileHover={{ scale: 1.05 }}

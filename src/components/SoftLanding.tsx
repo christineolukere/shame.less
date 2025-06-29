@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Wind, Shield, Phone, ArrowLeft } from 'lucide-react';
+import { X, Heart, Wind, Shield, Phone, ArrowLeft, Volume2, VolumeX, Play, Pause, Loader2 } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
+import { multilingualVoice } from '../lib/multilingualVoice';
 
 interface SoftLandingProps {
   onClose: () => void;
@@ -9,7 +10,27 @@ interface SoftLandingProps {
 
 const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
   const [activeComfort, setActiveComfort] = useState<string | null>(null);
-  const { t } = useLocalization();
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [audioError, setAudioError] = useState(false);
+  
+  const { t, currentLanguage } = useLocalization();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // Cleanup audio on unmount
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+      }
+    };
+  }, [audioUrl]);
 
   const openCrisisLink = (type: 'text' | 'call' | 'emergency') => {
     const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -36,6 +57,85 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
           alert('Call 911 for emergency services');
         }
         break;
+    }
+  };
+
+  const generateComfortAudio = async (text: string) => {
+    if (isMuted || !multilingualVoice.isAvailable()) return;
+
+    setIsLoadingAudio(true);
+    setAudioError(false);
+
+    try {
+      const response = await multilingualVoice.synthesizeSpeech({
+        text,
+        language: currentLanguage,
+        settings: {
+          stability: 0.8,
+          similarity_boost: 0.9,
+          style: 0.1,
+          use_speaker_boost: true
+        }
+      });
+
+      if (response.success && response.audioUrl) {
+        // Clean up previous audio
+        if (audioUrl) {
+          URL.revokeObjectURL(audioUrl);
+        }
+        
+        setAudioUrl(response.audioUrl);
+        setAudioError(false);
+      } else {
+        setAudioError(true);
+      }
+    } catch (error) {
+      console.error('Error generating comfort audio:', error);
+      setAudioError(true);
+    } finally {
+      setIsLoadingAudio(false);
+    }
+  };
+
+  const toggleComfortAudio = async () => {
+    if (isLoadingAudio) return;
+
+    const comfortText = "You are safe. You are loved. This feeling will pass. You are not alone. Take a deep breath with me.";
+
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+      return;
+    }
+
+    // Generate audio if we don't have it
+    if (!audioUrl) {
+      await generateComfortAudio(comfortText);
+      return;
+    }
+
+    // Play audio
+    if (audioUrl) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+
+      audioRef.current = new Audio(audioUrl);
+      audioRef.current.onplay = () => setIsPlaying(true);
+      audioRef.current.onpause = () => setIsPlaying(false);
+      audioRef.current.onended = () => setIsPlaying(false);
+      audioRef.current.onerror = () => {
+        setAudioError(true);
+        setIsPlaying(false);
+      };
+
+      try {
+        await audioRef.current.play();
+      } catch (error) {
+        console.error('Audio playback error:', error);
+        setAudioError(true);
+        setIsPlaying(false);
+      }
     }
   };
 
@@ -113,6 +213,48 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
               "You are safe. You are loved. This feeling will pass. You are not alone."
             </blockquote>
           </motion.div>
+          
+          {/* Audio Controls for Affirmation */}
+          <div className="flex items-center justify-center space-x-3">
+            <motion.button
+              onClick={() => setIsMuted(!isMuted)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`p-2 rounded-full transition-colors ${
+                isMuted ? 'bg-red-100 text-red-600' : 'bg-lavender-100 text-lavender-600'
+              }`}
+              title={isMuted ? "Unmute" : "Mute"}
+            >
+              {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            </motion.button>
+
+            <motion.button
+              onClick={toggleComfortAudio}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              disabled={isMuted || !multilingualVoice.isAvailable()}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2 ${
+                isMuted || !multilingualVoice.isAvailable()
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-lavender-100 text-lavender-700 hover:bg-lavender-200'
+              }`}
+              title={
+                !multilingualVoice.isAvailable() ? "Voice unavailable" :
+                isMuted ? "Audio is muted" :
+                isPlaying ? "Pause comfort words" : "Listen to comfort words"
+              }
+            >
+              {isLoadingAudio ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : isPlaying ? (
+                <Pause className="w-4 h-4" />
+              ) : (
+                <Play className="w-4 h-4" />
+              )}
+              <span>{isLoadingAudio ? 'Loading...' : isPlaying ? 'Pause' : 'Listen'}</span>
+            </motion.button>
+          </div>
+          
           <div className="space-y-2">
             <p className="text-lavender-700">Repeat these words to yourself</p>
             <p className="text-lavender-700">Place your hand on your heart</p>

@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Shuffle, Heart, Volume2, VolumeX, Bookmark, Play, Pause, RotateCcw, Loader2, Sparkles } from 'lucide-react';
+import { ArrowLeft, Shuffle, Heart, Volume2, VolumeX, Bookmark, Play, Pause, RotateCcw, Loader2, Sparkles, Globe } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { getCurrentTheme, getThemedAffirmations } from '../lib/themeManager';
 import { openaiAffirmations } from '../lib/openaiAffirmations';
-import { elevenLabsTTS } from '../lib/elevenLabsTTS';
+import { multilingualVoice } from '../lib/multilingualVoice';
 import { getStoredSupportStyle } from '../hooks/useOnboarding';
 
 interface AffirmationsProps {
@@ -21,10 +21,11 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [customAffirmation, setCustomAffirmation] = useState<string | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const { t } = useLocalization();
+  const { t, currentLanguage } = useLocalization();
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const currentTheme = getCurrentTheme();
+  const currentVoice = multilingualVoice.getCurrentVoiceInfo();
 
   const getAffirmationsForTheme = () => {
     // Base set of 7 affirmations that work for all themes
@@ -72,6 +73,11 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   const affirmations = getAffirmationsForTheme();
 
   useEffect(() => {
+    // Pre-cache affirmations for current language
+    if (multilingualVoice.isAvailable()) {
+      multilingualVoice.preCacheAffirmations(currentLanguage);
+    }
+
     // Cleanup audio on unmount
     return () => {
       if (audioRef.current) {
@@ -82,7 +88,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
         URL.revokeObjectURL(audioUrl);
       }
     };
-  }, [audioUrl]);
+  }, [currentLanguage, audioUrl]);
 
   const generatePersonalizedAffirmation = async () => {
     setIsGenerating(true);
@@ -121,17 +127,21 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   };
 
   const generateAudio = async (text: string) => {
-    if (isMuted) return;
+    if (isMuted || !multilingualVoice.isAvailable()) return;
 
     setIsLoadingAudio(true);
     setAudioError(false);
 
     try {
-      const response = await elevenLabsTTS.synthesizeSpeech(text, undefined, {
-        stability: 0.6,
-        similarity_boost: 0.8,
-        style: 0.2,
-        use_speaker_boost: true
+      const response = await multilingualVoice.synthesizeSpeech({
+        text,
+        language: currentLanguage,
+        settings: {
+          stability: 0.6,
+          similarity_boost: 0.8,
+          style: 0.2,
+          use_speaker_boost: true
+        }
       });
 
       if (response.success && response.audioUrl) {
@@ -201,7 +211,10 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
     }
     setIsPlaying(false);
     setCustomAffirmation(null);
-    setAudioUrl(null);
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl);
+      setAudioUrl(null);
+    }
     setCurrentAffirmation((prev) => (prev + 1) % affirmations.length);
     setIsSaved(false);
   };
@@ -212,7 +225,10 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
     }
     setIsPlaying(false);
     setCustomAffirmation(null);
-    setAudioUrl(null);
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl);
+      setAudioUrl(null);
+    }
     const randomIndex = Math.floor(Math.random() * affirmations.length);
     setCurrentAffirmation(randomIndex);
     setIsSaved(false);
@@ -260,6 +276,58 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
         </motion.button>
       </div>
 
+      {/* Voice Information */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`bg-${currentTheme.colors.surface} rounded-xl p-4 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Globe className={`w-5 h-5 text-${currentTheme.colors.primary.replace('-500', '-600')}`} />
+            <div>
+              <h3 className={`font-serif text-${currentTheme.colors.text} text-sm`}>
+                Voice: {currentVoice.name}
+              </h3>
+              <p className={`text-${currentTheme.colors.text.replace('-900', '-600')} text-xs`}>
+                {currentVoice.description} • {currentLanguage}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            {audioError && (
+              <motion.button
+                onClick={resetAudio}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="p-1.5 rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors touch-target"
+                title="Reset audio"
+              >
+                <RotateCcw className="w-3 h-3" />
+              </motion.button>
+            )}
+            <motion.button
+              onClick={() => setIsMuted(!isMuted)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`p-1.5 rounded-full transition-colors touch-target ${
+                isMuted ? 'bg-red-100 text-red-600' : `bg-${currentTheme.colors.secondary.replace('-400', '-100')} text-${currentTheme.colors.secondary.replace('-400', '-600')}`
+              }`}
+            >
+              {isMuted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
+            </motion.button>
+          </div>
+        </div>
+        
+        <p className={`text-xs text-${currentTheme.colors.text.replace('-900', '-600')} mt-2`}>
+          {!multilingualVoice.isAvailable() ? 'Voice synthesis unavailable - text only mode' :
+           audioError ? 'Audio unavailable - try regenerating' : 
+           isMuted ? 'Audio is muted' : 
+           isLoadingAudio ? 'Generating audio...' :
+           'Multilingual AI voice synthesis with warm, feminine tone'}
+        </p>
+      </motion.div>
+
       {/* AI Generation Button */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -295,47 +363,6 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
         </div>
       </motion.div>
 
-      {/* Audio Controls */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={`bg-${currentTheme.colors.surface} rounded-xl p-3 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
-      >
-        <div className="flex items-center justify-between">
-          <h3 className={`font-serif text-${currentTheme.colors.text} text-sm`}>AI Voice Playback</h3>
-          <div className="flex items-center space-x-2">
-            {audioError && (
-              <motion.button
-                onClick={resetAudio}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="p-1.5 rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors touch-target"
-                title="Reset audio"
-              >
-                <RotateCcw className="w-3 h-3" />
-              </motion.button>
-            )}
-            <motion.button
-              onClick={() => setIsMuted(!isMuted)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`p-1.5 rounded-full transition-colors touch-target ${
-                isMuted ? 'bg-red-100 text-red-600' : `bg-${currentTheme.colors.secondary.replace('-400', '-100')} text-${currentTheme.colors.secondary.replace('-400', '-600')}`
-              }`}
-            >
-              {isMuted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
-            </motion.button>
-          </div>
-        </div>
-        
-        <p className={`text-xs text-${currentTheme.colors.text.replace('-900', '-600')} mt-1`}>
-          {audioError ? 'Audio unavailable - try regenerating' : 
-           isMuted ? 'Audio is muted' : 
-           isLoadingAudio ? 'Generating audio...' :
-           'AI-powered voice synthesis with warm, feminine tone'}
-        </p>
-      </motion.div>
-
       {/* Main Affirmation Card */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -361,9 +388,9 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
               onClick={togglePlayback}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              disabled={isMuted || (isLoadingAudio && !audioUrl)}
+              disabled={isMuted || (isLoadingAudio && !audioUrl) || !multilingualVoice.isAvailable()}
               className={`p-2.5 rounded-full transition-colors touch-target ${
-                isMuted || audioError
+                isMuted || audioError || !multilingualVoice.isAvailable()
                   ? `bg-gray-100 text-gray-400 cursor-not-allowed`
                   : isLoadingAudio
                     ? `bg-${current.color}-100 text-${current.color}-600`
@@ -372,6 +399,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
                       : `bg-${current.color}-100 text-${current.color}-700 hover:bg-${current.color}-200`
               }`}
               title={
+                !multilingualVoice.isAvailable() ? "Voice synthesis unavailable" :
                 audioError ? "Audio unavailable" : 
                 isMuted ? "Audio is muted" : 
                 isLoadingAudio ? "Generating audio..." :
@@ -432,7 +460,10 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
                 }
                 setIsPlaying(false);
                 setCurrentAffirmation(index);
-                setAudioUrl(null);
+                if (audioUrl) {
+                  URL.revokeObjectURL(audioUrl);
+                  setAudioUrl(null);
+                }
               }}
               className={`w-1.5 h-1.5 rounded-full transition-colors touch-target ${
                 index === currentAffirmation 
