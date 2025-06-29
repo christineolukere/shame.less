@@ -236,12 +236,6 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
           
           // Clear the invalid audio reference
           clearAndRevokeAudio();
-          
-          // If it's a source error, try regenerating audio
-          if (error.name === 'NotSupportedError' || error.message.includes('source')) {
-            console.log('Attempting to regenerate audio due to source error');
-            generateAudio(currentText);
-          }
         });
       }
     } catch (error) {
