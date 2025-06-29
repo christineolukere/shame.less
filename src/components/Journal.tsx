@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Mic, Camera, Type, Play, Pause, Image as ImageIcon, AlertCircle, CheckCircle, Star, Sparkles } from 'lucide-react';
+import { ArrowLeft, Mic, Camera, Type, Play, Pause, Image as ImageIcon, AlertCircle, CheckCircle, Star, Sparkles, Mail, Clock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { GuestStorageManager } from '../lib/guestStorage';
@@ -12,6 +12,7 @@ import {
   EnhancedJournalEntry 
 } from '../lib/journalStorage';
 import { saveAILetter } from '../lib/aiLetterStorage';
+import { scheduleFutureEmail } from '../lib/futureEmailService';
 import AudioRecorder from './Journal/AudioRecorder';
 import PhotoUploader from './Journal/PhotoUploader';
 import SafetyModal from './Journal/SafetyModal';
@@ -49,6 +50,9 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
   const [showAILetterModal, setShowAILetterModal] = useState(false);
   const [showAILetterPrompt, setShowAILetterPrompt] = useState(false);
   const [lastSavedEntry, setLastSavedEntry] = useState<string>('');
+  const [sendToFuture, setSendToFuture] = useState(false);
+  const [emailScheduling, setEmailScheduling] = useState(false);
+  const [emailScheduled, setEmailScheduled] = useState(false);
   
   const { t } = useLocalization();
   const { user, isGuest } = useAuth();
@@ -158,6 +162,8 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
 
   const performSave = async () => {
     try {
+      let entryId: string | undefined;
+
       if (isGuest) {
         // Save to local storage for guest users
         GuestStorageManager.addJournalEntry({
@@ -183,10 +189,35 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
         const result = await saveJournalEntry(entryData, mediaFiles);
         
         if (result.success) {
+          entryId = result.entryId;
           // Reload entries to get the updated list
           await loadJournalData();
         } else {
           throw new Error(result.error);
+        }
+      }
+
+      // Handle future email scheduling for authenticated users
+      if (sendToFuture && user && user.email && entryId) {
+        setEmailScheduling(true);
+        try {
+          const emailResult = await scheduleFutureEmail({
+            userId: user.id,
+            userEmail: user.email,
+            entryId: entryId,
+            entryContent: journalText.trim(),
+            entryTitle: title.trim() || undefined,
+            sendAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
+          });
+
+          if (emailResult.success) {
+            setEmailScheduled(true);
+            setTimeout(() => setEmailScheduled(false), 5000);
+          }
+        } catch (emailError) {
+          console.error('Error scheduling future email:', emailError);
+        } finally {
+          setEmailScheduling(false);
         }
       }
 
@@ -200,6 +231,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
       setMoodRating(null);
       setMediaFiles([]);
       setInputMode('text');
+      setSendToFuture(false);
       
       // Show success message and AI letter prompt
       setSaveSuccess(true);
@@ -271,7 +303,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Success Message */}
+      {/* Success Messages */}
       <AnimatePresence>
         {saveSuccess && (
           <motion.div
@@ -282,6 +314,18 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
           >
             <CheckCircle className="w-5 h-5" />
             <span>Your reflection has been saved</span>
+          </motion.div>
+        )}
+
+        {emailScheduled && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2"
+          >
+            <Mail className="w-5 h-5" />
+            <span>We'll send this in 7 days. Stay soft. 💌</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -474,6 +518,43 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
             className={`w-full h-40 p-4 border border-${currentTheme.colors.secondary.replace('-400', '-200')} rounded-lg focus:ring-2 focus:ring-${currentTheme.colors.primary.replace('-500', '-300')} focus:border-transparent resize-none`}
           />
 
+          {/* Future Email Option - Only for authenticated users */}
+          {user && user.email && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`bg-blue-50 rounded-xl p-4 border border-blue-100`}
+            >
+              <div className="flex items-start space-x-3">
+                <input
+                  type="checkbox"
+                  id="sendToFuture"
+                  checked={sendToFuture}
+                  onChange={(e) => setSendToFuture(e.target.checked)}
+                  className="mt-1 w-4 h-4 text-blue-600 border-blue-300 rounded focus:ring-blue-500"
+                />
+                <div className="flex-1">
+                  <label htmlFor="sendToFuture" className="flex items-center space-x-2 cursor-pointer">
+                    <Mail className="w-4 h-4 text-blue-600" />
+                    <span className="text-blue-800 font-medium text-sm">Email this entry to me in 7 days</span>
+                  </label>
+                  <p className="text-blue-700 text-xs mt-1 leading-relaxed">
+                    Receive a gentle reminder from your past self. We'll send this reflection to {user.email} 
+                    as a loving message from who you are today.
+                  </p>
+                  {sendToFuture && (
+                    <div className="flex items-center space-x-1 mt-2 text-blue-600">
+                      <Clock className="w-3 h-3" />
+                      <span className="text-xs">
+                        Will be sent on {new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           {/* Media Attachments */}
           {mediaFiles.length > 0 && (
             <div className="space-y-2">
@@ -530,12 +611,27 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
           {/* Save Button */}
           <motion.button
             onClick={saveEntry}
-            disabled={(!journalText.trim() && mediaFiles.length === 0) || saving}
-            whileHover={{ scale: (!journalText.trim() && mediaFiles.length === 0) || saving ? 1 : 1.02 }}
-            whileTap={{ scale: (!journalText.trim() && mediaFiles.length === 0) || saving ? 1 : 0.98 }}
-            className={`w-full py-3 bg-${currentTheme.colors.primary} text-white rounded-lg font-medium hover:bg-${currentTheme.colors.primary.replace('-500', '-600')} transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
+            disabled={(!journalText.trim() && mediaFiles.length === 0) || saving || emailScheduling}
+            whileHover={{ scale: (!journalText.trim() && mediaFiles.length === 0) || saving || emailScheduling ? 1 : 1.02 }}
+            whileTap={{ scale: (!journalText.trim() && mediaFiles.length === 0) || saving || emailScheduling ? 1 : 0.98 }}
+            className={`w-full py-3 bg-${currentTheme.colors.primary} text-white rounded-lg font-medium hover:bg-${currentTheme.colors.primary.replace('-500', '-600')} transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2`}
           >
-            {saving ? 'Saving...' : t('saveEntry')}
+            {emailScheduling ? (
+              <>
+                <Clock className="w-4 h-4 animate-spin" />
+                <span>Scheduling email...</span>
+              </>
+            ) : saving ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                {sendToFuture && <Mail className="w-4 h-4" />}
+                <span>{sendToFuture ? 'Save & Schedule Email' : t('saveEntry')}</span>
+              </>
+            )}
           </motion.button>
         </motion.div>
       )}
