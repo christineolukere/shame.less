@@ -22,10 +22,18 @@ class OpenAIAffirmationService {
     this.apiKey = import.meta.env.VITE_OPENAI_API_KEY || ''
   }
 
+  private isValidApiKey(key: string): boolean {
+    // Check if API key exists and is not a placeholder
+    return key && 
+           key.length > 0 && 
+           key !== 'your_openai_api_key' && 
+           key.startsWith('sk-')
+  }
+
   async generateAffirmation(request: AffirmationRequest): Promise<AffirmationResponse> {
     try {
-      if (!this.apiKey) {
-        // Fallback to static affirmations if no API key
+      if (!this.isValidApiKey(this.apiKey)) {
+        // Fallback to static affirmations if no valid API key
         return this.getFallbackAffirmation(request)
       }
 
@@ -56,7 +64,9 @@ class OpenAIAffirmationService {
       })
 
       if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`)
+        // If it's a 401 error or any API error, fall back to static affirmations
+        console.warn(`OpenAI API error: ${response.status}. Using fallback affirmations.`)
+        return this.getFallbackAffirmation(request)
       }
 
       const data = await response.json()
@@ -71,7 +81,7 @@ class OpenAIAffirmationService {
         affirmation: this.cleanAffirmation(affirmation)
       }
     } catch (error: any) {
-      console.error('Affirmation generation error:', error)
+      console.warn('Affirmation generation error, using fallback:', error.message)
       
       // Fallback to static affirmations
       return this.getFallbackAffirmation(request)
@@ -179,6 +189,57 @@ Return only the affirmation, no quotes or extra text.`
           'I hold space for all my feelings with loving kindness.',
           'I am worthy of gentleness, especially from myself.'
         ]
+      },
+      anxious: {
+        'Soft Pink': [
+          'I breathe deeply and trust in my ability to handle this moment.',
+          'My anxiety is temporary, but my strength is lasting.',
+          'I am safe in this moment and worthy of peace.'
+        ],
+        'Gentle Lavender': [
+          'I release what I cannot control and embrace what I can.',
+          'My nervous system is learning to trust and relax.',
+          'I am held by love even in moments of uncertainty.'
+        ],
+        'Warm Sage': [
+          'I ground myself in the present moment with compassion.',
+          'My worries do not define me; my resilience does.',
+          'I trust my inner wisdom to guide me through this.'
+        ]
+      },
+      joyful: {
+        'Sunset Orange': [
+          'I celebrate my joy as a gift to myself and the world.',
+          'My happiness is valid and deserves to be honored.',
+          'I radiate warmth and light from my authentic self.'
+        ],
+        'Soft Pink': [
+          'I embrace this beautiful moment with my whole heart.',
+          'My joy is a reflection of my inner light shining bright.',
+          'I deserve all the happiness flowing through me now.'
+        ],
+        'Gentle Lavender': [
+          'I am grateful for this feeling of lightness and peace.',
+          'My joy connects me to the beauty in all things.',
+          'I trust in the abundance of good things in my life.'
+        ]
+      },
+      overwhelmed: {
+        'Warm Sage': [
+          'I take one breath, one step, one moment at a time.',
+          'I am stronger than any challenge before me.',
+          'I give myself permission to rest and reset.'
+        ],
+        'Soft Pink': [
+          'I wrap myself in gentleness during this difficult time.',
+          'I am doing the best I can with what I have right now.',
+          'I deserve compassion, especially from myself.'
+        ],
+        'Gentle Lavender': [
+          'I trust that this feeling will pass and peace will return.',
+          'I am held and supported even when I feel alone.',
+          'I release the need to have everything figured out.'
+        ]
       }
     }
 
@@ -190,8 +251,18 @@ Return only the affirmation, no quotes or extra text.`
     if (colorAffirmations && colorAffirmations.length > 0) {
       affirmation = colorAffirmations[Math.floor(Math.random() * colorAffirmations.length)]
     } else {
-      // Ultimate fallback
-      affirmation = 'I am worthy of love, care, and gentleness, especially from myself.'
+      // Try to find any affirmations for this mood with any color
+      if (moodAffirmations) {
+        const allMoodAffirmations = Object.values(moodAffirmations).flat()
+        if (allMoodAffirmations.length > 0) {
+          affirmation = allMoodAffirmations[Math.floor(Math.random() * allMoodAffirmations.length)]
+        } else {
+          affirmation = 'I am worthy of love, care, and gentleness, especially from myself.'
+        }
+      } else {
+        // Ultimate fallback
+        affirmation = 'I am worthy of love, care, and gentleness, especially from myself.'
+      }
     }
 
     return {
