@@ -40,6 +40,49 @@
   }
 }
 
+/* Theme-specific styles */
+@layer base {
+  /* Spiritual Theme */
+  .theme-spiritual {
+    --theme-primary: theme('colors.purple.500');
+    --theme-secondary: theme('colors.lavender.400');
+    --theme-accent: theme('colors.violet.600');
+    --theme-background: theme('colors.purple.50');
+    --theme-surface: theme('colors.lavender.100');
+    --theme-text: theme('colors.purple.900');
+  }
+
+  /* Secular Theme */
+  .theme-secular {
+    --theme-primary: theme('colors.sage.500');
+    --theme-secondary: theme('colors.green.400');
+    --theme-accent: theme('colors.emerald.600');
+    --theme-background: theme('colors.sage.50');
+    --theme-surface: theme('colors.green.100');
+    --theme-text: theme('colors.sage.900');
+  }
+
+  /* Ancestral Theme */
+  .theme-ancestral {
+    --theme-primary: theme('colors.amber.500');
+    --theme-secondary: theme('colors.orange.400');
+    --theme-accent: theme('colors.red.600');
+    --theme-background: theme('colors.amber.50');
+    --theme-surface: theme('colors.orange.100');
+    --theme-text: theme('colors.amber.900');
+  }
+
+  /* Gentle Theme */
+  .theme-gentle {
+    --theme-primary: theme('colors.rose.400');
+    --theme-secondary: theme('colors.cream.300');
+    --theme-accent: theme('colors.sage.500');
+    --theme-background: theme('colors.rose.50');
+    --theme-surface: theme('colors.cream.100');
+    --theme-text: theme('colors.rose.900');
+  }
+}
+
 /* Responsive breakpoints */
 @media (max-width: 400px) {
   .modal-content {

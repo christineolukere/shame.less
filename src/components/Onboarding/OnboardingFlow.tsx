@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, ArrowLeft, Heart, Globe, Palette, Sparkles, CheckCircle, X } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Heart, Globe, Palette, Sparkles, CheckCircle, X, Sun, Moon, Crown } from 'lucide-react'
 import { useLocalization } from '../../contexts/LocalizationContext'
 
 interface OnboardingData {
@@ -22,7 +22,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSkip }) =
   const [answers, setAnswers] = useState<Partial<OnboardingData>>({
     language: 'English',
     supportStyle: null,
-    themePreference: 'warm_sage',
+    themePreference: 'secular',
     anchorPhrase: ''
   })
 
@@ -45,8 +45,8 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSkip }) =
     },
     {
       id: 'theme',
-      title: 'Which visual vibe feels most like home to you?',
-      subtitle: 'Your space should feel as beautiful as you are',
+      title: 'Which emotional vibe feels most like home to you?',
+      subtitle: 'Your space should reflect your spirit and cultural identity',
       icon: Palette,
       color: 'lavender'
     },
@@ -88,32 +88,60 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSkip }) =
 
   const themeOptions = [
     {
-      id: 'warm_sage',
-      name: 'Warm Sage',
-      description: 'Earthy and grounding',
-      gradient: 'from-sage-100 to-sage-200',
-      preview: 'bg-sage-200'
+      id: 'spiritual',
+      name: 'Spiritual',
+      description: 'Warm purples, sacred tones, divine connection',
+      icon: Sun,
+      gradient: 'from-purple-100 via-lavender-100 to-purple-200',
+      preview: 'bg-gradient-to-br from-purple-200 to-lavender-300',
+      colors: {
+        primary: 'purple',
+        secondary: 'lavender',
+        accent: 'violet'
+      },
+      vibe: 'Sacred and mystical energy with gentle spiritual undertones'
     },
     {
-      id: 'soft_pink',
-      name: 'Soft Pink',
-      description: 'Gentle and nurturing',
-      gradient: 'from-rose-100 to-pink-200',
-      preview: 'bg-rose-200'
+      id: 'secular',
+      name: 'Secular',
+      description: 'Clean greens, earth tones, neutral language',
+      icon: Palette,
+      gradient: 'from-sage-100 via-green-100 to-emerald-200',
+      preview: 'bg-gradient-to-br from-sage-200 to-green-300',
+      colors: {
+        primary: 'sage',
+        secondary: 'green',
+        accent: 'emerald'
+      },
+      vibe: 'Grounded and natural with clean, peaceful aesthetics'
     },
     {
-      id: 'gentle_lavender',
-      name: 'Gentle Lavender',
-      description: 'Calm and mystical',
-      gradient: 'from-lavender-100 to-purple-200',
-      preview: 'bg-lavender-200'
+      id: 'ancestral',
+      name: 'Ancestral',
+      description: 'Rich golds, warm reds, Afrocentric wisdom',
+      icon: Crown,
+      gradient: 'from-amber-100 via-orange-100 to-red-200',
+      preview: 'bg-gradient-to-br from-amber-300 to-red-400',
+      colors: {
+        primary: 'amber',
+        secondary: 'orange',
+        accent: 'red'
+      },
+      vibe: 'Rich heritage with griot-style storytelling and ancestral strength'
     },
     {
-      id: 'dark_mode',
-      name: 'Dark Mode',
-      description: 'Cozy and protective',
-      gradient: 'from-gray-800 to-gray-900',
-      preview: 'bg-gray-800'
+      id: 'gentle',
+      name: 'Gentle',
+      description: 'Soft pastels, universal comfort, inclusive warmth',
+      icon: Moon,
+      gradient: 'from-rose-100 via-cream-100 to-sage-100',
+      preview: 'bg-gradient-to-br from-rose-200 to-cream-300',
+      colors: {
+        primary: 'rose',
+        secondary: 'cream',
+        accent: 'sage'
+      },
+      vibe: 'Soft and nurturing with universal appeal and gentle comfort'
     }
   ]
 
@@ -152,6 +180,10 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSkip }) =
   const handleThemeSelect = (theme: string) => {
     setAnswers(prev => ({ ...prev, themePreference: theme }))
     localStorage.setItem('theme_preference', theme)
+    
+    // Apply theme immediately to body for preview
+    document.body.className = `theme-${theme}`
+    showToastMessage(`Theme set to ${themeOptions.find(t => t.id === theme)?.name}`)
   }
 
   const handlePhraseSelect = (phrase: string) => {
@@ -182,7 +214,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSkip }) =
     } else if (step.id === 'support') {
       localStorage.setItem('support_style', 'null')
     } else if (step.id === 'theme') {
-      handleThemeSelect('warm_sage')
+      handleThemeSelect('secular')
     } else if (step.id === 'phrase') {
       const randomPhrase = anchorPhrases[Math.floor(Math.random() * anchorPhrases.length)]
       handlePhraseSelect(randomPhrase)
@@ -201,13 +233,16 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSkip }) =
     const finalData: OnboardingData = {
       language: answers.language || 'English',
       supportStyle: answers.supportStyle,
-      themePreference: answers.themePreference || 'warm_sage',
+      themePreference: answers.themePreference || 'secular',
       anchorPhrase: answers.anchorPhrase || anchorPhrases[0]
     }
     
     // Save completion flag
     localStorage.setItem('onboarding_complete', 'true')
     localStorage.setItem('onboarding_data', JSON.stringify(finalData))
+    
+    // Apply final theme
+    document.body.className = `theme-${finalData.themePreference}`
     
     onComplete(finalData)
   }
@@ -283,29 +318,55 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSkip }) =
 
       case 'theme':
         return (
-          <div className="grid grid-cols-2 gap-4">
-            {themeOptions.map((theme) => (
-              <motion.button
-                key={theme.id}
-                onClick={() => handleThemeSelect(theme.id)}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className={`p-4 rounded-xl transition-all touch-target ${
-                  answers.themePreference === theme.id
-                    ? 'ring-2 ring-lavender-400 ring-offset-2'
-                    : 'hover:ring-2 hover:ring-lavender-200 hover:ring-offset-1'
-                }`}
-              >
-                <div className={`w-full h-20 rounded-lg mb-3 bg-gradient-to-br ${theme.gradient}`} />
-                <h3 className="font-medium text-sage-800 mb-1">{theme.name}</h3>
-                <p className="text-xs text-sage-600">{theme.description}</p>
-                {answers.themePreference === theme.id && (
-                  <div className="mt-2 flex justify-center">
-                    <CheckCircle className="w-5 h-5 text-lavender-600" />
-                  </div>
-                )}
-              </motion.button>
-            ))}
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-4">
+              {themeOptions.map((theme) => {
+                const Icon = theme.icon
+                return (
+                  <motion.button
+                    key={theme.id}
+                    onClick={() => handleThemeSelect(theme.id)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className={`p-4 rounded-xl transition-all touch-target ${
+                      answers.themePreference === theme.id
+                        ? 'ring-2 ring-lavender-400 ring-offset-2 bg-lavender-50'
+                        : 'bg-white border border-sage-200 hover:bg-sage-50'
+                    }`}
+                  >
+                    <div className="flex items-start space-x-4">
+                      {/* Theme Preview */}
+                      <div className="flex-shrink-0">
+                        <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${theme.gradient} border-2 border-white shadow-sm flex items-center justify-center`}>
+                          <Icon className="w-6 h-6 text-gray-700" />
+                        </div>
+                      </div>
+                      
+                      {/* Theme Info */}
+                      <div className="flex-1 text-left">
+                        <h3 className="font-serif text-lg text-sage-800 mb-1">{theme.name}</h3>
+                        <p className="text-sm text-sage-600 mb-2">{theme.description}</p>
+                        <p className="text-xs text-sage-500 italic">{theme.vibe}</p>
+                      </div>
+                      
+                      {/* Selection Indicator */}
+                      {answers.themePreference === theme.id && (
+                        <div className="flex-shrink-0">
+                          <CheckCircle className="w-6 h-6 text-lavender-600" />
+                        </div>
+                      )}
+                    </div>
+                  </motion.button>
+                )
+              })}
+            </div>
+            
+            {/* Theme Preview Note */}
+            <div className="bg-cream-50 rounded-xl p-4 border border-cream-100">
+              <p className="text-cream-700 text-sm text-center">
+                ✨ Your chosen theme will influence colors, language tone, and the overall feel of your healing space
+              </p>
+            </div>
           </div>
         )
 

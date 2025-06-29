@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Shuffle, Heart, Volume2, VolumeX, Bookmark, Play, Pause, RotateCcw } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
-import { getStoredSupportStyle } from '../hooks/useOnboarding';
+import { getCurrentTheme, getThemedAffirmations } from '../lib/themeManager';
 
 interface AffirmationsProps {
   onBack: () => void;
@@ -18,73 +18,52 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
 
-  const supportStyle = getStoredSupportStyle();
+  const currentTheme = getCurrentTheme();
 
-  const getAffirmationsForStyle = () => {
-    // Base set of 7 affirmations that work for all support styles
+  const getAffirmationsForTheme = () => {
+    // Base set of 7 affirmations that work for all themes
     const baseAffirmations = [
       {
         text: "I am worthy of love and kindness, especially from myself.",
         category: "Self-Love",
-        color: "terracotta"
+        color: currentTheme.colors.primary.split('-')[0]
       },
       {
         text: "My feelings are valid and deserve to be acknowledged with compassion.",
         category: "Emotional Validation",
-        color: "lavender"
+        color: currentTheme.colors.secondary.split('-')[0]
       },
       {
         text: "I choose to speak to myself with the same gentleness I would offer a dear friend.",
         category: "Inner Voice",
-        color: "sage"
+        color: currentTheme.colors.accent.split('-')[0]
       },
       {
         text: "My healing journey is unique and unfolds at exactly the right pace for me.",
         category: "Healing",
-        color: "cream"
+        color: currentTheme.colors.primary.split('-')[0]
       },
       {
         text: "I am allowed to take up space and honor my needs without apology.",
         category: "Boundaries",
-        color: "terracotta"
+        color: currentTheme.colors.secondary.split('-')[0]
       },
       {
         text: "Every small step I take toward caring for myself is an act of courage.",
         category: "Self-Care",
-        color: "sage"
+        color: currentTheme.colors.accent.split('-')[0]
       },
       {
         text: "I release the need to be perfect and embrace my beautifully human experience.",
         category: "Self-Acceptance",
-        color: "lavender"
+        color: currentTheme.colors.primary.split('-')[0]
       }
     ];
 
-    // Replace the last affirmation based on support style to keep exactly 7
-    if (supportStyle === 'spirituality') {
-      baseAffirmations[6] = {
-        text: "I am divinely guided and protected on this journey of healing.",
-        category: "Divine Connection",
-        color: "lavender"
-      };
-    } else if (supportStyle === 'culture') {
-      baseAffirmations[6] = {
-        text: "My ancestors' strength flows through me, and I am never truly alone.",
-        category: "Ancestral Wisdom",
-        color: "cream"
-      };
-    } else if (supportStyle === 'science') {
-      baseAffirmations[6] = {
-        text: "My brain is capable of forming new, healthier patterns with each kind choice I make.",
-        category: "Neuroplasticity",
-        color: "sage"
-      };
-    }
-
-    return baseAffirmations;
+    return getThemedAffirmations(baseAffirmations, currentTheme);
   };
 
-  const affirmations = getAffirmationsForStyle();
+  const affirmations = getAffirmationsForTheme();
 
   useEffect(() => {
     // Initialize audio context for better audio control
@@ -109,10 +88,10 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
 
       const utterance = new SpeechSynthesisUtterance(text);
       
-      // Normalize audio settings
-      utterance.rate = 0.75; // Slower, more meditative pace
-      utterance.pitch = 1.0; // Natural pitch
-      utterance.volume = 0.8; // Slightly softer volume
+      // Normalize audio settings based on theme
+      utterance.rate = currentTheme.affirmationTone === 'spiritual' ? 0.7 : 0.75; // Slower for spiritual
+      utterance.pitch = currentTheme.affirmationTone === 'ancestral' ? 1.1 : 1.0; // Slightly higher for ancestral
+      utterance.volume = 0.8;
 
       // Try to find a suitable voice with fallback
       const voices = speechSynthesis.getVoices();
@@ -198,30 +177,30 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
             onClick={onBack}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="p-2 rounded-full bg-sage-100 text-sage-700 touch-target"
+            className={`p-2 rounded-full bg-${currentTheme.colors.surface} text-${currentTheme.colors.text} touch-target`}
           >
             <ArrowLeft className="w-5 h-5" />
           </motion.button>
-          <h1 className="text-2xl font-serif text-sage-800">{t('dailyAffirmations')}</h1>
+          <h1 className={`text-2xl font-serif text-${currentTheme.colors.text}`}>{t('dailyAffirmations')}</h1>
         </div>
         <motion.button
           onClick={randomAffirmation}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="p-2 rounded-full bg-terracotta-100 text-terracotta-700 touch-target"
+          className={`p-2 rounded-full bg-${currentTheme.colors.primary.replace('-500', '-100')} text-${currentTheme.colors.primary.replace('-500', '-700')} touch-target`}
         >
           <Shuffle className="w-5 h-5" />
         </motion.button>
       </div>
 
-      {/* Audio Controls - Smaller */}
+      {/* Audio Controls */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-lavender-50 rounded-xl p-3 border border-lavender-100"
+        className={`bg-${currentTheme.colors.surface} rounded-xl p-3 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
       >
         <div className="flex items-center justify-between">
-          <h3 className="font-serif text-lavender-800 text-sm">Audio Playback</h3>
+          <h3 className={`font-serif text-${currentTheme.colors.text} text-sm`}>Audio Playback</h3>
           <div className="flex items-center space-x-2">
             {audioError && (
               <motion.button
@@ -239,7 +218,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className={`p-1.5 rounded-full transition-colors touch-target ${
-                isMuted ? 'bg-red-100 text-red-600' : 'bg-lavender-100 text-lavender-600'
+                isMuted ? 'bg-red-100 text-red-600' : `bg-${currentTheme.colors.secondary.replace('-400', '-100')} text-${currentTheme.colors.secondary.replace('-400', '-600')}`
               }`}
             >
               {isMuted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
@@ -247,32 +226,32 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
           </div>
         </div>
         
-        <p className="text-xs text-lavender-600 mt-1">
+        <p className={`text-xs text-${currentTheme.colors.text.replace('-900', '-600')} mt-1`}>
           {audioError ? 'Audio unavailable - text fallback active' : 
            isMuted ? 'Audio is muted' : 
            'Click the play button to hear affirmations read aloud'}
         </p>
       </motion.div>
 
-      {/* Gentle Introduction - Smaller */}
+      {/* Gentle Introduction */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-cream-50 rounded-xl p-4 border border-cream-100"
+        className={`bg-${currentTheme.colors.background} rounded-xl p-4 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
       >
         <div className="flex items-center space-x-2 mb-2">
-          <Heart className="w-4 h-4 text-cream-600" />
-          <h3 className="font-serif text-cream-800 text-sm">{t('wordsOfLove')}</h3>
+          <Heart className={`w-4 h-4 text-${currentTheme.colors.accent.replace('-600', '-600')}`} />
+          <h3 className={`font-serif text-${currentTheme.colors.text} text-sm`}>{t('wordsOfLove')}</h3>
         </div>
-        <p className="text-cream-700 text-xs leading-relaxed">
-          {supportStyle === 'spirituality' && "These affirmations are infused with spiritual wisdom to nurture your soul."}
-          {supportStyle === 'culture' && "These affirmations honor the strength and wisdom of your cultural heritage."}
-          {supportStyle === 'science' && "These affirmations are grounded in psychological research and evidence-based practices."}
-          {!supportStyle && "These gentle affirmations are crafted to nurture your heart and mind with love."}
+        <p className={`text-${currentTheme.colors.text.replace('-900', '-700')} text-xs leading-relaxed`}>
+          {currentTheme.affirmationTone === 'spiritual' && "These affirmations are infused with spiritual wisdom to nurture your soul."}
+          {currentTheme.affirmationTone === 'ancestral' && "These affirmations honor the strength and wisdom of your cultural heritage."}
+          {currentTheme.affirmationTone === 'secular' && "These affirmations are grounded in psychological research and evidence-based practices."}
+          {currentTheme.affirmationTone === 'gentle' && "These gentle affirmations are crafted to nurture your heart and mind with love."}
         </p>
       </motion.div>
 
-      {/* Main Affirmation Card - Smaller */}
+      {/* Main Affirmation Card */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentAffirmation}
@@ -290,7 +269,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
             "{current.text}"
           </blockquote>
 
-          {/* Action Buttons - Smaller */}
+          {/* Action Buttons */}
           <div className="flex items-center justify-center space-x-3">
             <motion.button
               onClick={togglePlayback}
@@ -326,9 +305,9 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
         </motion.div>
       </AnimatePresence>
 
-      {/* Navigation - Smaller */}
+      {/* Navigation */}
       <div className="flex items-center justify-between">
-        <div className="text-xs text-sage-600">
+        <div className={`text-xs text-${currentTheme.colors.text.replace('-900', '-600')}`}>
           {currentAffirmation + 1} of {affirmations.length}
         </div>
         
@@ -336,13 +315,13 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
           onClick={nextAffirmation}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="px-4 py-2 bg-sage-500 text-white rounded-lg text-sm font-medium hover:bg-sage-600 transition-colors touch-target"
+          className={`px-4 py-2 bg-${currentTheme.colors.primary} text-white rounded-lg text-sm font-medium hover:bg-${currentTheme.colors.primary.replace('-500', '-600')} transition-colors touch-target`}
         >
           {t('nextAffirmation')}
         </motion.button>
       </div>
 
-      {/* Progress Dots - Smaller */}
+      {/* Progress Dots */}
       <div className="flex items-center justify-center space-x-1.5">
         {affirmations.map((_, index) => (
           <motion.button
@@ -355,22 +334,22 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
             className={`w-1.5 h-1.5 rounded-full transition-colors touch-target ${
               index === currentAffirmation 
                 ? `bg-${current.color}-500` 
-                : 'bg-sage-200 hover:bg-sage-300'
+                : `bg-${currentTheme.colors.text.replace('-900', '-200')} hover:bg-${currentTheme.colors.text.replace('-900', '-300')}`
             }`}
             whileHover={{ scale: 1.3 }}
           />
         ))}
       </div>
 
-      {/* Reflection Prompt - Smaller */}
+      {/* Reflection Prompt */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.7 }}
-        className="bg-lavender-50 rounded-xl p-4 border border-lavender-100"
+        className={`bg-${currentTheme.colors.surface} rounded-xl p-4 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
       >
-        <h3 className="font-serif text-lavender-800 mb-2 text-sm">{t('gentleReflection')}</h3>
-        <p className="text-lavender-700 text-xs leading-relaxed">
+        <h3 className={`font-serif text-${currentTheme.colors.text} mb-2 text-sm`}>{t('gentleReflection')}</h3>
+        <p className={`text-${currentTheme.colors.text.replace('-900', '-700')} text-xs leading-relaxed`}>
           {t('reflectionPrompt')}
         </p>
       </motion.div>

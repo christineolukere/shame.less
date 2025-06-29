@@ -4,6 +4,7 @@ import { ArrowLeft, Mic, Camera, Type, Play, Pause, Image as ImageIcon, AlertCir
 import { useAuth } from '../contexts/AuthContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { GuestStorageManager } from '../lib/guestStorage';
+import { getCurrentTheme, getThemedJournalPrompts } from '../lib/themeManager';
 import { 
   saveJournalEntry, 
   loadJournalEntries, 
@@ -51,17 +52,10 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
   
   const { t } = useLocalization();
   const { user, isGuest } = useAuth();
+  const currentTheme = getCurrentTheme();
 
-  const prompts = [
-    t('gratefulFor'),
-    t('showedKindness'),
-    t('boundaryHonored'),
-    t('madeSmile'),
-    t('needToRelease'),
-    t('howGrowing'),
-    t('tellYoungerSelf'),
-    t('bringsYouPeace'),
-  ];
+  // Get theme-specific journal prompts
+  const prompts = getThemedJournalPrompts(currentTheme);
 
   const inputModes = [
     { id: 'text', icon: Type, label: t('write') },
@@ -270,7 +264,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center">
-        <div className="text-sage-600">Loading your journal...</div>
+        <div className={`text-${currentTheme.colors.text.replace('-900', '-600')}`}>Loading your journal...</div>
       </div>
     );
   }
@@ -284,7 +278,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-sage-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2"
+            className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-${currentTheme.colors.primary} text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2`}
           >
             <CheckCircle className="w-5 h-5" />
             <span>Your reflection has been saved</span>
@@ -299,15 +293,15 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="bg-gradient-to-r from-terracotta-50 to-sage-50 rounded-2xl p-6 border border-terracotta-100"
+            className={`bg-gradient-to-r from-${currentTheme.colors.primary.replace('-500', '-50')} to-${currentTheme.colors.secondary.replace('-400', '-50')} rounded-2xl p-6 border border-${currentTheme.colors.primary.replace('-500', '-100')}`}
           >
             <div className="flex items-start space-x-3">
-              <Sparkles className="w-6 h-6 text-terracotta-600 mt-1 flex-shrink-0" />
+              <Sparkles className={`w-6 h-6 text-${currentTheme.colors.primary.replace('-500', '-600')} mt-1 flex-shrink-0`} />
               <div className="flex-1">
-                <h3 className="font-serif text-terracotta-800 mb-2">
+                <h3 className={`font-serif text-${currentTheme.colors.text} mb-2`}>
                   Would you like an AI-written letter based on what you shared?
                 </h3>
-                <p className="text-terracotta-700 text-sm mb-4 leading-relaxed">
+                <p className={`text-${currentTheme.colors.text.replace('-900', '-700')} text-sm mb-4 leading-relaxed`}>
                   I can write you a gentle, personalized letter that reflects on your journal entry 
                   and offers comfort and encouragement.
                 </p>
@@ -316,7 +310,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
                     onClick={handleAILetterRequest}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="px-4 py-2 bg-terracotta-500 text-white rounded-lg hover:bg-terracotta-600 transition-colors flex items-center space-x-2"
+                    className={`px-4 py-2 bg-${currentTheme.colors.primary} text-white rounded-lg hover:bg-${currentTheme.colors.primary.replace('-500', '-600')} transition-colors flex items-center space-x-2`}
                   >
                     <Sparkles className="w-4 h-4" />
                     <span>Yes, write me a letter</span>
@@ -325,7 +319,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
                     onClick={() => setShowAILetterPrompt(false)}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="px-4 py-2 bg-sage-100 text-sage-700 rounded-lg hover:bg-sage-200 transition-colors"
+                    className={`px-4 py-2 bg-${currentTheme.colors.surface} text-${currentTheme.colors.text.replace('-900', '-700')} rounded-lg hover:bg-${currentTheme.colors.secondary.replace('-400', '-200')} transition-colors`}
                   >
                     Maybe later
                   </motion.button>
@@ -342,21 +336,21 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
           onClick={onBack}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="p-2 rounded-full bg-sage-100 text-sage-700"
+          className={`p-2 rounded-full bg-${currentTheme.colors.surface} text-${currentTheme.colors.text}`}
         >
           <ArrowLeft className="w-5 h-5" />
         </motion.button>
-        <h1 className="text-2xl font-serif text-sage-800">{t('journalTitle')}</h1>
+        <h1 className={`text-2xl font-serif text-${currentTheme.colors.text}`}>{t('journalTitle')}</h1>
       </div>
 
       {/* Gentle Introduction */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-lavender-50 rounded-2xl p-6 border border-lavender-100"
+        className={`bg-${currentTheme.colors.surface} rounded-2xl p-6 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
       >
-        <h3 className="font-serif text-lavender-800 mb-2">{t('safeSpaceThoughts')}</h3>
-        <p className="text-lavender-700 text-sm leading-relaxed">
+        <h3 className={`font-serif text-${currentTheme.colors.text} mb-2`}>{t('safeSpaceThoughts')}</h3>
+        <p className={`text-${currentTheme.colors.text.replace('-900', '-700')} text-sm leading-relaxed`}>
           {t('journalDescription')}
         </p>
       </motion.div>
@@ -365,12 +359,12 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-cream-50 rounded-xl p-4 border border-cream-100"
+        className={`bg-${currentTheme.colors.background} rounded-xl p-4 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
       >
         <div className="flex items-start space-x-2">
-          <AlertCircle className="w-4 h-4 text-cream-600 mt-0.5 flex-shrink-0" />
+          <AlertCircle className={`w-4 h-4 text-${currentTheme.colors.accent.replace('-600', '-600')} mt-0.5 flex-shrink-0`} />
           <div>
-            <p className="text-cream-700 text-sm">
+            <p className={`text-${currentTheme.colors.text.replace('-900', '-700')} text-sm`}>
               <strong>Journal Guidelines:</strong> This is your personal healing space. 
               Please avoid uploading explicit content. If you're in crisis, visit our Crisis Support section.
             </p>
@@ -380,7 +374,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
 
       {/* Input Mode Selection */}
       <div className="space-y-3">
-        <h3 className="text-lg font-serif text-sage-800">{t('howToExpress')}</h3>
+        <h3 className={`text-lg font-serif text-${currentTheme.colors.text}`}>{t('howToExpress')}</h3>
         <div className="grid grid-cols-3 gap-3">
           {inputModes.map((mode) => {
             const Icon = mode.icon;
@@ -392,8 +386,8 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
                 whileTap={{ scale: 0.98 }}
                 className={`p-4 rounded-xl text-center transition-all ${
                   inputMode === mode.id
-                    ? 'bg-terracotta-100 border-2 border-terracotta-300 text-terracotta-800'
-                    : 'bg-white border border-sage-100 text-sage-700 hover:bg-sage-50'
+                    ? `bg-${currentTheme.colors.primary.replace('-500', '-100')} border-2 border-${currentTheme.colors.primary.replace('-500', '-300')} text-${currentTheme.colors.primary.replace('-500', '-800')}`
+                    : `bg-white border border-${currentTheme.colors.secondary.replace('-400', '-200')} text-${currentTheme.colors.text.replace('-900', '-700')} hover:bg-${currentTheme.colors.surface}`
                 }`}
               >
                 <Icon className="w-6 h-6 mx-auto mb-2" />
@@ -413,7 +407,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
         >
           {/* Optional Title */}
           <div>
-            <label className="block text-sm font-medium text-sage-700 mb-2">
+            <label className={`block text-sm font-medium text-${currentTheme.colors.text.replace('-900', '-700')} mb-2`}>
               Title (optional)
             </label>
             <input
@@ -421,13 +415,13 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Give your entry a title..."
-              className="w-full p-3 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-300 focus:border-transparent"
+              className={`w-full p-3 border border-${currentTheme.colors.secondary.replace('-400', '-200')} rounded-lg focus:ring-2 focus:ring-${currentTheme.colors.primary.replace('-500', '-300')} focus:border-transparent`}
             />
           </div>
 
-          {/* Gentle Prompts */}
+          {/* Themed Prompts */}
           <div className="space-y-3">
-            <h4 className="text-base font-serif text-sage-800">{t('needGentleNudge')}</h4>
+            <h4 className={`text-base font-serif text-${currentTheme.colors.text}`}>{t('needGentleNudge')}</h4>
             <div className="grid grid-cols-1 gap-2">
               {prompts.slice(0, 4).map((prompt, index) => (
                 <motion.button
@@ -438,8 +432,8 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
                   onClick={() => handlePromptSelect(prompt)}
                   className={`p-3 text-left text-sm rounded-lg transition-all ${
                     selectedPrompt === prompt
-                      ? 'bg-cream-100 border-2 border-cream-300'
-                      : 'bg-white border border-sage-100 hover:bg-sage-50'
+                      ? `bg-${currentTheme.colors.primary.replace('-500', '-100')} border-2 border-${currentTheme.colors.primary.replace('-500', '-300')}`
+                      : `bg-white border border-${currentTheme.colors.secondary.replace('-400', '-200')} hover:bg-${currentTheme.colors.surface}`
                   }`}
                 >
                   {prompt}
@@ -450,7 +444,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
 
           {/* Mood Rating */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-sage-700">
+            <label className={`block text-sm font-medium text-${currentTheme.colors.text.replace('-900', '-700')}`}>
               How are you feeling? (optional)
             </label>
             <div className="flex space-x-2">
@@ -462,8 +456,8 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
                   whileTap={{ scale: 0.9 }}
                   className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
                     moodRating === rating
-                      ? 'bg-terracotta-200 text-terracotta-800'
-                      : 'bg-sage-100 text-sage-600 hover:bg-sage-200'
+                      ? `bg-${currentTheme.colors.primary.replace('-500', '-200')} text-${currentTheme.colors.primary.replace('-500', '-800')}`
+                      : `bg-${currentTheme.colors.surface} text-${currentTheme.colors.text.replace('-900', '-600')} hover:bg-${currentTheme.colors.secondary.replace('-400', '-200')}`
                   }`}
                 >
                   <Star className={`w-4 h-4 ${moodRating === rating ? 'fill-current' : ''}`} />
@@ -477,25 +471,25 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
             value={journalText}
             onChange={(e) => setJournalText(e.target.value)}
             placeholder={t('letThoughtsFlow')}
-            className="w-full h-40 p-4 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-300 focus:border-transparent resize-none"
+            className={`w-full h-40 p-4 border border-${currentTheme.colors.secondary.replace('-400', '-200')} rounded-lg focus:ring-2 focus:ring-${currentTheme.colors.primary.replace('-500', '-300')} focus:border-transparent resize-none`}
           />
 
           {/* Media Attachments */}
           {mediaFiles.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-sm font-medium text-sage-700">Attachments</h4>
+              <h4 className={`text-sm font-medium text-${currentTheme.colors.text.replace('-900', '-700')}`}>Attachments</h4>
               <div className="space-y-2">
                 {mediaFiles.map((media, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-3 bg-sage-50 rounded-lg">
+                  <div key={index} className={`flex items-center space-x-3 p-3 bg-${currentTheme.colors.surface} rounded-lg`}>
                     {media.type === 'audio' ? (
-                      <Mic className="w-5 h-5 text-sage-600" />
+                      <Mic className={`w-5 h-5 text-${currentTheme.colors.text.replace('-900', '-600')}`} />
                     ) : (
-                      <ImageIcon className="w-5 h-5 text-sage-600" />
+                      <ImageIcon className={`w-5 h-5 text-${currentTheme.colors.text.replace('-900', '-600')}`} />
                     )}
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-sage-800">{media.file.name}</p>
+                      <p className={`text-sm font-medium text-${currentTheme.colors.text}`}>{media.file.name}</p>
                       {media.duration && (
-                        <p className="text-xs text-sage-600">{formatDuration(media.duration)}</p>
+                        <p className={`text-xs text-${currentTheme.colors.text.replace('-900', '-600')}`}>{formatDuration(media.duration)}</p>
                       )}
                     </div>
                     <button
@@ -516,7 +510,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
               onClick={() => setShowAudioRecorder(true)}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="flex items-center space-x-2 px-4 py-2 bg-terracotta-100 text-terracotta-700 rounded-lg hover:bg-terracotta-200 transition-colors"
+              className={`flex items-center space-x-2 px-4 py-2 bg-${currentTheme.colors.primary.replace('-500', '-100')} text-${currentTheme.colors.primary.replace('-500', '-700')} rounded-lg hover:bg-${currentTheme.colors.primary.replace('-500', '-200')} transition-colors`}
             >
               <Mic className="w-4 h-4" />
               <span>Add Voice Note</span>
@@ -526,7 +520,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
               onClick={() => setShowPhotoUploader(true)}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="flex items-center space-x-2 px-4 py-2 bg-sage-100 text-sage-700 rounded-lg hover:bg-sage-200 transition-colors"
+              className={`flex items-center space-x-2 px-4 py-2 bg-${currentTheme.colors.surface} text-${currentTheme.colors.text.replace('-900', '-700')} rounded-lg hover:bg-${currentTheme.colors.secondary.replace('-400', '-200')} transition-colors`}
             >
               <Camera className="w-4 h-4" />
               <span>Add Photo</span>
@@ -539,7 +533,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
             disabled={(!journalText.trim() && mediaFiles.length === 0) || saving}
             whileHover={{ scale: (!journalText.trim() && mediaFiles.length === 0) || saving ? 1 : 1.02 }}
             whileTap={{ scale: (!journalText.trim() && mediaFiles.length === 0) || saving ? 1 : 0.98 }}
-            className="w-full py-3 bg-sage-500 text-white rounded-lg font-medium hover:bg-sage-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`w-full py-3 bg-${currentTheme.colors.primary} text-white rounded-lg font-medium hover:bg-${currentTheme.colors.primary.replace('-500', '-600')} transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {saving ? 'Saving...' : t('saveEntry')}
           </motion.button>
@@ -553,15 +547,15 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center space-y-4"
         >
-          <div className="w-32 h-32 mx-auto bg-terracotta-100 rounded-full flex items-center justify-center">
-            <Mic className="w-12 h-12 text-terracotta-600" />
+          <div className={`w-32 h-32 mx-auto bg-${currentTheme.colors.primary.replace('-500', '-100')} rounded-full flex items-center justify-center`}>
+            <Mic className={`w-12 h-12 text-${currentTheme.colors.primary.replace('-500', '-600')}`} />
           </div>
-          <p className="text-sage-600">Ready to record your voice note</p>
+          <p className={`text-${currentTheme.colors.text.replace('-900', '-600')}`}>Ready to record your voice note</p>
           <motion.button
             onClick={() => setShowAudioRecorder(true)}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="px-8 py-3 bg-terracotta-500 text-white rounded-lg font-medium hover:bg-terracotta-600 transition-colors"
+            className={`px-8 py-3 bg-${currentTheme.colors.primary} text-white rounded-lg font-medium hover:bg-${currentTheme.colors.primary.replace('-500', '-600')} transition-colors`}
           >
             Start Recording
           </motion.button>
@@ -575,15 +569,15 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center space-y-4"
         >
-          <div className="w-32 h-32 mx-auto bg-lavender-100 rounded-full flex items-center justify-center">
-            <Camera className="w-12 h-12 text-lavender-600" />
+          <div className={`w-32 h-32 mx-auto bg-${currentTheme.colors.secondary.replace('-400', '-100')} rounded-full flex items-center justify-center`}>
+            <Camera className={`w-12 h-12 text-${currentTheme.colors.secondary.replace('-400', '-600')}`} />
           </div>
-          <p className="text-sage-600">Share a moment through photography</p>
+          <p className={`text-${currentTheme.colors.text.replace('-900', '-600')}`}>Share a moment through photography</p>
           <motion.button
             onClick={() => setShowPhotoUploader(true)}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="px-8 py-3 bg-lavender-500 text-white rounded-lg font-medium hover:bg-lavender-600 transition-colors"
+            className={`px-8 py-3 bg-${currentTheme.colors.secondary.replace('-400', '-500')} text-white rounded-lg font-medium hover:bg-${currentTheme.colors.secondary.replace('-400', '-600')} transition-colors`}
           >
             Add Photo
           </motion.button>
@@ -593,7 +587,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
       {/* Recent Entries */}
       {entries.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-lg font-serif text-sage-800">Recent reflections</h3>
+          <h3 className={`text-lg font-serif text-${currentTheme.colors.text}`}>Recent reflections</h3>
           <div className="space-y-3">
             {entries.slice(0, 5).map((entry, index) => (
               <motion.div
@@ -601,19 +595,19 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="p-4 bg-cream-50 rounded-lg border border-cream-100"
+                className={`p-4 bg-${currentTheme.colors.background} rounded-lg border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
               >
                 {entry.title && (
-                  <h4 className="font-medium text-cream-800 mb-2">{entry.title}</h4>
+                  <h4 className={`font-medium text-${currentTheme.colors.text} mb-2`}>{entry.title}</h4>
                 )}
                 
                 {entry.prompt && (
-                  <div className="text-xs text-cream-600 mb-2 font-medium">
+                  <div className={`text-xs text-${currentTheme.colors.text.replace('-900', '-600')} mb-2 font-medium`}>
                     {entry.prompt}
                   </div>
                 )}
                 
-                <p className="text-cream-800 text-sm leading-relaxed line-clamp-3 mb-3">
+                <p className={`text-${currentTheme.colors.text} text-sm leading-relaxed line-clamp-3 mb-3`}>
                   {entry.content}
                 </p>
 
@@ -627,7 +621,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
                             onClick={() => media.signed_url && playAudio(media.signed_url, entry.id)}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            className="flex items-center space-x-1 px-2 py-1 bg-terracotta-100 text-terracotta-700 rounded text-xs hover:bg-terracotta-200 transition-colors"
+                            className={`flex items-center space-x-1 px-2 py-1 bg-${currentTheme.colors.primary.replace('-500', '-100')} text-${currentTheme.colors.primary.replace('-500', '-700')} rounded text-xs hover:bg-${currentTheme.colors.primary.replace('-500', '-200')} transition-colors`}
                           >
                             {playingAudio === entry.id ? (
                               <Pause className="w-3 h-3" />
@@ -641,7 +635,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
                             <img
                               src={media.signed_url}
                               alt="Journal attachment"
-                              className="w-12 h-12 object-cover rounded border border-cream-200"
+                              className={`w-12 h-12 object-cover rounded border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
                             />
                           )
                         )}
@@ -651,14 +645,14 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
                 )}
 
                 <div className="flex items-center justify-between">
-                  <div className="text-xs text-cream-600">
+                  <div className={`text-xs text-${currentTheme.colors.text.replace('-900', '-600')}`}>
                     {new Date(entry.created_at).toLocaleDateString()}
                   </div>
                   
                   {entry.mood_rating && (
                     <div className="flex space-x-1">
                       {[...Array(entry.mood_rating)].map((_, i) => (
-                        <Star key={i} className="w-3 h-3 text-terracotta-500 fill-current" />
+                        <Star key={i} className={`w-3 h-3 text-${currentTheme.colors.primary.replace('-500', '-500')} fill-current`} />
                       ))}
                     </div>
                   )}
