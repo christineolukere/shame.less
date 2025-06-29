@@ -21,6 +21,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   const supportStyle = getStoredSupportStyle();
 
   const getAffirmationsForStyle = () => {
+    // Base set of 7 affirmations that work for all support styles
     const baseAffirmations = [
       {
         text: "I am worthy of love and kindness, especially from myself.",
@@ -59,49 +60,25 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
       }
     ];
 
-    // Add culturally-specific affirmations based on support style
+    // Replace the last affirmation based on support style to keep exactly 7
     if (supportStyle === 'spirituality') {
-      return [
-        ...baseAffirmations,
-        {
-          text: "I am divinely guided and protected on this journey of healing.",
-          category: "Divine Connection",
-          color: "lavender"
-        },
-        {
-          text: "The Creator's love flows through me, healing every wounded part.",
-          category: "Spiritual Healing",
-          color: "sage"
-        }
-      ];
+      baseAffirmations[6] = {
+        text: "I am divinely guided and protected on this journey of healing.",
+        category: "Divine Connection",
+        color: "lavender"
+      };
     } else if (supportStyle === 'culture') {
-      return [
-        ...baseAffirmations,
-        {
-          text: "My ancestors' strength flows through me, and I am never truly alone.",
-          category: "Ancestral Wisdom",
-          color: "cream"
-        },
-        {
-          text: "I carry the resilience of generations who survived so I could thrive.",
-          category: "Cultural Strength",
-          color: "terracotta"
-        }
-      ];
+      baseAffirmations[6] = {
+        text: "My ancestors' strength flows through me, and I am never truly alone.",
+        category: "Ancestral Wisdom",
+        color: "cream"
+      };
     } else if (supportStyle === 'science') {
-      return [
-        ...baseAffirmations,
-        {
-          text: "My brain is capable of forming new, healthier patterns with each kind choice I make.",
-          category: "Neuroplasticity",
-          color: "sage"
-        },
-        {
-          text: "Research shows that self-compassion leads to greater resilience and well-being.",
-          category: "Evidence-Based",
-          color: "lavender"
-        }
-      ];
+      baseAffirmations[6] = {
+        text: "My brain is capable of forming new, healthier patterns with each kind choice I make.",
+        category: "Neuroplasticity",
+        color: "sage"
+      };
     }
 
     return baseAffirmations;
