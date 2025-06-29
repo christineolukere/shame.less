@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Mic, Camera, Type, Play, Pause, Image as ImageIcon, AlertCircle, CheckCircle, Star, Sparkles, Mail, Clock } from 'lucide-react';
+import { ArrowLeft, Mic, Camera, Type, Play, Pause, Image as ImageIcon, AlertCircle, CheckCircle, Star, Sparkles, Mail, Clock, History, Plus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { GuestStorageManager } from '../lib/guestStorage';
@@ -17,12 +17,14 @@ import AudioRecorder from './Journal/AudioRecorder';
 import PhotoUploader from './Journal/PhotoUploader';
 import SafetyModal from './Journal/SafetyModal';
 import AILetterModal from './AILetter/AILetterModal';
+import JournalHistory from './Journal/JournalHistory';
 
 interface JournalProps {
   onBack: () => void;
 }
 
 type InputMode = 'text' | 'voice' | 'photo';
+type ViewMode = 'write' | 'history';
 
 interface MediaFile {
   file: File;
@@ -32,12 +34,13 @@ interface MediaFile {
 }
 
 const Journal: React.FC<JournalProps> = ({ onBack }) => {
+  const [viewMode, setViewMode] = useState<ViewMode>('write');
   const [inputMode, setInputMode] = useState<InputMode>('text');
   const [title, setTitle] = useState('');
   const [journalText, setJournalText] = useState('');
   const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
   const [moodRating, setMoodRating] = useState<number | null>(null);
-  const [entries, setEntries] = useState<EnhancedJournalEntry[]>([]);
+  const [recentEntries, setRecentEntries] = useState<EnhancedJournalEntry[]>([]);
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -68,16 +71,18 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
   ] as const;
 
   useEffect(() => {
-    loadJournalData();
-  }, [user, isGuest]);
+    if (viewMode === 'write') {
+      loadRecentEntries();
+    }
+  }, [user, isGuest, viewMode]);
 
-  const loadJournalData = async () => {
+  const loadRecentEntries = async () => {
     setLoading(true);
     try {
       if (isGuest) {
         // Load from local storage for guest users
         const guestData = GuestStorageManager.getGuestData();
-        const formattedEntries: EnhancedJournalEntry[] = guestData.journalEntries.map(entry => ({
+        const formattedEntries: EnhancedJournalEntry[] = guestData.journalEntries.slice(0, 3).map(entry => ({
           id: entry.id,
           user_id: undefined,
           guest_session_id: GuestStorageManager.getGuestSessionId(),
@@ -90,16 +95,16 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
           created_at: entry.timestamp,
           media: []
         }));
-        setEntries(formattedEntries);
+        setRecentEntries(formattedEntries);
       } else if (user) {
         // Load from Supabase for authenticated users
-        const result = await loadJournalEntries(user.id, 10);
+        const result = await loadJournalEntries(user.id, 3);
         if (result.success && result.entries) {
-          setEntries(result.entries);
+          setRecentEntries(result.entries);
         }
       }
     } catch (error) {
-      console.error('Error loading journal entries:', error);
+      console.error('Error loading recent journal entries:', error);
     } finally {
       setLoading(false);
     }
@@ -173,7 +178,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
         });
         
         // Reload entries to get the new one
-        await loadJournalData();
+        await loadRecentEntries();
       } else if (user) {
         // Save to Supabase for authenticated users
         const entryData = {
@@ -191,7 +196,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
         if (result.success) {
           entryId = result.entryId;
           // Reload entries to get the updated list
-          await loadJournalData();
+          await loadRecentEntries();
         } else {
           throw new Error(result.error);
         }
@@ -293,6 +298,11 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Show journal history
+  if (viewMode === 'history') {
+    return <JournalHistory onBack={() => setViewMode('write')} />;
+  }
+
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center">
@@ -375,17 +385,64 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
       </AnimatePresence>
 
       {/* Header */}
-      <div className="flex items-center space-x-4">
-        <motion.button
-          onClick={onBack}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className={`p-2 rounded-full bg-${currentTheme.colors.surface} text-${currentTheme.colors.text}`}
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </motion.button>
-        <h1 className={`text-2xl font-serif text-${currentTheme.colors.text}`}>{t('journalTitle')}</h1>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <motion.button
+            onClick={onBack}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`p-2 rounded-full bg-${currentTheme.colors.surface} text-${currentTheme.colors.text} touch-target`}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </motion.button>
+          <h1 className={`text-2xl font-serif text-${currentTheme.colors.text}`}>{t('journalTitle')}</h1>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <motion.button
+            onClick={() => setViewMode('history')}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`p-2 rounded-full bg-${currentTheme.colors.primary.replace('-500', '-100')} text-${currentTheme.colors.primary.replace('-500', '-700')} hover:bg-${currentTheme.colors.primary.replace('-500', '-200')} transition-colors touch-target`}
+            title="View journal history"
+          >
+            <History className="w-5 h-5" />
+          </motion.button>
+        </div>
       </div>
+
+      {/* Quick Access to Recent Entries */}
+      {recentEntries.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`bg-${currentTheme.colors.surface} rounded-xl p-4 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <h3 className={`font-serif text-${currentTheme.colors.text} text-sm`}>Recent Reflections</h3>
+            <motion.button
+              onClick={() => setViewMode('history')}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`text-xs text-${currentTheme.colors.primary.replace('-500', '-600')} hover:text-${currentTheme.colors.primary.replace('-500', '-700')} font-medium touch-target`}
+            >
+              View All
+            </motion.button>
+          </div>
+          <div className="space-y-2">
+            {recentEntries.map((entry) => (
+              <div key={entry.id} className={`p-3 bg-${currentTheme.colors.background} rounded-lg border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}>
+                <p className={`text-${currentTheme.colors.text} text-sm line-clamp-2 mb-1`}>
+                  {entry.content}
+                </p>
+                <div className={`text-xs text-${currentTheme.colors.text.replace('-900', '-500')}`}>
+                  {new Date(entry.created_at).toLocaleDateString()}
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* Gentle Introduction */}
       <motion.div
@@ -428,7 +485,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
                 onClick={() => setInputMode(mode.id)}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`p-4 rounded-xl text-center transition-all ${
+                className={`p-4 rounded-xl text-center transition-all touch-target ${
                   inputMode === mode.id
                     ? `bg-${currentTheme.colors.primary.replace('-500', '-100')} border-2 border-${currentTheme.colors.primary.replace('-500', '-300')} text-${currentTheme.colors.primary.replace('-500', '-800')}`
                     : `bg-white border border-${currentTheme.colors.secondary.replace('-400', '-200')} text-${currentTheme.colors.text.replace('-900', '-700')} hover:bg-${currentTheme.colors.surface}`
@@ -474,7 +531,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
                   onClick={() => handlePromptSelect(prompt)}
-                  className={`p-3 text-left text-sm rounded-lg transition-all ${
+                  className={`p-3 text-left text-sm rounded-lg transition-all touch-target ${
                     selectedPrompt === prompt
                       ? `bg-${currentTheme.colors.primary.replace('-500', '-100')} border-2 border-${currentTheme.colors.primary.replace('-500', '-300')}`
                       : `bg-white border border-${currentTheme.colors.secondary.replace('-400', '-200')} hover:bg-${currentTheme.colors.surface}`
@@ -498,7 +555,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
                   onClick={() => setMoodRating(rating)}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors touch-target ${
                     moodRating === rating
                       ? `bg-${currentTheme.colors.primary.replace('-500', '-200')} text-${currentTheme.colors.primary.replace('-500', '-800')}`
                       : `bg-${currentTheme.colors.surface} text-${currentTheme.colors.text.replace('-900', '-600')} hover:bg-${currentTheme.colors.secondary.replace('-400', '-200')}`
@@ -531,7 +588,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
                   id="sendToFuture"
                   checked={sendToFuture}
                   onChange={(e) => setSendToFuture(e.target.checked)}
-                  className="mt-1 w-4 h-4 text-blue-600 border-blue-300 rounded focus:ring-blue-500"
+                  className="mt-1 w-4 h-4 text-blue-600 border-blue-300 rounded focus:ring-blue-500 touch-target"
                 />
                 <div className="flex-1">
                   <label htmlFor="sendToFuture" className="flex items-center space-x-2 cursor-pointer">
@@ -575,7 +632,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
                     </div>
                     <button
                       onClick={() => removeMediaFile(index)}
-                      className="text-red-500 hover:text-red-700"
+                      className="text-red-500 hover:text-red-700 touch-target"
                     >
                       ×
                     </button>
@@ -591,7 +648,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
               onClick={() => setShowAudioRecorder(true)}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className={`flex items-center space-x-2 px-4 py-2 bg-${currentTheme.colors.primary.replace('-500', '-100')} text-${currentTheme.colors.primary.replace('-500', '-700')} rounded-lg hover:bg-${currentTheme.colors.primary.replace('-500', '-200')} transition-colors`}
+              className={`flex items-center space-x-2 px-4 py-2 bg-${currentTheme.colors.primary.replace('-500', '-100')} text-${currentTheme.colors.primary.replace('-500', '-700')} rounded-lg hover:bg-${currentTheme.colors.primary.replace('-500', '-200')} transition-colors touch-target`}
             >
               <Mic className="w-4 h-4" />
               <span>Add Voice Note</span>
@@ -601,7 +658,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
               onClick={() => setShowPhotoUploader(true)}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className={`flex items-center space-x-2 px-4 py-2 bg-${currentTheme.colors.surface} text-${currentTheme.colors.text.replace('-900', '-700')} rounded-lg hover:bg-${currentTheme.colors.secondary.replace('-400', '-200')} transition-colors`}
+              className={`flex items-center space-x-2 px-4 py-2 bg-${currentTheme.colors.surface} text-${currentTheme.colors.text.replace('-900', '-700')} rounded-lg hover:bg-${currentTheme.colors.secondary.replace('-400', '-200')} transition-colors touch-target`}
             >
               <Camera className="w-4 h-4" />
               <span>Add Photo</span>
@@ -614,7 +671,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
             disabled={(!journalText.trim() && mediaFiles.length === 0) || saving || emailScheduling}
             whileHover={{ scale: (!journalText.trim() && mediaFiles.length === 0) || saving || emailScheduling ? 1 : 1.02 }}
             whileTap={{ scale: (!journalText.trim() && mediaFiles.length === 0) || saving || emailScheduling ? 1 : 0.98 }}
-            className={`w-full py-3 bg-${currentTheme.colors.primary} text-white rounded-lg font-medium hover:bg-${currentTheme.colors.primary.replace('-500', '-600')} transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2`}
+            className={`w-full py-3 bg-${currentTheme.colors.primary} text-white rounded-lg font-medium hover:bg-${currentTheme.colors.primary.replace('-500', '-600')} transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 touch-target`}
           >
             {emailScheduling ? (
               <>
@@ -651,7 +708,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
             onClick={() => setShowAudioRecorder(true)}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className={`px-8 py-3 bg-${currentTheme.colors.primary} text-white rounded-lg font-medium hover:bg-${currentTheme.colors.primary.replace('-500', '-600')} transition-colors`}
+            className={`px-8 py-3 bg-${currentTheme.colors.primary} text-white rounded-lg font-medium hover:bg-${currentTheme.colors.primary.replace('-500', '-600')} transition-colors touch-target`}
           >
             Start Recording
           </motion.button>
@@ -673,90 +730,11 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
             onClick={() => setShowPhotoUploader(true)}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className={`px-8 py-3 bg-${currentTheme.colors.secondary.replace('-400', '-500')} text-white rounded-lg font-medium hover:bg-${currentTheme.colors.secondary.replace('-400', '-600')} transition-colors`}
+            className={`px-8 py-3 bg-${currentTheme.colors.secondary.replace('-400', '-500')} text-white rounded-lg font-medium hover:bg-${currentTheme.colors.secondary.replace('-400', '-600')} transition-colors touch-target`}
           >
             Add Photo
           </motion.button>
         </motion.div>
-      )}
-
-      {/* Recent Entries */}
-      {entries.length > 0 && (
-        <div className="space-y-3">
-          <h3 className={`text-lg font-serif text-${currentTheme.colors.text}`}>Recent reflections</h3>
-          <div className="space-y-3">
-            {entries.slice(0, 5).map((entry, index) => (
-              <motion.div
-                key={entry.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className={`p-4 bg-${currentTheme.colors.background} rounded-lg border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
-              >
-                {entry.title && (
-                  <h4 className={`font-medium text-${currentTheme.colors.text} mb-2`}>{entry.title}</h4>
-                )}
-                
-                {entry.prompt && (
-                  <div className={`text-xs text-${currentTheme.colors.text.replace('-900', '-600')} mb-2 font-medium`}>
-                    {entry.prompt}
-                  </div>
-                )}
-                
-                <p className={`text-${currentTheme.colors.text} text-sm leading-relaxed line-clamp-3 mb-3`}>
-                  {entry.content}
-                </p>
-
-                {/* Media Attachments */}
-                {entry.media && entry.media.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {entry.media.map((media) => (
-                      <div key={media.id} className="flex items-center space-x-2">
-                        {media.media_type === 'audio' ? (
-                          <motion.button
-                            onClick={() => media.signed_url && playAudio(media.signed_url, entry.id)}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`flex items-center space-x-1 px-2 py-1 bg-${currentTheme.colors.primary.replace('-500', '-100')} text-${currentTheme.colors.primary.replace('-500', '-700')} rounded text-xs hover:bg-${currentTheme.colors.primary.replace('-500', '-200')} transition-colors`}
-                          >
-                            {playingAudio === entry.id ? (
-                              <Pause className="w-3 h-3" />
-                            ) : (
-                              <Play className="w-3 h-3" />
-                            )}
-                            <span>{media.duration ? formatDuration(media.duration) : 'Audio'}</span>
-                          </motion.button>
-                        ) : (
-                          media.signed_url && (
-                            <img
-                              src={media.signed_url}
-                              alt="Journal attachment"
-                              className={`w-12 h-12 object-cover rounded border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
-                            />
-                          )
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between">
-                  <div className={`text-xs text-${currentTheme.colors.text.replace('-900', '-600')}`}>
-                    {new Date(entry.created_at).toLocaleDateString()}
-                  </div>
-                  
-                  {entry.mood_rating && (
-                    <div className="flex space-x-1">
-                      {[...Array(entry.mood_rating)].map((_, i) => (
-                        <Star key={i} className={`w-3 h-3 text-${currentTheme.colors.primary.replace('-500', '-500')} fill-current`} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
       )}
 
       {/* Modals */}
