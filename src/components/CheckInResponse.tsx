@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Bookmark, BookmarkCheck, ArrowRight } from 'lucide-react';
 import { CheckInResponse } from '../lib/checkInResponses';
-import GentleSoundPlayer from './GentleSoundPlayer';
 
 interface CheckInResponseProps {
   response: CheckInResponse;
@@ -118,15 +117,6 @@ const CheckInResponseComponent: React.FC<CheckInResponseProps> = ({
           )}
         </motion.div>
       </div>
-
-      {/* Gentle Sound Player */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8 }}
-      >
-        <GentleSoundPlayer />
-      </motion.div>
 
       {/* Reflection Question */}
       <AnimatePresence>

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Heart, Wind, Shield, Phone, ArrowLeft } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
-import GentleSoundPlayer from './GentleSoundPlayer';
 
 interface SoftLandingProps {
   onClose: () => void;
@@ -119,24 +118,6 @@ const SoftLanding: React.FC<SoftLandingProps> = ({ onClose }) => {
             <p className="text-lavender-700">Place your hand on your heart</p>
             <p className="text-lavender-700">Feel your own warmth and presence</p>
           </div>
-        </div>
-      )
-    },
-    {
-      id: 'sounds',
-      title: t.soothingSounds || 'Soothing sounds',
-      icon: Heart,
-      color: 'cream',
-      description: t.soundsDescription || 'Calming audio to center yourself',
-      content: (
-        <div className="space-y-6">
-          <div className="text-center">
-            <Heart className="w-10 h-10 text-cream-600 mx-auto mb-4" />
-            <p className="text-cream-700 mb-4">
-              Choose gentle sounds to help you feel centered and calm
-            </p>
-          </div>
-          <GentleSoundPlayer />
         </div>
       )
     }

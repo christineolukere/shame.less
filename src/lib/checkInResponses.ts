@@ -3,7 +3,6 @@ export interface CheckInResponse {
   affirmation: string;
   reflection: string;
   visual?: string;
-  sound?: string;
   animation?: string;
   backgroundColor?: string;
   emoji?: string;
@@ -99,8 +98,7 @@ export const checkInResponses: EmotionColorMapping = {
         visual: "oceanWaves",
         backgroundColor: "from-blue-100 to-cyan-200",
         emoji: "🌊",
-        animation: "waveFlow",
-        sound: "oceanWaves.mp3"
+        animation: "waveFlow"
       }
     ]
   },
@@ -172,8 +170,7 @@ export const checkInResponses: EmotionColorMapping = {
         visual: "lavenderCalm",
         backgroundColor: "from-lavender-100 to-purple-200",
         emoji: "🌙",
-        animation: "breathingCircle",
-        sound: "deepBreath.mp3"
+        animation: "breathingCircle"
       },
       {
         affirmation: "Your frustration is information—listen to what it's telling you.",
@@ -221,8 +218,7 @@ export const checkInResponses: EmotionColorMapping = {
         visual: "oceanPower",
         backgroundColor: "from-blue-100 to-cyan-200",
         emoji: "🌊",
-        animation: "waveTransform",
-        sound: "oceanStorm.mp3"
+        animation: "waveTransform"
       }
     ]
   },
@@ -263,8 +259,7 @@ export const checkInResponses: EmotionColorMapping = {
         visual: "oceanDepths",
         backgroundColor: "from-blue-100 to-indigo-200",
         emoji: "🌊",
-        animation: "deepWaves",
-        sound: "deepOcean.mp3"
+        animation: "deepWaves"
       }
     ]
   },
@@ -400,8 +395,7 @@ export const checkInResponses: EmotionColorMapping = {
         visual: "lavenderRest",
         backgroundColor: "from-lavender-100 to-purple-200",
         emoji: "🌙",
-        animation: "gentleRock",
-        sound: "nightSounds.mp3"
+        animation: "gentleRock"
       },
       {
         affirmation: "Your tiredness is your body's wisdom asking for care.",
@@ -419,8 +413,7 @@ export const checkInResponses: EmotionColorMapping = {
         visual: "oceanRest",
         backgroundColor: "from-blue-100 to-cyan-200",
         emoji: "🌊",
-        animation: "gentleWaves",
-        sound: "calmOcean.mp3"
+        animation: "gentleWaves"
       }
     ],
     "Warm Sage": [

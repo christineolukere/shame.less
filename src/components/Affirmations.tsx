@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Shuffle, Heart, Volume2, VolumeX, Bookmark, Play, Pause } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { getStoredSupportStyle } from '../hooks/useOnboarding';
-import GentleSoundPlayer from './GentleSoundPlayer';
 
 interface AffirmationsProps {
   onBack: () => void;
@@ -298,15 +297,6 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
           </div>
         </motion.div>
       </AnimatePresence>
-
-      {/* Ambient Sound Player */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-      >
-        <GentleSoundPlayer />
-      </motion.div>
 
       {/* Navigation */}
       <div className="flex items-center justify-between">
