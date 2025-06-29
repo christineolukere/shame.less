@@ -18,7 +18,7 @@ interface FooterProps {
 const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
   const [showInfoSection, setShowInfoSection] = useState(false)
   const [showDisclaimer, setShowDisclaimer] = useState(false)
-  const { translations: t } = useLocalization()
+  const { t } = useLocalization()
   const favoriteCount = getFavoriteResponses().length
 
   const navItems = [

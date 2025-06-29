@@ -26,7 +26,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
   const [error, setError] = useState<string | null>(null)
 
   const { signIn, signUp, user, isGuest } = useAuth()
-  const { translations: t } = useLocalization()
+  const { t } = useLocalization()
 
   // Auto-close modal when user successfully authenticates
   useEffect(() => {
@@ -104,7 +104,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
             <div className="flex items-center space-x-2">
               <Heart className="w-4 h-4 text-terracotta-500 fill-current flex-shrink-0" />
               <h2 className="modal-title">
-                {mode === 'signin' ? t.welcomeBack : t.joinUs}
+                {mode === 'signin' ? t('welcomeBack') : t('joinUs')}
               </h2>
             </div>
             <motion.button
@@ -153,7 +153,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
                     <UserCheck className="w-4 h-4 text-cream-600 group-hover:text-cream-700 flex-shrink-0" />
                     <div className="text-center">
                       <h3 className="modal-text font-medium text-cream-800 group-hover:text-cream-900">
-                        {t.continueAsGuest}
+                        {t('continueAsGuest')}
                       </h3>
                       <p className="modal-text text-cream-600 group-hover:text-cream-700">
                         Start your healing journey now
@@ -181,7 +181,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
               {mode === 'signup' && (
                 <div className="space-y-1">
                   <label htmlFor="displayName" className="block modal-text font-medium text-sage-700">
-                    {t.name}
+                    {t('name')}
                   </label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-sage-400" />
@@ -199,7 +199,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
               <div className="space-y-1">
                 <label htmlFor="email" className="block modal-text font-medium text-sage-700">
-                  {t.email}
+                  {t('email')}
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-sage-400" />
@@ -217,7 +217,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
               <div className="space-y-1">
                 <label htmlFor="password" className="block modal-text font-medium text-sage-700">
-                  {t.password}
+                  {t('password')}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-sage-400" />
@@ -257,19 +257,19 @@ const AuthModal: React.FC<AuthModalProps> = ({
                 whileTap={{ scale: loading ? 1 : 0.98 }}
                 className="modal-button w-full bg-terracotta-500 text-white hover:bg-terracotta-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Please wait...' : (mode === 'signin' ? t.signIn : t.createAccount)}
+                {loading ? 'Please wait...' : (mode === 'signin' ? t('signIn') : t('createAccount'))}
               </motion.button>
             </form>
 
             {/* Switch Mode */}
             <div className="text-center">
               <p className="modal-text text-sage-600">
-                {mode === 'signin' ? t.dontHaveAccount + ' ' : t.alreadyHaveAccount + ' '}
+                {mode === 'signin' ? t('dontHaveAccount') + ' ' : t('alreadyHaveAccount') + ' '}
                 <button
                   onClick={switchMode}
                   className="text-terracotta-600 hover:text-terracotta-700 font-medium"
                 >
-                  {mode === 'signin' ? t.signUp : t.signIn}
+                  {mode === 'signin' ? t('signUp') : t('signIn')}
                 </button>
               </p>
             </div>
@@ -277,7 +277,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
             {/* Privacy Note */}
             <div className="p-3 bg-lavender-50 rounded-lg border border-lavender-100">
               <p className="modal-text text-lavender-700">
-                {t.privacyNote}
+                {t('privacyNote')}
               </p>
             </div>
           </div>

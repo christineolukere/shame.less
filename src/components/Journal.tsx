@@ -49,24 +49,24 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
   const [showAILetterPrompt, setShowAILetterPrompt] = useState(false);
   const [lastSavedEntry, setLastSavedEntry] = useState<string>('');
   
-  const { translations: t } = useLocalization();
+  const { t } = useLocalization();
   const { user, isGuest } = useAuth();
 
   const prompts = [
-    t.gratefulFor,
-    t.showedKindness,
-    t.boundaryHonored,
-    t.madeSmile,
-    t.needToRelease,
-    t.howGrowing,
-    t.tellYoungerSelf,
-    t.bringsYouPeace,
+    t('gratefulFor'),
+    t('showedKindness'),
+    t('boundaryHonored'),
+    t('madeSmile'),
+    t('needToRelease'),
+    t('howGrowing'),
+    t('tellYoungerSelf'),
+    t('bringsYouPeace'),
   ];
 
   const inputModes = [
-    { id: 'text', icon: Type, label: t.write },
-    { id: 'voice', icon: Mic, label: t.speak },
-    { id: 'photo', icon: Camera, label: t.capture },
+    { id: 'text', icon: Type, label: t('write') },
+    { id: 'voice', icon: Mic, label: t('speak') },
+    { id: 'photo', icon: Camera, label: t('capture') },
   ] as const;
 
   useEffect(() => {
@@ -346,7 +346,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
         >
           <ArrowLeft className="w-5 h-5" />
         </motion.button>
-        <h1 className="text-2xl font-serif text-sage-800">{t.journalTitle}</h1>
+        <h1 className="text-2xl font-serif text-sage-800">{t('journalTitle')}</h1>
       </div>
 
       {/* Gentle Introduction */}
@@ -355,9 +355,9 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
         animate={{ opacity: 1, y: 0 }}
         className="bg-lavender-50 rounded-2xl p-6 border border-lavender-100"
       >
-        <h3 className="font-serif text-lavender-800 mb-2">{t.safeSpaceThoughts}</h3>
+        <h3 className="font-serif text-lavender-800 mb-2">{t('safeSpaceThoughts')}</h3>
         <p className="text-lavender-700 text-sm leading-relaxed">
-          {t.journalDescription}
+          {t('journalDescription')}
         </p>
       </motion.div>
 
@@ -380,7 +380,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
 
       {/* Input Mode Selection */}
       <div className="space-y-3">
-        <h3 className="text-lg font-serif text-sage-800">{t.howToExpress}</h3>
+        <h3 className="text-lg font-serif text-sage-800">{t('howToExpress')}</h3>
         <div className="grid grid-cols-3 gap-3">
           {inputModes.map((mode) => {
             const Icon = mode.icon;
@@ -427,7 +427,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
 
           {/* Gentle Prompts */}
           <div className="space-y-3">
-            <h4 className="text-base font-serif text-sage-800">{t.needGentleNudge}</h4>
+            <h4 className="text-base font-serif text-sage-800">{t('needGentleNudge')}</h4>
             <div className="grid grid-cols-1 gap-2">
               {prompts.slice(0, 4).map((prompt, index) => (
                 <motion.button
@@ -476,7 +476,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
           <textarea
             value={journalText}
             onChange={(e) => setJournalText(e.target.value)}
-            placeholder={t.letThoughtsFlow}
+            placeholder={t('letThoughtsFlow')}
             className="w-full h-40 p-4 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-300 focus:border-transparent resize-none"
           />
 
@@ -541,7 +541,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
             whileTap={{ scale: (!journalText.trim() && mediaFiles.length === 0) || saving ? 1 : 0.98 }}
             className="w-full py-3 bg-sage-500 text-white rounded-lg font-medium hover:bg-sage-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saving ? 'Saving...' : t.saveEntry}
+            {saving ? 'Saving...' : t('saveEntry')}
           </motion.button>
         </motion.div>
       )}
