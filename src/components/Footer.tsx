@@ -41,14 +41,14 @@ const Footer: React.FC = () => {
 
   return (
     <>
-      <footer className="bg-sage-50 border-t border-sage-100 p-4 text-center">
-        <div className="max-w-md mx-auto space-y-3">
+      <footer className="bg-sage-50 border-t border-sage-100 px-4 py-3 text-center">
+        <div className="w-full max-w-sm mx-auto space-y-3">
           {/* Compact Crisis Support Toggle */}
           <motion.button
             onClick={() => setShowCrisisSupport(!showCrisisSupport)}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full flex items-center justify-between p-3 bg-lavender-50 border border-lavender-200 rounded-xl hover:bg-lavender-100 transition-colors touch-target"
+            className="w-full flex items-center justify-between px-3 py-2 bg-lavender-50 border border-lavender-200 rounded-lg hover:bg-lavender-100 transition-colors touch-target"
           >
             <div className="flex items-center space-x-2">
               <Shield className="w-4 h-4 text-lavender-600 flex-shrink-0" />
@@ -73,7 +73,7 @@ const Footer: React.FC = () => {
                 transition={{ duration: 0.3 }}
                 className="overflow-hidden"
               >
-                <div className="bg-lavender-50 border border-lavender-200 rounded-xl p-4">
+                <div className="bg-lavender-50 border border-lavender-200 rounded-lg p-3">
                   <div className="grid grid-cols-3 gap-2">
                     <motion.button
                       onClick={openCrisisTextLine}
@@ -118,7 +118,7 @@ const Footer: React.FC = () => {
             onClick={() => setShowDisclaimer(true)}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="flex items-center justify-center space-x-2 w-full p-3 bg-terracotta-50 border border-terracotta-200 rounded-xl hover:bg-terracotta-100 transition-colors touch-target"
+            className="flex items-center justify-center space-x-2 w-full px-3 py-2 bg-terracotta-50 border border-terracotta-200 rounded-lg hover:bg-terracotta-100 transition-colors touch-target"
           >
             <AlertTriangle className="w-4 h-4 text-terracotta-600 flex-shrink-0" />
             <span className="text-terracotta-700 text-sm font-medium">
