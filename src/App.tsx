@@ -4,7 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LocalizationProvider } from './contexts/LocalizationContext';
 import { useOnboarding } from './hooks/useOnboarding';
 import Header from './components/Header';
-import Navigation from './components/Navigation';
+import Footer from './components/Footer';
 import Dashboard from './components/Dashboard';
 import CheckIn from './components/CheckIn';
 import WinTracker from './components/WinTracker';
@@ -18,7 +18,6 @@ import WelcomeComplete from './components/Onboarding/WelcomeComplete';
 import DisclaimerModal from './components/Auth/DisclaimerModal';
 import UpsellModal from './components/Auth/UpsellModal';
 import MigrationSuccessModal from './components/Auth/MigrationSuccessModal';
-import Footer from './components/Footer';
 
 type View = 'dashboard' | 'checkin' | 'wins' | 'journal' | 'affirmations' | 'resources' | 'emergency' | 'favorites';
 
@@ -182,7 +181,7 @@ function AppContent() {
           onNavigateHome={handleNavigateHome}
         />
         
-        <main className="flex-1 pb-20">
+        <main className="flex-1 pb-32">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentView}
@@ -196,8 +195,7 @@ function AppContent() {
           </AnimatePresence>
         </main>
 
-        <Navigation currentView={currentView} onNavigate={setCurrentView} />
-        <Footer />
+        <Footer currentView={currentView} onNavigate={setCurrentView} />
 
         {/* Modals */}
         <AnimatePresence>
