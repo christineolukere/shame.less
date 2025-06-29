@@ -2,10 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Shuffle, Heart, Volume2, VolumeX, Bookmark, Play, Pause, RotateCcw, Loader2, Sparkles, Globe } from 'lucide-react';
 import { useLocalization } from '../contexts/LocalizationContext';
-import { getCurrentTheme, getThemedAffirmations } from '../lib/themeManager';
+import { getCurrentTheme } from '../lib/themeManager';
 import { openaiAffirmations } from '../lib/openaiAffirmations';
 import { multilingualVoice } from '../lib/multilingualVoice';
 import { getStoredSupportStyle } from '../hooks/useOnboarding';
+import { createMultilingualAffirmations, getLocalizedCategories } from '../lib/multilingualAffirmations';
 
 interface AffirmationsProps {
   onBack: () => void;
@@ -27,50 +28,26 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   const currentTheme = getCurrentTheme();
   const currentVoice = multilingualVoice.getCurrentVoiceInfo();
 
-  const getAffirmationsForTheme = () => {
-    // Base set of 7 affirmations that work for all themes
-    const baseAffirmations = [
-      {
-        text: "I am worthy of love and kindness, especially from myself.",
-        category: "Self-Love",
-        color: currentTheme.colors.primary.split('-')[0]
-      },
-      {
-        text: "My feelings are valid and deserve to be acknowledged with compassion.",
-        category: "Emotional Validation",
-        color: currentTheme.colors.secondary.split('-')[0]
-      },
-      {
-        text: "I choose to speak to myself with the same gentleness I would offer a dear friend.",
-        category: "Inner Voice",
-        color: currentTheme.colors.accent.split('-')[0]
-      },
-      {
-        text: "My healing journey is unique and unfolds at exactly the right pace for me.",
-        category: "Healing",
-        color: currentTheme.colors.primary.split('-')[0]
-      },
-      {
-        text: "I am allowed to take up space and honor my needs without apology.",
-        category: "Boundaries",
-        color: currentTheme.colors.secondary.split('-')[0]
-      },
-      {
-        text: "Every small step I take toward caring for myself is an act of courage.",
-        category: "Self-Care",
-        color: currentTheme.colors.accent.split('-')[0]
-      },
-      {
-        text: "I release the need to be perfect and embrace my beautifully human experience.",
-        category: "Self-Acceptance",
-        color: currentTheme.colors.primary.split('-')[0]
-      }
-    ];
+  // Base colors for affirmations
+  const baseColors = [
+    currentTheme.colors.primary.split('-')[0],
+    currentTheme.colors.secondary.split('-')[0],
+    currentTheme.colors.accent.split('-')[0],
+    currentTheme.colors.primary.split('-')[0],
+    currentTheme.colors.secondary.split('-')[0],
+    currentTheme.colors.accent.split('-')[0],
+    currentTheme.colors.primary.split('-')[0]
+  ];
 
-    return getThemedAffirmations(baseAffirmations, currentTheme);
-  };
-
-  const affirmations = getAffirmationsForTheme();
+  // Get localized categories
+  const localizedCategories = getLocalizedCategories(currentLanguage);
+  
+  // Get multilingual affirmations
+  const affirmations = createMultilingualAffirmations(
+    currentLanguage,
+    localizedCategories,
+    baseColors
+  );
 
   useEffect(() => {
     // Pre-cache affirmations for current language
