@@ -412,7 +412,7 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
             <div className="text-xs">Call 911</div>
           </motion.button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Call to Action */}
       <motion.div
@@ -437,7 +437,7 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
           className="px-6 py-3 bg-lavender-500 text-white rounded-lg font-medium hover:bg-lavender-600 transition-colors"
         >
           {t('shareResource') || 'Share resource'}
-        </p>
+        </motion.button>
       </motion.div>
     </div>
   );
