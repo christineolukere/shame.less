@@ -145,40 +145,93 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
 
     const currentText = customAffirmation || affirmations[currentAffirmation].text;
 
+    // If currently playing, pause
     if (isPlaying && audioRef.current) {
       audioRef.current.pause();
       setIsPlaying(false);
       return;
     }
 
-    // Generate audio if we don't have it
+    // If no audio URL exists, generate it first
     if (!audioUrl) {
       await generateAudio(currentText);
       return;
     }
 
-    // Play audio
-    if (audioUrl) {
+    // Validate audio URL before attempting playback
+    if (!audioUrl || audioUrl === '') {
+      console.error('Invalid audio URL');
+      setAudioError(true);
+      return;
+    }
+
+    try {
+      // Stop any existing audio
       if (audioRef.current) {
         audioRef.current.pause();
+        audioRef.current = null;
       }
 
-      audioRef.current = new Audio(audioUrl);
-      audioRef.current.onplay = () => setIsPlaying(true);
-      audioRef.current.onpause = () => setIsPlaying(false);
-      audioRef.current.onended = () => setIsPlaying(false);
-      audioRef.current.onerror = () => {
+      // Create new audio element
+      const audio = new Audio();
+      
+      // Set up event handlers before setting src
+      audio.onloadstart = () => {
+        console.log('Audio loading started');
+      };
+      
+      audio.oncanplay = () => {
+        console.log('Audio can start playing');
+      };
+      
+      audio.onplay = () => {
+        setIsPlaying(true);
+        setAudioError(false);
+      };
+      
+      audio.onpause = () => {
+        setIsPlaying(false);
+      };
+      
+      audio.onended = () => {
+        setIsPlaying(false);
+      };
+      
+      audio.onerror = (e) => {
+        console.error('Audio error event:', e);
         setAudioError(true);
         setIsPlaying(false);
       };
 
-      try {
-        await audioRef.current.play();
-      } catch (error) {
-        console.error('Audio playback error:', error);
-        setAudioError(true);
-        setIsPlaying(false);
+      audio.onloadeddata = () => {
+        console.log('Audio data loaded');
+      };
+
+      // Set the audio source
+      audio.src = audioUrl;
+      audioRef.current = audio;
+
+      // Attempt to play
+      const playPromise = audio.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.error('Audio playback failed:', error);
+          setAudioError(true);
+          setIsPlaying(false);
+          
+          // If it's a source error, try regenerating audio
+          if (error.name === 'NotSupportedError' || error.message.includes('source')) {
+            console.log('Attempting to regenerate audio due to source error');
+            setAudioUrl(null);
+            generateAudio(currentText);
+          }
+        });
       }
+    } catch (error) {
+      console.error('Audio setup error:', error);
+      setAudioError(true);
+      setIsPlaying(false);
     }
   };
 
