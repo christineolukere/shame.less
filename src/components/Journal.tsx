@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Mic, Camera, Type, Play, Pause, Image as ImageIcon, AlertCircle, CheckCircle, Star, Sparkles, Mail, Clock, History, Plus } from 'lucide-react';
+import { ArrowLeft, Mic, Camera, Type, Play, Pause, Image as ImageIcon, AlertCircle, CheckCircle, Star, Sparkles, Mail, Clock, History, Plus, Mirror } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { GuestStorageManager } from '../lib/guestStorage';
@@ -18,12 +18,13 @@ import PhotoUploader from './Journal/PhotoUploader';
 import SafetyModal from './Journal/SafetyModal';
 import AILetterModal from './AILetter/AILetterModal';
 import JournalHistory from './Journal/JournalHistory';
+import MirrorMirror from './Journal/MirrorMirror';
 
 interface JournalProps {
   onBack: () => void;
 }
 
-type InputMode = 'text' | 'voice' | 'photo';
+type InputMode = 'text' | 'voice' | 'photo' | 'mirror';
 type ViewMode = 'write' | 'history';
 
 interface MediaFile {
@@ -56,6 +57,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
   const [sendToFuture, setSendToFuture] = useState(false);
   const [emailScheduling, setEmailScheduling] = useState(false);
   const [emailScheduled, setEmailScheduled] = useState(false);
+  const [showMirrorMirror, setShowMirrorMirror] = useState(false);
   
   const { t } = useLocalization();
   const { user, isGuest } = useAuth();
@@ -68,6 +70,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
     { id: 'text', icon: Type, label: t('write') },
     { id: 'voice', icon: Mic, label: t('speak') },
     { id: 'photo', icon: Camera, label: t('capture') },
+    { id: 'mirror', icon: Mirror, label: 'Mirror Mirror' },
   ] as const;
 
   useEffect(() => {
@@ -269,6 +272,13 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
       user?.id,
       isGuest ? GuestStorageManager.getGuestSessionId() : undefined
     );
+  };
+
+  const handleMirrorMirrorSave = (content: string, response: string) => {
+    setJournalText(content);
+    setTitle('Mirror Mirror Session');
+    setInputMode('text');
+    setShowMirrorMirror(false);
   };
 
   const playAudio = (audioUrl: string, entryId: string) => {
@@ -476,13 +486,19 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
       {/* Input Mode Selection */}
       <div className="space-y-3">
         <h3 className={`text-lg font-serif text-${currentTheme.colors.text}`}>{t('howToExpress')}</h3>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           {inputModes.map((mode) => {
             const Icon = mode.icon;
             return (
               <motion.button
                 key={mode.id}
-                onClick={() => setInputMode(mode.id)}
+                onClick={() => {
+                  if (mode.id === 'mirror') {
+                    setShowMirrorMirror(true);
+                  } else {
+                    setInputMode(mode.id);
+                  }
+                }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className={`p-4 rounded-xl text-center transition-all touch-target ${
@@ -493,6 +509,9 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
               >
                 <Icon className="w-6 h-6 mx-auto mb-2" />
                 <div className="text-sm font-medium">{mode.label}</div>
+                {mode.id === 'mirror' && (
+                  <div className="text-xs text-terracotta-600 mt-1">AI-powered</div>
+                )}
               </motion.button>
             );
           })}
@@ -765,6 +784,13 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
               onCancel={() => setShowPhotoUploader(false)}
             />
           </motion.div>
+        )}
+
+        {showMirrorMirror && (
+          <MirrorMirror
+            onClose={() => setShowMirrorMirror(false)}
+            onSave={handleMirrorMirrorSave}
+          />
         )}
       </AnimatePresence>
 
