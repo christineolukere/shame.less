@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Mic, Camera, Type, Play, Pause, Image as ImageIcon, AlertCircle, CheckCircle, Star, Sparkles, Mail, Clock, History, Plus, Mirror } from 'lucide-react';
+import { ArrowLeft, Mic, Camera, Type, Play, Pause, Image as ImageIcon, AlertCircle, CheckCircle, Star, Sparkles, Mail, Clock, History, Plus, Carrot as Mirror } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { GuestStorageManager } from '../lib/guestStorage';
