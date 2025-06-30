@@ -180,7 +180,7 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
                   </p>
                   
                   {/* Privacy & Terms */}
-                  <div className="flex items-center justify-center space-x-4">
+                  <div className="flex items-center justify-center space-x-4 mb-3">
                     <motion.button
                       onClick={() => setShowDisclaimer(true)}
                       whileHover={{ scale: 1.05 }}
@@ -198,6 +198,20 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
                       Terms
                     </motion.button>
                   </div>
+
+                  {/* Built with Bolt Badge */}
+                  <motion.a
+                    href="https://bolt.new"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="inline-flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-purple-500 to-blue-500 text-white text-xs font-medium rounded-full hover:from-purple-600 hover:to-blue-600 transition-all shadow-sm"
+                  >
+                    <span>⚡</span>
+                    <span>Built with Bolt</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </motion.a>
                 </motion.div>
               </div>
             </motion.div>
