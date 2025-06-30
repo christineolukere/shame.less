@@ -31,6 +31,41 @@
   .modal-button {
     @apply px-4 py-3 rounded-lg font-medium transition-colors text-[clamp(0.875rem,2vw,1rem)] min-h-[44px];
   }
+  
+  /* Section styling */
+  .section {
+    @apply space-y-3;
+  }
+  
+  .section-title {
+    @apply text-lg font-serif text-sage-800 font-medium;
+  }
+  
+  /* Badge styling */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 text-xs font-medium rounded-full shadow-sm;
+  }
+  
+  .badge-primary {
+    @apply bg-sage-200 text-sage-800;
+  }
+  
+  .badge-secondary {
+    @apply bg-lavender-200 text-lavender-800;
+  }
+  
+  /* Flex utility classes */
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+  
+  .flex-between {
+    @apply flex items-center justify-between;
+  }
+  
+  .flex-start {
+    @apply flex items-center;
+  }
 }
 
 /* Theme variables as utility classes (can be toggled via JS) */
@@ -80,4 +115,57 @@
 }
 .text-body {
   @apply text-sage-700 leading-relaxed;
+}
+
+/* Ensure text wrapping and prevent overflow */
+.modal-content * {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Touch-friendly button sizing */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 400px) {
+  .grid-cols-4 {
+    @apply grid-cols-2;
+  }
+  
+  .grid-cols-3 {
+    @apply grid-cols-2;
+  }
+  
+  .grid-cols-2 {
+    @apply grid-cols-1;
+  }
+}
+
+@media (max-width: 360px) {
+  .grid-cols-4 {
+    @apply grid-cols-1;
+  }
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.animate-pulse-slow {
+  animation: pulse 3s infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
 }

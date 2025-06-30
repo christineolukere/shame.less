@@ -41,6 +41,21 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const isEvening = currentHour >= 18 || currentHour < 6;
   const favoriteCount = getFavoriteResponses().length;
 
+  // Personalized greeting messages that rotate
+  const greetingMessages = [
+    "You made it, Beautiful Soul 🌸",
+    "Hello, Soft Heart 💗",
+    "Welcome, Gentle Spirit ✨",
+    "So glad you're here 💛",
+    "A moment just for you 🌿"
+  ];
+  
+  // Get a random greeting based on the day
+  const getRandomGreeting = () => {
+    const dayOfYear = Math.floor((new Date().getTime() - new Date(new Date().getFullYear(), 0, 0).getTime()) / (24 * 60 * 60 * 1000));
+    return greetingMessages[dayOfYear % greetingMessages.length];
+  };
+
   useEffect(() => {
     loadUserProgress();
   }, [user, isGuest]);
@@ -172,7 +187,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || themedGreeting;
       return `${timeGreeting}, ${displayName}`;
     } else {
-      return `${timeGreeting}, ${themedGreeting}`;
+      return getRandomGreeting();
     }
   };
 
@@ -246,7 +261,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         animate={{ opacity: 1, y: 0 }}
         className="text-center space-y-2"
       >
-        <div className="flex items-center justify-center space-x-2">
+        <div className="flex-center space-x-2">
           {isEvening ? (
             <Moon className={`w-5 h-5 sm:w-6 sm:h-6 text-${currentTheme.colors.secondary.replace('-400', '-500')} flex-shrink-0`} />
           ) : (
@@ -264,7 +279,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2 }}
-        className={`card bg-gradient-to-r from-${currentTheme.colors.primary.replace('-500', '-50')} to-${currentTheme.colors.background} rounded-2xl p-5 sm:p-6 border border-${currentTheme.colors.primary.replace('-500', '-100')} shadow-sm`}
+        className="bg-sage-50 rounded-xl p-5 border border-sage-100 shadow-sm"
       >
         <h3 className={`font-serif text-base sm:text-lg text-${currentTheme.colors.text} mb-2`}>{t('todaysReminder') || "Today's gentle reminder"}</h3>
         <p className={`text-sm sm:text-base text-${currentTheme.colors.text.replace('-900', '-700')} leading-relaxed`}>
@@ -273,8 +288,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       </motion.div>
 
       {/* Quick Actions */}
-      <div className="section">
-        <h3 className="section-title">{t('howCanISupport') || 'How can I support you today?'}</h3>
+      <div className="space-y-4">
+        <h3 className="text-lg font-serif text-center font-medium text-sage-800 mt-6 mb-3">{t('howCanISupport') || 'How can I support you today?'}</h3>
         <div className="grid grid-cols-2 gap-4">
           {quickActions.map((action, index) => {
             const Icon = action.icon;
@@ -285,9 +300,10 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 + index * 0.1 }}
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.02, shadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
                 whileTap={{ scale: 0.98 }}
-                className={`p-4 rounded-xl text-left transition-all bg-${action.color}-50 border border-${action.color}-100 hover:bg-${action.color}-100 touch-target shadow-sm`}
+                className={`p-4 rounded-xl text-left transition-all duration-200 bg-white border border-sage-100 hover:bg-${action.color}-50 touch-target shadow-sm hover:shadow-md`}
+                aria-label={`Open ${action.title}`}
               >
                 <div className="flex items-center space-x-3 mb-2">
                   <Icon className={`w-5 h-5 sm:w-6 sm:h-6 text-${action.color}-600 flex-shrink-0`} />
@@ -306,7 +322,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
-          className={`card bg-${currentTheme.colors.surface} rounded-2xl p-5 sm:p-6 border border-${currentTheme.colors.secondary.replace('-400', '-200')} shadow-sm`}
+          className="card bg-white rounded-xl p-5 sm:p-6 border border-sage-100 shadow-sm"
         >
           <div className="flex items-center justify-between mb-3">
             <div>
@@ -320,6 +336,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className={`p-3 bg-${currentTheme.colors.secondary.replace('-400', '-100')} text-${currentTheme.colors.secondary.replace('-400', '-700')} rounded-lg hover:bg-${currentTheme.colors.secondary.replace('-400', '-200')} transition-colors touch-target shadow-sm`}
+              aria-label="View saved combinations"
             >
               <Bookmark className="w-5 h-5" />
             </motion.button>
@@ -332,7 +349,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
-        className={`card bg-${currentTheme.colors.surface} rounded-2xl p-5 sm:p-6 border border-${currentTheme.colors.secondary.replace('-400', '-200')} relative shadow-sm`}
+        className="card bg-white rounded-xl p-5 sm:p-6 border border-sage-100 shadow-sm relative"
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className={`font-serif text-base sm:text-lg text-${currentTheme.colors.text}`}>{t('yourGrowthRings') || 'Your growth rings'}</h3>
@@ -341,6 +358,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             onHoverEnd={() => setShowProgressTooltip(false)}
             onClick={() => setShowProgressTooltip(!showProgressTooltip)}
             className={`p-2 rounded-full bg-${currentTheme.colors.secondary.replace('-400', '-100')} text-${currentTheme.colors.secondary.replace('-400', '-600')} hover:bg-${currentTheme.colors.secondary.replace('-400', '-200')} transition-colors touch-target shadow-sm`}
+            aria-label="Show progress details"
           >
             <Info className="w-4 h-4" />
           </motion.button>
@@ -370,11 +388,16 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           )}
         </AnimatePresence>
         
+        <p className="text-center text-sm text-sage-600 mb-3">
+          Tap any activity above to begin your growth rings 🌱
+        </p>
+        
         <motion.div 
           className="flex items-center justify-center space-x-3 my-4"
           onClick={handleGrowthRingClick}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          aria-label="View growth progress"
         >
           {[1, 2, 3, 4, 5].map((ring, index) => (
             <motion.div
@@ -382,11 +405,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.9 + index * 0.1 }}
-              className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full border-2 transition-all duration-500 touch-target ${
+              className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full ${
                 index < filledRings
-                  ? `bg-${currentTheme.colors.primary.replace('-500', '-200')} border-${currentTheme.colors.primary.replace('-500', '-400')} shadow-sm` 
-                  : `border-${currentTheme.colors.text.replace('-900', '-200')} hover:border-${currentTheme.colors.text.replace('-900', '-300')}`
-              }`}
+                  ? `bg-${currentTheme.colors.primary.replace('-500', '-200')} border-2 border-${currentTheme.colors.primary.replace('-500', '-400')} shadow-sm` 
+                  : `border-2 border-dashed border-${currentTheme.colors.text.replace('-900', '-200')} bg-${currentTheme.colors.text.replace('-900', '-50')} hover:border-${currentTheme.colors.text.replace('-900', '-300')}`
+              } transition-all duration-300`}
             >
               {index < filledRings && (
                 <motion.div
@@ -417,7 +440,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               animate={{ opacity: 1, scale: 1 }}
               className="mt-2"
             >
-              <span className={`badge badge-primary`}>
+              <span className={`inline-flex items-center px-3 py-1 bg-${currentTheme.colors.primary.replace('-500', '-200')} text-${currentTheme.colors.primary.replace('-500', '-800')} text-xs font-medium rounded-full shadow-sm`}>
                 🌟 Week streak achieved!
               </span>
             </motion.div>
