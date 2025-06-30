@@ -246,7 +246,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         animate={{ opacity: 1, y: 0 }}
         className="text-center space-y-2"
       >
-        <div className="flex-center space-x-2">
+        <div className="flex items-center justify-center space-x-2">
           {isEvening ? (
             <Moon className={`w-5 h-5 sm:w-6 sm:h-6 text-${currentTheme.colors.secondary.replace('-400', '-500')} flex-shrink-0`} />
           ) : (
@@ -274,7 +274,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
       {/* Quick Actions */}
       <div className="section">
-        <h3 className={`section-title`}>{t('howCanISupport') || 'How can I support you today?'}</h3>
+        <h3 className="section-title">{t('howCanISupport') || 'How can I support you today?'}</h3>
         <div className="grid grid-cols-2 gap-4">
           {quickActions.map((action, index) => {
             const Icon = action.icon;
@@ -287,13 +287,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 transition={{ delay: 0.3 + index * 0.1 }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`card p-4 sm:p-5 rounded-xl text-left transition-all bg-${action.color}-50 border border-${action.color}-100 hover:bg-${action.color}-100 touch-target shadow-sm`}
+                className={`p-4 rounded-xl text-left transition-all bg-${action.color}-50 border border-${action.color}-100 hover:bg-${action.color}-100 touch-target shadow-sm`}
               >
-                <div className="flex-start space-x-3 mb-2">
+                <div className="flex items-center space-x-3 mb-2">
                   <Icon className={`w-5 h-5 sm:w-6 sm:h-6 text-${action.color}-600 flex-shrink-0`} />
-                  <h4 className={`font-medium text-${action.color}-800 text-sm sm:text-base leading-tight`}>{action.title}</h4>
+                  <h4 className={`font-medium text-${action.color}-800 text-sm sm:text-base`}>{action.title}</h4>
                 </div>
-                <p className={`text-${action.color}-600 text-xs sm:text-sm ml-8 leading-tight`}>{action.subtitle}</p>
+                <p className={`text-${action.color}-600 text-xs sm:text-sm ml-8`}>{action.subtitle}</p>
               </motion.button>
             );
           })}
@@ -308,7 +308,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           transition={{ delay: 0.7 }}
           className={`card bg-${currentTheme.colors.surface} rounded-2xl p-5 sm:p-6 border border-${currentTheme.colors.secondary.replace('-400', '-200')} shadow-sm`}
         >
-          <div className="flex-between mb-3">
+          <div className="flex items-center justify-between mb-3">
             <div>
               <h3 className={`font-serif text-base sm:text-lg text-${currentTheme.colors.text} mb-1`}>Your saved combinations</h3>
               <p className={`text-${currentTheme.colors.text.replace('-900', '-700')} text-sm`}>
@@ -334,7 +334,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         transition={{ delay: 0.8 }}
         className={`card bg-${currentTheme.colors.surface} rounded-2xl p-5 sm:p-6 border border-${currentTheme.colors.secondary.replace('-400', '-200')} relative shadow-sm`}
       >
-        <div className="flex-between mb-4">
+        <div className="flex items-center justify-between mb-4">
           <h3 className={`font-serif text-base sm:text-lg text-${currentTheme.colors.text}`}>{t('yourGrowthRings') || 'Your growth rings'}</h3>
           <motion.button
             onHoverStart={() => setShowProgressTooltip(true)}
@@ -371,7 +371,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         </AnimatePresence>
         
         <motion.div 
-          className="flex-center space-x-3 my-4"
+          className="flex items-center justify-center space-x-3 my-4"
           onClick={handleGrowthRingClick}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
