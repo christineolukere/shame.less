@@ -131,7 +131,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
             onClick={() => setShowResponse(false)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="p-2 rounded-full bg-sage-100 text-sage-700 touch-target"
+            className="p-2 rounded-full bg-sage-100 text-sage-700 touch-target shadow-sm"
           >
             <ArrowLeft className="w-5 h-5" />
           </motion.button>
@@ -153,7 +153,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="mt-6 bg-gradient-to-r from-terracotta-50 to-sage-50 rounded-2xl p-6 border border-terracotta-100"
+              className="mt-6 bg-gradient-to-r from-terracotta-50 to-sage-50 rounded-2xl p-6 border border-terracotta-100 shadow-sm"
             >
               <div className="flex-start space-x-3">
                 <Sparkles className="w-6 h-6 text-terracotta-600 mt-1 flex-shrink-0" />
@@ -170,7 +170,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
                       onClick={handleAILetterRequest}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="px-4 py-2 bg-terracotta-500 text-white rounded-lg hover:bg-terracotta-600 transition-colors flex-center space-x-2 touch-target"
+                      className="px-4 py-2 bg-terracotta-500 text-white rounded-lg hover:bg-terracotta-600 transition-colors flex-center space-x-2 touch-target shadow-sm"
                     >
                       <Sparkles className="w-4 h-4" />
                       <span>Yes, write me a letter</span>
@@ -179,7 +179,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
                       onClick={() => setShowAILetterPrompt(false)}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="px-4 py-2 bg-sage-100 text-sage-700 rounded-lg hover:bg-sage-200 transition-colors touch-target"
+                      className="px-4 py-2 bg-sage-100 text-sage-700 rounded-lg hover:bg-sage-200 transition-colors touch-target shadow-sm"
                     >
                       Maybe later
                     </motion.button>
@@ -210,7 +210,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
           onClick={onBack}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="p-2 rounded-full bg-sage-100 text-sage-700 touch-target"
+          className="p-2 rounded-full bg-sage-100 text-sage-700 touch-target shadow-sm"
         >
           <ArrowLeft className="w-5 h-5" />
         </motion.button>
@@ -221,7 +221,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-terracotta-50 rounded-2xl p-6 border border-terracotta-100"
+        className="card bg-terracotta-50 rounded-2xl p-6 border border-terracotta-100 shadow-sm"
       >
         <div className="flex-start space-x-2 mb-3">
           <Heart className="w-5 h-5 text-terracotta-600 flex-shrink-0" />
@@ -243,7 +243,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.1 }}
               onClick={() => setSelectedMood(mood.label)}
-              className={`p-4 rounded-xl text-center transition-all ${
+              className={`p-4 rounded-xl text-center transition-all touch-target ${
                 selectedMood === mood.label
                   ? 'bg-sage-200 border-2 border-sage-400 transform scale-105 shadow-sm'
                   : 'bg-white border border-sage-100 hover:bg-sage-50'
@@ -267,13 +267,13 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.5 + index * 0.1 }}
               onClick={() => setSelectedColor(color.name)}
-              className={`p-4 rounded-xl transition-all ${
+              className={`p-4 rounded-xl transition-all touch-target ${
                 selectedColor === color.name
                   ? 'ring-2 ring-sage-400 ring-offset-2 transform scale-105 shadow-sm'
                   : 'hover:scale-105'
               }`}
             >
-              <div className={`w-full h-12 rounded-lg ${color.value} mb-2`} />
+              <div className={`w-full h-12 rounded-lg ${color.value} mb-2 shadow-sm`} />
               <div className="text-xs text-sage-700 font-medium">{color.name}</div>
             </motion.button>
           ))}
@@ -292,7 +292,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Optional: What's on your mind right now?"
-            className="w-full h-24 p-4 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-300 focus:border-transparent resize-none text-sage-800 placeholder-sage-400"
+            className="w-full h-24 p-4 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-300 focus:border-transparent resize-none text-sage-800 placeholder-sage-400 shadow-sm"
           />
         </motion.div>
       )}
@@ -309,7 +309,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
             disabled={saving}
             whileHover={{ scale: saving ? 1 : 1.02 }}
             whileTap={{ scale: saving ? 1 : 0.98 }}
-            className="w-full py-4 bg-sage-500 text-white rounded-lg font-medium hover:bg-sage-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-target"
+            className="w-full py-4 bg-sage-500 text-white rounded-lg font-medium hover:bg-sage-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm touch-target"
           >
             {saving ? 'Creating your personalized response...' : 'Get my personalized response'}
           </motion.button>

@@ -50,10 +50,10 @@ const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue, onNavigat
             </h1>
           </motion.button>
 
-          <div className="flex-end space-x-2 sm:space-x-3">
+          <div className="flex-center space-x-3">
             <motion.button
               onClick={onEmergency}
-              className="p-2 rounded-full bg-lavender-100 text-lavender-700 hover:bg-lavender-200 transition-colors touch-target"
+              className="p-2 rounded-full bg-lavender-100 text-lavender-700 hover:bg-lavender-200 transition-colors touch-target shadow-sm"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               title="Soft Landing - Emergency Comfort"
@@ -70,8 +70,7 @@ const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue, onNavigat
                     onClick={handleAuthModalOpen}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="px-3 sm:px-4 py-2 text-white rounded-full text-sm font-medium transition-all touch-target"
-                    style={{ backgroundColor: '#E9A8A6' }}
+                    className="px-4 py-2 bg-terracotta-500 text-white rounded-full text-sm font-medium transition-all touch-target shadow-sm"
                   >
                     {t('signIn')}
                   </motion.button>
@@ -80,7 +79,7 @@ const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue, onNavigat
                     onClick={handleAuthModalOpen}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="px-3 sm:px-4 py-2 bg-sage-100 text-sage-700 rounded-full text-sm font-medium hover:bg-sage-200 transition-all touch-target"
+                    className="px-4 py-2 bg-sage-100 text-sage-700 rounded-full text-sm font-medium hover:bg-sage-200 transition-all touch-target shadow-sm"
                   >
                     Save Journey
                   </motion.button>

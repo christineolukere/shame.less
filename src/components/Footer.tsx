@@ -72,7 +72,7 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
             onClick={() => setShowInfoSection(!showInfoSection)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="p-2 text-sage-600 hover:text-terracotta-500 transition-colors"
+            className="p-2 text-sage-600 hover:text-terracotta-500 transition-colors touch-target"
             title={showInfoSection ? "Hide info" : "Show app info & crisis support"}
           >
             {showInfoSection ? (
@@ -100,7 +100,7 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
                   animate={{ opacity: 1, y: 0 }}
                   className="bg-rose-50 rounded-xl p-4 border border-rose-100"
                 >
-                  <div className="flex items-start space-x-2 mb-2">
+                  <div className="flex-start space-x-2 mb-2">
                     <AlertTriangle className="w-4 h-4 text-rose-600 mt-0.5 flex-shrink-0" />
                     <h3 className="font-serif text-rose-800 text-sm font-medium">About shame.less</h3>
                   </div>
@@ -117,8 +117,8 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
                   transition={{ delay: 0.1 }}
                   className="space-y-2"
                 >
-                  <div className="flex items-center space-x-2 mb-3">
-                    <Shield className="w-4 h-4 text-lavender-600" />
+                  <div className="flex-start space-x-2 mb-3">
+                    <Shield className="w-4 h-4 text-lavender-600 flex-shrink-0" />
                     <h3 className="font-serif text-lavender-800 text-sm font-medium">Crisis Support</h3>
                   </div>
                   
@@ -127,7 +127,7 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
                       onClick={() => openCrisisLink('text')}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="flex-between p-3 bg-lavender-50 rounded-lg hover:bg-lavender-100 transition-colors border border-lavender-100"
+                      className="flex-between p-3 bg-lavender-50 rounded-lg hover:bg-lavender-100 transition-colors border border-lavender-100 shadow-sm"
                     >
                       <div className="flex-start space-x-2">
                         <span className="text-lg">📱</span>
@@ -140,7 +140,7 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
                       onClick={() => openCrisisLink('call')}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="flex-between p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors border border-blue-100"
+                      className="flex-between p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors border border-blue-100 shadow-sm"
                     >
                       <div className="flex-start space-x-2">
                         <span className="text-lg">☎️</span>
@@ -153,7 +153,7 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
                       onClick={() => openCrisisLink('emergency')}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="flex-between p-3 bg-red-50 rounded-lg hover:bg-red-100 transition-colors border border-red-100"
+                      className="flex-between p-3 bg-red-50 rounded-lg hover:bg-red-100 transition-colors border border-red-100 shadow-sm"
                     >
                       <div className="flex-start space-x-2">
                         <span className="text-lg">🚨</span>
@@ -228,7 +228,7 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
               <motion.button
                 key={item.id}
                 onClick={() => onNavigate(item.id)}
-                className={`footer-nav-item ${isActive ? 'active' : ''}`}
+                className={`footer-nav-item ${isActive ? 'active' : ''} ${isActive ? 'text-terracotta-600' : 'text-sage-600 hover:text-terracotta-500'}`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -243,7 +243,7 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 w-4 h-4 bg-terracotta-500 text-white text-xs rounded-full flex-center font-medium"
+                    className="absolute -top-1 -right-1 w-4 h-4 bg-terracotta-500 text-white text-xs rounded-full flex-center font-medium shadow-sm"
                   >
                     {favoriteCount > 9 ? '9+' : favoriteCount}
                   </motion.div>

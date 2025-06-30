@@ -225,7 +225,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const filledRings = getGrowthRingsFilled();
 
   return (
-    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+    <div className="p-4 sm:p-6 space-y-5 sm:space-y-6">
       {/* Growth Toast */}
       <AnimatePresence>
         {showGrowthToast && (
@@ -264,7 +264,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2 }}
-        className={`card bg-gradient-to-r from-${currentTheme.colors.primary.replace('-500', '-50')} to-${currentTheme.colors.background} rounded-2xl p-4 sm:p-6 border border-${currentTheme.colors.primary.replace('-500', '-100')}`}
+        className={`card bg-gradient-to-r from-${currentTheme.colors.primary.replace('-500', '-50')} to-${currentTheme.colors.background} rounded-2xl p-5 sm:p-6 border border-${currentTheme.colors.primary.replace('-500', '-100')} shadow-sm`}
       >
         <h3 className={`font-serif text-base sm:text-lg text-${currentTheme.colors.text} mb-2`}>{t('todaysReminder') || "Today's gentle reminder"}</h3>
         <p className={`text-sm sm:text-base text-${currentTheme.colors.text.replace('-900', '-700')} leading-relaxed`}>
@@ -275,7 +275,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       {/* Quick Actions */}
       <div className="section">
         <h3 className={`section-title`}>{t('howCanISupport') || 'How can I support you today?'}</h3>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
           {quickActions.map((action, index) => {
             const Icon = action.icon;
             return (
@@ -287,11 +287,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 transition={{ delay: 0.3 + index * 0.1 }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`card p-3 sm:p-4 rounded-xl text-left transition-all bg-${action.color}-50 border border-${action.color}-100 hover:bg-${action.color}-100 touch-target`}
+                className={`card p-4 sm:p-5 rounded-xl text-left transition-all bg-${action.color}-50 border border-${action.color}-100 hover:bg-${action.color}-100 touch-target shadow-sm`}
               >
-                <Icon className={`w-5 h-5 sm:w-6 sm:h-6 text-${action.color}-600 mb-2 flex-shrink-0`} />
-                <h4 className={`font-medium text-${action.color}-800 text-sm leading-tight`}>{action.title}</h4>
-                <p className={`text-${action.color}-600 text-xs mt-1 leading-tight`}>{action.subtitle}</p>
+                <div className="flex-start space-x-3 mb-2">
+                  <Icon className={`w-5 h-5 sm:w-6 sm:h-6 text-${action.color}-600 flex-shrink-0`} />
+                  <h4 className={`font-medium text-${action.color}-800 text-sm sm:text-base leading-tight`}>{action.title}</h4>
+                </div>
+                <p className={`text-${action.color}-600 text-xs sm:text-sm ml-8 leading-tight`}>{action.subtitle}</p>
               </motion.button>
             );
           })}
@@ -304,11 +306,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
-          className={`card bg-${currentTheme.colors.surface} rounded-2xl p-4 sm:p-6 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
+          className={`card bg-${currentTheme.colors.surface} rounded-2xl p-5 sm:p-6 border border-${currentTheme.colors.secondary.replace('-400', '-200')} shadow-sm`}
         >
-          <div className="flex-between">
+          <div className="flex-between mb-3">
             <div>
-              <h3 className={`font-serif text-base sm:text-lg text-${currentTheme.colors.text} mb-2`}>Your saved combinations</h3>
+              <h3 className={`font-serif text-base sm:text-lg text-${currentTheme.colors.text} mb-1`}>Your saved combinations</h3>
               <p className={`text-${currentTheme.colors.text.replace('-900', '-700')} text-sm`}>
                 {favoriteCount} personalized response{favoriteCount !== 1 ? 's' : ''} saved
               </p>
@@ -317,7 +319,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               onClick={() => onNavigate('favorites')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`p-3 bg-${currentTheme.colors.secondary.replace('-400', '-100')} text-${currentTheme.colors.secondary.replace('-400', '-700')} rounded-lg hover:bg-${currentTheme.colors.secondary.replace('-400', '-200')} transition-colors touch-target`}
+              className={`p-3 bg-${currentTheme.colors.secondary.replace('-400', '-100')} text-${currentTheme.colors.secondary.replace('-400', '-700')} rounded-lg hover:bg-${currentTheme.colors.secondary.replace('-400', '-200')} transition-colors touch-target shadow-sm`}
             >
               <Bookmark className="w-5 h-5" />
             </motion.button>
@@ -330,7 +332,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
-        className={`card bg-${currentTheme.colors.surface} rounded-2xl p-4 sm:p-6 border border-${currentTheme.colors.secondary.replace('-400', '-200')} relative`}
+        className={`card bg-${currentTheme.colors.surface} rounded-2xl p-5 sm:p-6 border border-${currentTheme.colors.secondary.replace('-400', '-200')} relative shadow-sm`}
       >
         <div className="flex-between mb-4">
           <h3 className={`font-serif text-base sm:text-lg text-${currentTheme.colors.text}`}>{t('yourGrowthRings') || 'Your growth rings'}</h3>
@@ -369,7 +371,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         </AnimatePresence>
         
         <motion.div 
-          className="flex-center space-x-2 cursor-pointer"
+          className="flex-center space-x-3 my-4"
           onClick={handleGrowthRingClick}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -380,7 +382,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.9 + index * 0.1 }}
-              className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 transition-all duration-500 touch-target ${
+              className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full border-2 transition-all duration-500 touch-target ${
                 index < filledRings
                   ? `bg-${currentTheme.colors.primary.replace('-500', '-200')} border-${currentTheme.colors.primary.replace('-500', '-400')} shadow-sm` 
                   : `border-${currentTheme.colors.text.replace('-900', '-200')} hover:border-${currentTheme.colors.text.replace('-900', '-300')}`
@@ -398,7 +400,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           ))}
         </motion.div>
         
-        <div className="text-center mt-3">
+        <div className="text-center">
           <p className={`text-${currentTheme.colors.text.replace('-900', '-600')} text-sm`}>
             {progress.streakDays > 0 ? (
               <>
