@@ -228,17 +228,13 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
               <motion.button
                 key={item.id}
                 onClick={() => onNavigate(item.id)}
-                className={`flex flex-col items-center p-2 rounded-xl transition-all touch-target min-w-0 flex-1 relative ${
-                  isActive 
-                    ? 'text-terracotta-600 bg-terracotta-50 shadow-sm' 
-                    : 'text-sage-600 hover:text-terracotta-500 hover:bg-sage-50'
-                }`}
+                className={`footer-nav-item ${isActive ? 'active' : ''}`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 {/* Use emoji for a softer, more friendly look */}
                 <span className="text-lg mb-1">{item.emoji}</span>
-                <span className="text-xs font-medium truncate w-full text-center leading-tight">
+                <span className="nav-label">
                   {item.label}
                 </span>
                 

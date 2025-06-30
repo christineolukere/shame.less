@@ -83,6 +83,52 @@
   }
 }
 
+/* Fix for button visibility */
+button, 
+.button,
+[role="button"] {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ensure icons in buttons are visible */
+button svg,
+.button svg,
+[role="button"] svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Improved button styles */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Add subtle hover effect to all buttons */
+button:not([disabled]):hover,
+.button:not([disabled]):hover,
+[role="button"]:not([disabled]):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Add subtle active effect to all buttons */
+button:not([disabled]):active,
+.button:not([disabled]):active,
+[role="button"]:not([disabled]):active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
 /* Responsive breakpoints */
 @media (max-width: 400px) {
   .modal-content {
@@ -131,25 +177,6 @@
   min-width: 44px;
 }
 
-/* Fix for button visibility */
-button, 
-.button,
-[role="button"] {
-  position: relative;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Ensure icons in buttons are visible */
-button svg,
-.button svg,
-[role="button"] svg {
-  display: block;
-  flex-shrink: 0;
-}
-
 /* Responsive grid adjustments */
 @media (max-width: 400px) {
   .grid-cols-4 {
@@ -174,4 +201,64 @@ button svg,
 /* Safe area for iOS devices */
 .safe-area-pb {
   padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* Improved footer navigation */
+.footer-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+
+.footer-nav-item.active {
+  background-color: rgba(222, 107, 71, 0.1);
+}
+
+.footer-nav-item .nav-icon {
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.footer-nav-item .nav-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-align: center;
+}
+
+/* Improved card styles */
+.card {
+  @apply bg-white rounded-xl p-4 border border-sage-100 transition-all duration-200;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.card:hover {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Improved spacing and alignment */
+.flex-center {
+  @apply flex items-center justify-center;
+}
+
+.flex-between {
+  @apply flex items-center justify-between;
+}
+
+.flex-start {
+  @apply flex items-center justify-start;
+}
+
+.flex-end {
+  @apply flex items-center justify-end;
 }

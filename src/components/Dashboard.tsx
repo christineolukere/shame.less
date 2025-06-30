@@ -287,7 +287,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 transition={{ delay: 0.3 + index * 0.1 }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`p-3 sm:p-4 rounded-xl text-left transition-all bg-${action.color}-50 border border-${action.color}-100 hover:bg-${action.color}-100 touch-target`}
+                className={`card p-3 sm:p-4 rounded-xl text-left transition-all bg-${action.color}-50 border border-${action.color}-100 hover:bg-${action.color}-100 touch-target`}
               >
                 <Icon className={`w-5 h-5 sm:w-6 sm:h-6 text-${action.color}-600 mb-2 flex-shrink-0`} />
                 <h4 className={`font-medium text-${action.color}-800 text-sm leading-tight`}>{action.title}</h4>
@@ -304,9 +304,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
-          className={`bg-${currentTheme.colors.surface} rounded-2xl p-4 sm:p-6 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
+          className={`card bg-${currentTheme.colors.surface} rounded-2xl p-4 sm:p-6 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
         >
-          <div className="flex items-center justify-between">
+          <div className="flex-between">
             <div>
               <h3 className={`font-serif text-base sm:text-lg text-${currentTheme.colors.text} mb-2`}>Your saved combinations</h3>
               <p className={`text-${currentTheme.colors.text.replace('-900', '-700')} text-sm`}>
@@ -317,7 +317,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               onClick={() => onNavigate('favorites')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`p-3 bg-${currentTheme.colors.secondary.replace('-400', '-100')} text-${currentTheme.colors.secondary.replace('-400', '-700')} rounded-lg hover:bg-${currentTheme.colors.secondary.replace('-400', '-200')} transition-colors`}
+              className={`p-3 bg-${currentTheme.colors.secondary.replace('-400', '-100')} text-${currentTheme.colors.secondary.replace('-400', '-700')} rounded-lg hover:bg-${currentTheme.colors.secondary.replace('-400', '-200')} transition-colors touch-target`}
             >
               <Bookmark className="w-5 h-5" />
             </motion.button>
@@ -330,9 +330,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
-        className={`bg-${currentTheme.colors.surface} rounded-2xl p-4 sm:p-6 border border-${currentTheme.colors.secondary.replace('-400', '-200')} relative`}
+        className={`card bg-${currentTheme.colors.surface} rounded-2xl p-4 sm:p-6 border border-${currentTheme.colors.secondary.replace('-400', '-200')} relative`}
       >
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex-between mb-4">
           <h3 className={`font-serif text-base sm:text-lg text-${currentTheme.colors.text}`}>{t('yourGrowthRings') || 'Your growth rings'}</h3>
           <motion.button
             onHoverStart={() => setShowProgressTooltip(true)}
@@ -369,7 +369,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         </AnimatePresence>
         
         <motion.div 
-          className="flex items-center justify-center space-x-2 cursor-pointer"
+          className="flex-center space-x-2 cursor-pointer"
           onClick={handleGrowthRingClick}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
