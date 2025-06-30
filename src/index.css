@@ -131,6 +131,25 @@
   min-width: 44px;
 }
 
+/* Fix for button visibility */
+button, 
+.button,
+[role="button"] {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ensure icons in buttons are visible */
+button svg,
+.button svg,
+[role="button"] svg {
+  display: block;
+  flex-shrink: 0;
+}
+
 /* Responsive grid adjustments */
 @media (max-width: 400px) {
   .grid-cols-4 {
@@ -150,4 +169,9 @@
   .grid-cols-4 {
     @apply grid-cols-1;
   }
+}
+
+/* Safe area for iOS devices */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0);
 }
