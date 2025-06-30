@@ -340,7 +340,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             onHoverStart={() => setShowProgressTooltip(true)}
             onHoverEnd={() => setShowProgressTooltip(false)}
             onClick={() => setShowProgressTooltip(!showProgressTooltip)}
-            className={`p-2 rounded-full bg-${currentTheme.colors.secondary.replace('-400', '-100')} text-${currentTheme.colors.secondary.replace('-400', '-600')} hover:bg-${currentTheme.colors.secondary.replace('-400', '-200')} transition-colors touch-target`}
+            className={`p-2 rounded-full bg-${currentTheme.colors.secondary.replace('-400', '-100')} text-${currentTheme.colors.secondary.replace('-400', '-600')} hover:bg-${currentTheme.colors.secondary.replace('-400', '-200')} transition-colors touch-target shadow-sm`}
           >
             <Info className="w-4 h-4" />
           </motion.button>
