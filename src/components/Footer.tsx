@@ -127,9 +127,9 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
                       onClick={() => openCrisisLink('text')}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="flex items-center justify-between p-3 bg-lavender-50 rounded-lg hover:bg-lavender-100 transition-colors border border-lavender-100"
+                      className="flex-between p-3 bg-lavender-50 rounded-lg hover:bg-lavender-100 transition-colors border border-lavender-100"
                     >
-                      <div className="flex items-center space-x-2">
+                      <div className="flex-start space-x-2">
                         <span className="text-lg">📱</span>
                         <span className="text-lavender-800 text-xs font-medium">Crisis Text Line</span>
                       </div>
@@ -140,9 +140,9 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
                       onClick={() => openCrisisLink('call')}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="flex items-center justify-between p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors border border-blue-100"
+                      className="flex-between p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors border border-blue-100"
                     >
-                      <div className="flex items-center space-x-2">
+                      <div className="flex-start space-x-2">
                         <span className="text-lg">☎️</span>
                         <span className="text-blue-800 text-xs font-medium">Suicide Prevention</span>
                       </div>
@@ -153,9 +153,9 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
                       onClick={() => openCrisisLink('emergency')}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="flex items-center justify-between p-3 bg-red-50 rounded-lg hover:bg-red-100 transition-colors border border-red-100"
+                      className="flex-between p-3 bg-red-50 rounded-lg hover:bg-red-100 transition-colors border border-red-100"
                     >
-                      <div className="flex items-center space-x-2">
+                      <div className="flex-start space-x-2">
                         <span className="text-lg">🚨</span>
                         <span className="text-red-800 text-xs font-medium">Emergency</span>
                       </div>
@@ -171,7 +171,7 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
                   transition={{ delay: 0.2 }}
                   className="bg-sage-50 rounded-xl p-4 border border-sage-100 text-center"
                 >
-                  <div className="flex items-center justify-center space-x-2 mb-2">
+                  <div className="flex-center space-x-2 mb-2">
                     <span className="text-lg">❤️</span>
                     <span className="font-serif text-sage-800 text-sm">shame.less</span>
                   </div>
@@ -180,7 +180,7 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
                   </p>
                   
                   {/* Privacy & Terms */}
-                  <div className="flex items-center justify-center space-x-4 mb-3">
+                  <div className="flex-center space-x-4 mb-3">
                     <motion.button
                       onClick={() => setShowDisclaimer(true)}
                       whileHover={{ scale: 1.05 }}
@@ -233,7 +233,7 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
                 whileTap={{ scale: 0.95 }}
               >
                 {/* Use emoji for a softer, more friendly look */}
-                <span className="text-lg mb-1">{item.emoji}</span>
+                <span className="text-lg mb-1 nav-icon">{item.emoji}</span>
                 <span className="nav-label">
                   {item.label}
                 </span>
@@ -243,7 +243,7 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 w-4 h-4 bg-terracotta-500 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                    className="absolute -top-1 -right-1 w-4 h-4 bg-terracotta-500 text-white text-xs rounded-full flex-center font-medium"
                   >
                     {favoriteCount > 9 ? '9+' : favoriteCount}
                   </motion.div>

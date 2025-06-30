@@ -126,7 +126,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
   if (showResponse && currentResponse) {
     return (
       <div className="p-6">
-        <div className="flex items-center space-x-4 mb-6">
+        <div className="flex-start space-x-4 mb-6">
           <motion.button
             onClick={() => setShowResponse(false)}
             whileHover={{ scale: 1.05 }}
@@ -155,7 +155,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
               exit={{ opacity: 0, y: -20 }}
               className="mt-6 bg-gradient-to-r from-terracotta-50 to-sage-50 rounded-2xl p-6 border border-terracotta-100"
             >
-              <div className="flex items-start space-x-3">
+              <div className="flex-start space-x-3">
                 <Sparkles className="w-6 h-6 text-terracotta-600 mt-1 flex-shrink-0" />
                 <div className="flex-1">
                   <h3 className="font-serif text-terracotta-800 mb-2">
@@ -170,7 +170,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
                       onClick={handleAILetterRequest}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="px-4 py-2 bg-terracotta-500 text-white rounded-lg hover:bg-terracotta-600 transition-colors flex items-center justify-center space-x-2 touch-target"
+                      className="px-4 py-2 bg-terracotta-500 text-white rounded-lg hover:bg-terracotta-600 transition-colors flex-center space-x-2 touch-target"
                     >
                       <Sparkles className="w-4 h-4" />
                       <span>Yes, write me a letter</span>
@@ -205,7 +205,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center space-x-4">
+      <div className="flex-start space-x-4">
         <motion.button
           onClick={onBack}
           whileHover={{ scale: 1.05 }}
@@ -223,7 +223,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
         animate={{ opacity: 1, y: 0 }}
         className="bg-terracotta-50 rounded-2xl p-6 border border-terracotta-100"
       >
-        <div className="flex items-center space-x-2 mb-3">
+        <div className="flex-start space-x-2 mb-3">
           <Heart className="w-5 h-5 text-terracotta-600 flex-shrink-0" />
           <h3 className="font-serif text-terracotta-800">{t('gentleCheckIn')}</h3>
         </div>
@@ -233,8 +233,8 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
       </motion.div>
 
       {/* Mood Selection */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-serif text-sage-800">{t('whatEmotionClosest')}</h3>
+      <div className="section">
+        <h3 className="section-title">{t('whatEmotionClosest')}</h3>
         <div className="grid grid-cols-4 gap-3">
           {moods.map((mood, index) => (
             <motion.button
@@ -257,8 +257,8 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
       </div>
 
       {/* Color Selection */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-serif text-sage-800">{t('whatColorEnergy')}</h3>
+      <div className="section">
+        <h3 className="section-title">{t('whatColorEnergy')}</h3>
         <div className="grid grid-cols-3 gap-3">
           {colors.map((color, index) => (
             <motion.button
@@ -287,7 +287,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
           animate={{ opacity: 1, y: 0 }}
           className="space-y-3"
         >
-          <h3 className="text-lg font-serif text-sage-800">Any thoughts to add?</h3>
+          <h3 className="section-title">Any thoughts to add?</h3>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}

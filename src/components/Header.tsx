@@ -34,10 +34,10 @@ const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue, onNavigat
   return (
     <>
       <header className="bg-white/90 backdrop-blur-sm border-b border-sage-100 px-4 sm:px-6 py-3 sm:py-4 sticky top-0 z-10">
-        <div className="flex items-center justify-between">
+        <div className="flex-between">
           <motion.button
             onClick={handleTitleClick}
-            className="flex items-center space-x-2 min-w-0 flex-1 text-left"
+            className="flex-start space-x-2 min-w-0 flex-1 text-left"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             initial={{ opacity: 0, x: -20 }}
@@ -50,7 +50,7 @@ const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue, onNavigat
             </h1>
           </motion.button>
 
-          <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+          <div className="flex-end space-x-2 sm:space-x-3">
             <motion.button
               onClick={onEmergency}
               className="p-2 rounded-full bg-lavender-100 text-lavender-700 hover:bg-lavender-200 transition-colors touch-target"

@@ -246,7 +246,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         animate={{ opacity: 1, y: 0 }}
         className="text-center space-y-2"
       >
-        <div className="flex items-center justify-center space-x-2">
+        <div className="flex-center space-x-2">
           {isEvening ? (
             <Moon className={`w-5 h-5 sm:w-6 sm:h-6 text-${currentTheme.colors.secondary.replace('-400', '-500')} flex-shrink-0`} />
           ) : (
@@ -264,7 +264,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2 }}
-        className={`bg-gradient-to-r from-${currentTheme.colors.primary.replace('-500', '-50')} to-${currentTheme.colors.background} rounded-2xl p-4 sm:p-6 border border-${currentTheme.colors.primary.replace('-500', '-100')}`}
+        className={`card bg-gradient-to-r from-${currentTheme.colors.primary.replace('-500', '-50')} to-${currentTheme.colors.background} rounded-2xl p-4 sm:p-6 border border-${currentTheme.colors.primary.replace('-500', '-100')}`}
       >
         <h3 className={`font-serif text-base sm:text-lg text-${currentTheme.colors.text} mb-2`}>{t('todaysReminder') || "Today's gentle reminder"}</h3>
         <p className={`text-sm sm:text-base text-${currentTheme.colors.text.replace('-900', '-700')} leading-relaxed`}>
@@ -273,8 +273,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       </motion.div>
 
       {/* Quick Actions */}
-      <div className="space-y-3">
-        <h3 className={`text-base sm:text-lg font-serif text-${currentTheme.colors.text}`}>{t('howCanISupport') || 'How can I support you today?'}</h3>
+      <div className="section">
+        <h3 className={`section-title`}>{t('howCanISupport') || 'How can I support you today?'}</h3>
         <div className="grid grid-cols-2 gap-3">
           {quickActions.map((action, index) => {
             const Icon = action.icon;
@@ -415,7 +415,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               animate={{ opacity: 1, scale: 1 }}
               className="mt-2"
             >
-              <span className={`inline-flex items-center px-2 py-1 bg-${currentTheme.colors.primary.replace('-500', '-200')} text-${currentTheme.colors.primary.replace('-500', '-800')} text-xs font-medium rounded-full`}>
+              <span className={`badge badge-primary`}>
                 🌟 Week streak achieved!
               </span>
             </motion.div>
