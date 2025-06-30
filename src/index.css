@@ -2,352 +2,82 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Mobile-first responsive modal styles */
+/* Modal styles */
 @layer components {
   .modal-container {
     @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4;
   }
-  
+
   .modal-content {
-    @apply bg-white rounded-2xl w-full shadow-xl;
-    max-width: 90vw;
-    max-height: 90vh;
-    overflow-y: auto;
+    @apply bg-white rounded-2xl shadow-xl w-full max-w-[90vw] max-h-[90vh] overflow-y-auto;
   }
-  
+
   .modal-header {
-    @apply flex items-center justify-between p-4 border-b border-sage-100 sticky top-0 bg-white rounded-t-2xl z-10;
+    @apply flex items-center justify-between p-4 border-b sticky top-0 bg-white rounded-t-2xl z-10;
   }
-  
+
   .modal-body {
-    @apply p-4 space-y-4;
+    @apply p-4 space-y-4 sm:p-3 sm:space-y-3 md:p-6 md:space-y-6;
   }
-  
+
   .modal-title {
-    font-size: clamp(1rem, 3vw, 1.25rem);
-    @apply font-serif text-sage-800;
+    @apply font-serif text-sage-800 text-[clamp(1rem,3vw,1.25rem)];
   }
-  
+
   .modal-text {
-    font-size: clamp(0.875rem, 2vw, 1rem);
-    @apply leading-relaxed;
+    @apply leading-relaxed text-[clamp(0.875rem,2vw,1rem)];
   }
-  
+
   .modal-button {
-    @apply px-4 py-3 rounded-lg font-medium transition-colors;
-    font-size: clamp(0.875rem, 2vw, 1rem);
-    min-height: 44px; /* Touch target size */
+    @apply px-4 py-3 rounded-lg font-medium transition-colors text-[clamp(0.875rem,2vw,1rem)] min-h-[44px];
   }
 }
 
-/* Theme-specific styles */
-@layer base {
-  /* Spiritual Theme */
+/* Theme variables as utility classes (can be toggled via JS) */
+@layer components {
   .theme-spiritual {
-    --theme-primary: theme('colors.purple.500');
-    --theme-secondary: theme('colors.lavender.400');
-    --theme-accent: theme('colors.violet.600');
-    --theme-background: theme('colors.purple.50');
-    --theme-surface: theme('colors.lavender.100');
-    --theme-text: theme('colors.purple.900');
+    @apply bg-purple-50 text-purple-900;
   }
-
-  /* Secular Theme */
   .theme-secular {
-    --theme-primary: theme('colors.sage.500');
-    --theme-secondary: theme('colors.green.400');
-    --theme-accent: theme('colors.emerald.600');
-    --theme-background: theme('colors.sage.50');
-    --theme-surface: theme('colors.green.100');
-    --theme-text: theme('colors.sage.900');
+    @apply bg-green-50 text-green-900;
   }
-
-  /* Ancestral Theme */
   .theme-ancestral {
-    --theme-primary: theme('colors.amber.500');
-    --theme-secondary: theme('colors.orange.400');
-    --theme-accent: theme('colors.red.600');
-    --theme-background: theme('colors.amber.50');
-    --theme-surface: theme('colors.orange.100');
-    --theme-text: theme('colors.amber.900');
+    @apply bg-amber-50 text-amber-900;
   }
-
-  /* Gentle Theme */
   .theme-gentle {
-    --theme-primary: theme('colors.rose.400');
-    --theme-secondary: theme('colors.cream.300');
-    --theme-accent: theme('colors.sage.500');
-    --theme-background: theme('colors.rose.50');
-    --theme-surface: theme('colors.cream.100');
-    --theme-text: theme('colors.rose.900');
+    @apply bg-rose-50 text-rose-900;
   }
 }
 
-/* Fix for button visibility */
-button, 
-.button,
-[role="button"] {
-  position: relative;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Ensure icons in buttons are visible */
-button svg,
-.button svg,
-[role="button"] svg {
-  display: block;
-  flex-shrink: 0;
-}
-
-/* Improved button styles */
-.touch-target {
-  min-height: 44px;
-  min-width: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Add subtle hover effect to all buttons */
-button:not([disabled]):hover,
-.button:not([disabled]):hover,
-[role="button"]:not([disabled]):hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-/* Add subtle active effect to all buttons */
-button:not([disabled]):active,
-.button:not([disabled]):active,
-[role="button"]:not([disabled]):active {
-  transform: translateY(1px);
-  box-shadow: none;
-}
-
-/* Responsive breakpoints */
-@media (max-width: 400px) {
-  .modal-content {
-    max-width: 95vw;
-    margin: 0.5rem;
-  }
-  
-  .modal-body {
-    @apply p-3 space-y-3;
-  }
-  
-  .modal-header {
-    @apply p-3;
-  }
-  
-  .modal-button {
-    @apply px-3 py-2.5;
-    min-height: 40px;
-  }
-}
-
-@media (min-width: 768px) {
-  .modal-content {
-    max-width: 28rem; /* 448px */
-  }
-  
-  .modal-body {
-    @apply p-6 space-y-6;
-  }
-  
-  .modal-header {
-    @apply p-6;
-  }
-}
-
-/* Ensure text wrapping and prevent overflow */
-.modal-content * {
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
-}
-
-/* Touch-friendly button sizing */
-.touch-target {
-  min-height: 44px;
-  min-width: 44px;
-}
-
-/* Responsive grid adjustments */
-@media (max-width: 400px) {
-  .grid-cols-4 {
-    @apply grid-cols-2;
-  }
-  
-  .grid-cols-3 {
-    @apply grid-cols-2;
-  }
-  
-  .grid-cols-2 {
-    @apply grid-cols-1;
-  }
-}
-
-@media (max-width: 360px) {
-  .grid-cols-4 {
-    @apply grid-cols-1;
-  }
-}
-
-/* Safe area for iOS devices */
-.safe-area-pb {
-  padding-bottom: env(safe-area-inset-bottom, 0);
-}
-
-/* Improved footer navigation */
+/* Footer navigation */
 .footer-nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem;
-  border-radius: 0.75rem;
-  transition: all 0.2s ease;
-  flex: 1;
-  min-width: 0;
-  position: relative;
+  @apply flex flex-col items-center justify-center p-2 rounded-xl transition-all duration-200 flex-1 min-w-0 relative;
 }
 
 .footer-nav-item.active {
-  background-color: rgba(222, 107, 71, 0.1);
+  @apply bg-[rgba(222,107,71,0.1)];
 }
 
 .footer-nav-item .nav-icon {
-  margin-bottom: 0.25rem;
-  display: block;
+  @apply mb-1 block;
 }
 
 .footer-nav-item .nav-label {
-  font-size: 0.75rem;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
-  text-align: center;
+  @apply text-xs font-medium text-center truncate w-full;
 }
 
-/* Improved card styles */
+/* Card */
 .card {
-  @apply bg-white rounded-xl p-4 border border-sage-100 transition-all duration-200;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  @apply bg-white rounded-xl p-4 border border-sage-100 shadow-sm hover:shadow-md transition-all;
 }
 
-.card:hover {
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
-}
-
-/* Improved spacing and alignment */
-.flex-center {
-  @apply flex items-center justify-center;
-}
-
-.flex-between {
-  @apply flex items-center justify-between;
-}
-
-.flex-start {
-  @apply flex items-center justify-start;
-}
-
-.flex-end {
-  @apply flex items-center justify-end;
-}
-
-/* Enhanced form elements */
-input, textarea, select {
-  @apply rounded-lg border border-sage-200 focus:ring-2 focus:ring-terracotta-300 focus:border-transparent transition-all;
-}
-
-/* Improved section spacing */
-.section {
-  @apply mb-6;
-}
-
-.section-title {
-  @apply text-lg font-serif text-sage-800 mb-3;
-}
-
-/* Enhanced typography */
+/* Text styles */
 .text-title {
   @apply font-serif text-xl text-sage-800;
 }
-
 .text-subtitle {
   @apply text-sm text-sage-600;
 }
-
 .text-body {
   @apply text-sage-700 leading-relaxed;
-}
-
-/* Improved list styles */
-.list-item {
-  @apply flex items-start space-x-2 mb-2;
-}
-
-.list-item-icon {
-  @apply w-5 h-5 text-terracotta-500 mt-0.5 flex-shrink-0;
-}
-
-.list-item-content {
-  @apply flex-1;
-}
-
-/* Enhanced badge styles */
-.badge {
-  @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium;
-}
-
-.badge-primary {
-  @apply bg-terracotta-100 text-terracotta-700;
-}
-
-.badge-secondary {
-  @apply bg-sage-100 text-sage-700;
-}
-
-.badge-accent {
-  @apply bg-lavender-100 text-lavender-700;
-}
-
-/* Improved animation effects */
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.animate-slide-up {
-  animation: slideUp 0.3s ease-in-out;
-}
-
-@keyframes slideUp {
-  from { transform: translateY(10px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-/* Improved container styles */
-.container-sm {
-  @apply max-w-md mx-auto px-4;
-}
-
-.container-md {
-  @apply max-w-lg mx-auto px-4;
-}
-
-.container-lg {
-  @apply max-w-xl mx-auto px-4;
 }
