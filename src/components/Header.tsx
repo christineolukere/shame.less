@@ -47,6 +47,7 @@ const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue, onNavigat
             <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-terracotta-500 fill-current flex-shrink-0" />
             <h1 className="text-lg sm:text-xl font-serif font-medium text-sage-800 truncate hover:text-terracotta-600 transition-colors">
               {t('appName')}
+            </h1>
             <Shield className="w-4 h-4" />
           </motion.button>
 
