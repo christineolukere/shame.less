@@ -259,17 +259,17 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-2"
+        className="text-center space-y-1 sm:space-y-2"
       >
         <div className="flex-center space-x-2">
           {isEvening ? (
-            <Moon className={`w-5 h-5 sm:w-6 sm:h-6 text-${currentTheme.colors.secondary.replace('-400', '-500')} flex-shrink-0`} />
+            <Moon className={`w-5 h-5 text-${currentTheme.colors.secondary.replace('-400', '-500')} flex-shrink-0`} />
           ) : (
-            <Sun className={`w-5 h-5 sm:w-6 sm:h-6 text-${currentTheme.colors.accent.replace('-600', '-500')} flex-shrink-0`} />
+            <Sun className={`w-5 h-5 text-${currentTheme.colors.accent.replace('-600', '-500')} flex-shrink-0`} />
           )}
-          <h2 className={`text-xl sm:text-2xl font-serif text-${currentTheme.colors.text} truncate`}>{getPersonalizedGreeting()}</h2>
+          <h2 className={`text-lg sm:text-2xl font-serif text-${currentTheme.colors.text} truncate`}>{getPersonalizedGreeting()}</h2>
         </div>
-        <p className={`text-sm sm:text-base text-${currentTheme.colors.text.replace('-900', '-600')}`}>
+        <p className={`text-xs sm:text-base text-${currentTheme.colors.text.replace('-900', '-600')}`}>
           {user ? (t('welcomeBackToSafeSpace') || 'Welcome back to your safe space.') : (t('worthyOfLove') || 'You are worthy of love and gentleness.')}
         </p>
       </motion.div>
@@ -279,17 +279,17 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2 }}
-        className="bg-sage-50 rounded-xl p-5 border border-sage-100 shadow-sm"
+        className="bg-sage-50 rounded-xl p-4 sm:p-5 border border-sage-100 shadow-sm"
       >
-        <h3 className={`font-serif text-base sm:text-lg text-${currentTheme.colors.text} mb-2`}>{t('todaysReminder') || "Today's gentle reminder"}</h3>
-        <p className={`text-sm sm:text-base text-${currentTheme.colors.text.replace('-900', '-700')} leading-relaxed`}>
+        <h3 className={`font-serif text-sm sm:text-lg text-${currentTheme.colors.text} mb-1 sm:mb-2`}>{t('todaysReminder') || "Today's gentle reminder"}</h3>
+        <p className={`text-xs sm:text-base text-${currentTheme.colors.text.replace('-900', '-700')} leading-relaxed`}>
           {getThemedWisdom(currentTheme)}
         </p>
       </motion.div>
 
       {/* Quick Actions */}
       <div className="space-y-4">
-        <h3 className="text-lg font-serif text-center font-medium text-sage-800 mt-6 mb-3">{t('howCanISupport') || 'How can I support you today?'}</h3>
+        <h3 className="text-base sm:text-lg font-serif text-center font-medium text-sage-800 mt-4 sm:mt-6 mb-2 sm:mb-3">{t('howCanISupport') || 'How can I support you today?'}</h3>
         <div className="grid grid-cols-2 gap-4">
           {quickActions.map((action, index) => {
             const Icon = action.icon;
@@ -302,14 +302,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 transition={{ delay: 0.3 + index * 0.1 }}
                 whileHover={{ scale: 1.02, shadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
                 whileTap={{ scale: 0.98 }}
-                className={`p-4 rounded-xl text-left transition-all duration-200 bg-white border border-sage-100 hover:bg-${action.color}-50 touch-target shadow-sm hover:shadow-md`}
+                className={`p-3 sm:p-4 rounded-xl text-left transition-all duration-200 bg-white border border-sage-100 hover:bg-${action.color}-50 touch-target shadow-sm hover:shadow-md`}
                 aria-label={`Open ${action.title}`}
               >
-                <div className="flex items-center space-x-3 mb-2">
-                  <Icon className={`w-5 h-5 sm:w-6 sm:h-6 text-${action.color}-600 flex-shrink-0`} />
-                  <h4 className={`font-medium text-${action.color}-800 text-sm sm:text-base`}>{action.title}</h4>
+                <div className="flex items-center space-x-2 sm:space-x-3 mb-1 sm:mb-2">
+                  <Icon className={`w-4 h-4 sm:w-5 sm:h-5 text-${action.color}-600 flex-shrink-0`} />
+                  <h4 className={`font-medium text-${action.color}-800 text-xs sm:text-sm`}>{action.title}</h4>
                 </div>
-                <p className={`text-${action.color}-600 text-xs sm:text-sm ml-8`}>{action.subtitle}</p>
+                <p className={`text-${action.color}-600 text-[10px] sm:text-xs ml-6 sm:ml-8`}>{action.subtitle}</p>
               </motion.button>
             );
           })}

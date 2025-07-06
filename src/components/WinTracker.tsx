@@ -218,7 +218,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
       {/* Celebration Overlay */}
       <WinCelebration 
         celebration={currentCelebration} 
@@ -265,7 +265,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-cream-50 rounded-2xl p-6 border border-cream-100"
+        className="bg-cream-50 rounded-2xl p-4 sm:p-6 border border-cream-100"
       >
         <h3 className="font-serif text-cream-800 mb-2">{t('everyStepCounts') || 'Every step counts'}</h3>
         <p className="text-cream-700 text-sm leading-relaxed">
@@ -276,8 +276,8 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
       {/* Quick Add Wins */}
       {!showAddForm && (
         <div className="space-y-3">
-          <h3 className="text-lg font-serif text-sage-800">{t('quickWinsTocelebrate') || 'Quick wins to celebrate'}</h3>
-          <div className="grid grid-cols-2 gap-2">
+          <h3 className="text-base sm:text-lg font-serif text-sage-800">{t('quickWinsTocelebrate') || 'Quick wins to celebrate'}</h3>
+          <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
             {quickWins.slice(0, 6).map((win, index) => (
               <motion.button
                 key={win}
@@ -288,7 +288,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
                 disabled={saving}
                 whileHover={{ scale: saving ? 1 : 1.02 }}
                 whileTap={{ scale: saving ? 1 : 0.98 }}
-                className="p-3 text-left text-sm bg-white border border-sage-100 rounded-lg hover:bg-sage-50 transition-colors disabled:opacity-50 relative overflow-hidden"
+                className="p-2 sm:p-3 text-left text-xs sm:text-sm bg-white border border-sage-100 rounded-lg hover:bg-sage-50 transition-colors disabled:opacity-50 relative overflow-hidden"
               >
                 {saving && (
                   <motion.div
@@ -433,7 +433,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
 
       {/* Wins List */}
       <div className="space-y-3">
-        <h3 className="text-lg font-serif text-sage-800">{t('recentCelebrations') || 'Recent celebrations'}</h3>
+        <h3 className="text-base sm:text-lg font-serif text-sage-800">{t('recentCelebrations') || 'Recent celebrations'}</h3>
         {wins.length === 0 ? (
           <div className="text-center py-8 text-sage-600">
             <Trophy className="w-12 h-12 mx-auto mb-3 text-sage-400" />
@@ -450,7 +450,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className={`p-4 rounded-lg bg-${color}-50 border border-${color}-100 relative overflow-hidden`}
+                  className={`p-3 sm:p-4 rounded-lg bg-${color}-50 border border-${color}-100 relative overflow-hidden`}
                 >
                   <div className="flex items-start space-x-3">
                     <Trophy className={`w-5 h-5 text-${color}-600 mt-0.5 flex-shrink-0`} />
@@ -460,8 +460,8 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
                           {categoryLabel}
                         </span>
                       </div>
-                      <p className={`text-${color}-800 font-medium`}>{win.text}</p>
-                      <p className={`text-${color}-600 text-xs mt-1`}>
+                      <p className={`text-${color}-800 font-medium text-sm sm:text-base`}>{win.text}</p>
+                      <p className={`text-${color}-600 text-[10px] sm:text-xs mt-1`}>
                         {new Date(win.timestamp).toLocaleDateString()}
                       </p>
                     </div>

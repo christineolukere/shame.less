@@ -182,14 +182,14 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream-50 via-sage-50 to-lavender-50">
-      <div className="max-w-md mx-auto bg-white/80 backdrop-blur-sm min-h-screen shadow-xl flex flex-col">
+      <div className="max-w-md mx-auto bg-white/80 backdrop-blur-sm min-h-screen shadow-xl flex flex-col overflow-hidden">
         <Header 
           onEmergency={() => setShowEmergency(true)} 
           onGuestContinue={handleGuestContinue}
           onNavigateHome={handleNavigateHome}
         />
         
-        <main className="flex-1 pb-32">
+        <main className="flex-1 pb-28 sm:pb-32">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentView}

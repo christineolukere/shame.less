@@ -219,7 +219,7 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
         </AnimatePresence>
 
         {/* Mobile Navigation Bar */}
-        <div className="flex items-center justify-around py-2 px-2 safe-area-pb">
+        <div className="flex items-center justify-around py-1 sm:py-2 px-1 sm:px-2 safe-area-pb">
           {allNavItems.map((item) => {
             const Icon = item.icon
             const isActive = currentView === item.id
@@ -243,7 +243,7 @@ const Footer: React.FC<FooterProps> = ({ currentView, onNavigate }) => {
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 w-4 h-4 bg-terracotta-500 text-white text-xs rounded-full flex-center font-medium shadow-sm"
+                    className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-terracotta-500 text-white text-[8px] sm:text-xs rounded-full flex-center font-medium shadow-sm"
                   >
                     {favoriteCount > 9 ? '9+' : favoriteCount}
                   </motion.div>

@@ -225,7 +225,7 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
       {/* Header */}
       <div className="flex items-center space-x-4">
         <motion.button
@@ -243,7 +243,7 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-sage-50 rounded-2xl p-6 border border-sage-100"
+        className="bg-terracotta-50 rounded-2xl p-4 sm:p-6 border border-terracotta-100"
       >
         <h3 className="font-serif text-sage-800 mb-2">{t('curatedWithLove') || 'Curated with love'}</h3>
         <p className="text-sage-700 text-sm leading-relaxed">
@@ -253,7 +253,7 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
       </motion.div>
 
       {/* Category Tabs */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1 sm:gap-2">
         {categories.map((category) => {
           const Icon = category.icon;
           return (
@@ -268,8 +268,8 @@ const Resources: React.FC<ResourcesProps> = ({ onBack }) => {
                   : 'bg-white border border-sage-100 text-sage-700 hover:bg-sage-50'
               }`}
             >
-              <Icon className="w-4 h-4 mx-auto mb-1" />
-              <div className="text-xs font-medium">{category.label}</div>
+              <Icon className="w-3 h-3 sm:w-4 sm:h-4 mx-auto mb-0.5 sm:mb-1" />
+              <div className="text-[10px] sm:text-xs font-medium">{category.label}</div>
             </motion.button>
           );
         })}

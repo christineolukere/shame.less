@@ -322,7 +322,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
       {/* Success Messages */}
       <AnimatePresence>
         {saveSuccess && (
@@ -458,7 +458,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`bg-${currentTheme.colors.surface} rounded-2xl p-6 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
+        className={`bg-${currentTheme.colors.surface} rounded-2xl p-4 sm:p-6 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
       >
         <h3 className={`font-serif text-${currentTheme.colors.text} mb-2`}>{t('safeSpaceThoughts')}</h3>
         <p className={`text-${currentTheme.colors.text.replace('-900', '-700')} text-sm leading-relaxed`}>
@@ -486,7 +486,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
       {/* Input Mode Selection */}
       <div className="space-y-3">
         <h3 className={`text-lg font-serif text-${currentTheme.colors.text}`}>{t('howToExpress')}</h3>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3">
           {inputModes.map((mode) => {
             const Icon = mode.icon;
             return (
@@ -507,10 +507,10 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
                     : `bg-white border border-${currentTheme.colors.secondary.replace('-400', '-200')} text-${currentTheme.colors.text.replace('-900', '-700')} hover:bg-${currentTheme.colors.surface}`
                 }`}
               >
-                <Icon className="w-6 h-6 mx-auto mb-2" />
-                <div className="text-sm font-medium">{mode.label}</div>
+                <Icon className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1 sm:mb-2" />
+                <div className="text-xs sm:text-sm font-medium">{mode.label}</div>
                 {mode.id === 'mirror' && (
-                  <div className="text-xs text-terracotta-600 mt-1">AI-powered</div>
+                  <div className="text-[10px] sm:text-xs text-terracotta-600 mt-0.5 sm:mt-1">AI-powered</div>
                 )}
               </motion.button>
             );

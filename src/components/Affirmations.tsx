@@ -273,7 +273,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
   const displayCategory = customAffirmation ? "Personalized" : current.category;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
@@ -301,7 +301,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`bg-${currentTheme.colors.surface} rounded-xl p-4 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
+        className={`bg-${currentTheme.colors.surface} rounded-xl p-3 sm:p-4 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -353,12 +353,12 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`bg-gradient-to-r from-${currentTheme.colors.primary.replace('-500', '-50')} to-${currentTheme.colors.secondary.replace('-400', '-50')} rounded-xl p-4 border border-${currentTheme.colors.primary.replace('-500', '-100')}`}
+        className={`bg-gradient-to-r from-${currentTheme.colors.primary.replace('-500', '-50')} to-${currentTheme.colors.secondary.replace('-400', '-50')} rounded-xl p-3 sm:p-4 border border-${currentTheme.colors.primary.replace('-500', '-100')}`}
       >
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <h3 className={`font-serif text-${currentTheme.colors.text} mb-1`}>Personalized Affirmation</h3>
-            <p className={`text-${currentTheme.colors.text.replace('-900', '-600')} text-sm`}>
+            <h3 className={`font-serif text-${currentTheme.colors.text} text-sm sm:text-base mb-0.5 sm:mb-1`}>Personalized Affirmation</h3>
+            <p className={`text-${currentTheme.colors.text.replace('-900', '-600')} text-xs sm:text-sm`}>
               Generate a custom affirmation just for you with AI
             </p>
           </div>
@@ -367,7 +367,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
             disabled={isGenerating}
             whileHover={{ scale: isGenerating ? 1 : 1.05 }}
             whileTap={{ scale: isGenerating ? 1 : 0.95 }}
-            className={`ml-4 px-4 py-2 bg-${currentTheme.colors.primary} text-white rounded-lg hover:bg-${currentTheme.colors.primary.replace('-500', '-600')} transition-colors disabled:opacity-50 flex items-center space-x-2 touch-target`}
+            className={`ml-2 sm:ml-4 px-2 sm:px-4 py-1.5 sm:py-2 bg-${currentTheme.colors.primary} text-white rounded-lg hover:bg-${currentTheme.colors.primary.replace('-500', '-600')} transition-colors disabled:opacity-50 flex items-center space-x-1 sm:space-x-2 touch-target text-xs sm:text-sm`}
           >
             {isGenerating ? (
               <>
@@ -392,19 +392,19 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: -20 }}
           transition={{ duration: 0.4 }}
-          className={`bg-${current.color}-50 rounded-2xl p-6 border border-${current.color}-100 text-center space-y-4`}
+          className={`bg-${current.color}-50 rounded-2xl p-4 sm:p-6 border border-${current.color}-100 text-center space-y-3 sm:space-y-4`}
         >
-          <div className={`inline-flex items-center space-x-2 px-3 py-1 bg-${current.color}-100 text-${current.color}-700 text-xs font-medium rounded-full`}>
+          <div className={`inline-flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-0.5 sm:py-1 bg-${current.color}-100 text-${current.color}-700 text-[10px] sm:text-xs font-medium rounded-full`}>
             {customAffirmation && <Sparkles className="w-3 h-3" />}
             <span>{displayCategory}</span>
           </div>
           
-          <blockquote className={`text-lg font-serif text-${current.color}-800 leading-relaxed`}>
+          <blockquote className={`text-base sm:text-lg font-serif text-${current.color}-800 leading-relaxed`}>
             "{displayText}"
           </blockquote>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-center space-x-3">
+          <div className="flex items-center justify-center space-x-2 sm:space-x-3">
             <motion.button
               onClick={togglePlayback}
               whileHover={{ scale: 1.05 }}
@@ -495,10 +495,10 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.7 }}
-        className={`bg-${currentTheme.colors.surface} rounded-xl p-4 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
+        className={`bg-${currentTheme.colors.surface} rounded-xl p-3 sm:p-4 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
       >
-        <h3 className={`font-serif text-${currentTheme.colors.text} mb-2 text-sm`}>{t('gentleReflection')}</h3>
-        <p className={`text-${currentTheme.colors.text.replace('-900', '-700')} text-xs leading-relaxed`}>
+        <h3 className={`font-serif text-${currentTheme.colors.text} mb-1 sm:mb-2 text-xs sm:text-sm`}>{t('gentleReflection')}</h3>
+        <p className={`text-${currentTheme.colors.text.replace('-900', '-700')} text-[10px] sm:text-xs leading-relaxed`}>
           {t('reflectionPrompt')}
         </p>
       </motion.div>

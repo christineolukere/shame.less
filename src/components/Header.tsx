@@ -33,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue, onNavigat
 
   return (
     <>
-      <header className="bg-white/90 backdrop-blur-sm border-b border-sage-100 px-4 sm:px-6 py-3 sm:py-4 sticky top-0 z-10">
+      <header className="bg-white/90 backdrop-blur-sm border-b border-sage-100 px-3 sm:px-6 py-2 sm:py-4 sticky top-0 z-10">
         <div className="flex-between">
           <motion.button
             onClick={handleTitleClick}
@@ -47,7 +47,7 @@ const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue, onNavigat
             <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-terracotta-500 fill-current flex-shrink-0" />
             <h1 className="text-lg sm:text-xl font-serif font-medium text-sage-800 truncate hover:text-terracotta-600 transition-colors">
               {t('appName')}
-            </h1>
+            <Shield className="w-4 h-4" />
           </motion.button>
 
           <div className="flex-center space-x-3">
@@ -70,7 +70,7 @@ const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue, onNavigat
                     onClick={handleAuthModalOpen}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="px-4 py-2 bg-terracotta-500 text-white rounded-full text-sm font-medium transition-all touch-target shadow-sm"
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-terracotta-500 text-white rounded-full text-xs sm:text-sm font-medium transition-all touch-target shadow-sm"
                   >
                     {t('signIn')}
                   </motion.button>
@@ -79,7 +79,7 @@ const Header: React.FC<HeaderProps> = ({ onEmergency, onGuestContinue, onNavigat
                     onClick={handleAuthModalOpen}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="px-4 py-2 bg-sage-100 text-sage-700 rounded-full text-sm font-medium hover:bg-sage-200 transition-all touch-target shadow-sm"
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-sage-100 text-sage-700 rounded-full text-xs sm:text-sm font-medium hover:bg-sage-200 transition-all touch-target shadow-sm"
                   >
                     Save Journey
                   </motion.button>

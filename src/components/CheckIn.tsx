@@ -203,7 +203,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
       {/* Header */}
       <div className="flex-start space-x-4">
         <motion.button
@@ -221,7 +221,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="card bg-terracotta-50 rounded-2xl p-6 border border-terracotta-100 shadow-sm"
+        className="card bg-terracotta-50 rounded-2xl p-4 sm:p-6 border border-terracotta-100 shadow-sm"
       >
         <div className="flex-start space-x-2 mb-3">
           <Heart className="w-5 h-5 text-terracotta-600 flex-shrink-0" />
@@ -235,7 +235,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
       {/* Mood Selection */}
       <div className="section">
         <h3 className="section-title">{t('whatEmotionClosest')}</h3>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-4 gap-2 sm:gap-3">
           {moods.map((mood, index) => (
             <motion.button
               key={mood.label}
@@ -249,8 +249,8 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
                   : 'bg-white border border-sage-100 hover:bg-sage-50'
               }`}
             >
-              <div className="text-2xl mb-1">{mood.emoji}</div>
-              <div className="text-xs text-sage-700 font-medium">{mood.label}</div>
+              <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">{mood.emoji}</div>
+              <div className="text-[10px] sm:text-xs text-sage-700 font-medium">{mood.label}</div>
             </motion.button>
           ))}
         </div>
@@ -259,7 +259,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
       {/* Color Selection */}
       <div className="section">
         <h3 className="section-title">{t('whatColorEnergy')}</h3>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {colors.map((color, index) => (
             <motion.button
               key={color.name}
@@ -273,8 +273,8 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
                   : 'hover:scale-105'
               }`}
             >
-              <div className={`w-full h-12 rounded-lg ${color.value} mb-2 shadow-sm`} />
-              <div className="text-xs text-sage-700 font-medium">{color.name}</div>
+              <div className={`w-full h-8 sm:h-12 rounded-lg ${color.value} mb-1 sm:mb-2 shadow-sm`} />
+              <div className="text-[10px] sm:text-xs text-sage-700 font-medium">{color.name}</div>
             </motion.button>
           ))}
         </div>
