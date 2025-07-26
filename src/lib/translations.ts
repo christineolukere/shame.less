@@ -227,6 +227,76 @@ const englishTranslations = {
   importantNotice: "Important notice",
   notReplacementTherapy: "This app is not a replacement for professional therapy.",
   
+  // Dashboard specific
+  startYourJourney: "Start your journey! Each activity you complete grows your rings. 🌱",
+  activitiesCompleted: "{count} activities completed! Keep nurturing your growth. 💚",
+  buildingMomentum: "{count} activities! You're building beautiful momentum. ✨",
+  dedicationInspiring: "{count} activities! Your dedication is inspiring. 🌟",
+  creatingChange: "{count} activities! You're creating lasting change. 🦋",
+  growthExtraordinary: "{count} activities! Your growth is extraordinary. 🌳",
+  startSelfCareToday: "Start your self-care journey today",
+  weekStreakAchieved: "🌟 Week streak achieved!",
+  dayStreak: "{days} day{plural} streak",
+  
+  // Journal specific
+  loadingJournal: "Loading your journal...",
+  recentReflections: "Recent Reflections",
+  viewAll: "View All",
+  journalGuidelines: "Journal Guidelines",
+  journalGuidelinesText: "This is your personal healing space. Please avoid uploading explicit content. If you're in crisis, visit our Crisis Support section.",
+  titleOptional: "Title (optional)",
+  giveTitlePlaceholder: "Give your entry a title...",
+  howAreYouFeelingOptional: "How are you feeling? (optional)",
+  addVoiceNote: "Add Voice Note",
+  addPhoto: "Add Photo",
+  saveAndScheduleEmail: "Save & Schedule Email",
+  schedulingEmail: "Scheduling email...",
+  emailThisEntry: "Email this entry to me in 7 days",
+  emailDescription: "Receive a gentle reminder from your past self. We'll send this reflection to {email} as a loving message from who you are today.",
+  willBeSentOn: "Will be sent on {date}",
+  attachments: "Attachments",
+  readyToRecord: "Ready to record your voice note",
+  startRecording: "Start Recording",
+  shareAMoment: "Share a moment through photography",
+  
+  // Check-in specific
+  anyThoughtsToAdd: "Any thoughts to add?",
+  optionalThoughts: "Optional: What's on your mind right now?",
+  getPersonalizedResponse: "Get my personalized response",
+  creatingPersonalizedResponse: "Creating your personalized response...",
+  uniqueAffirmationHint: "✨ We'll create a unique affirmation and reflection just for your {mood} + {color} combination",
+  yourPersonalizedResponse: "Your personalized response",
+  
+  // Win Tracker specific
+  quickWinsToCelebrate: "Quick wins to celebrate",
+  whatDidYouAccomplishToday: "What did you accomplish today?",
+  
+  // Resources specific
+  allLinksVerified: "All links are verified and culturally responsive.",
+  browse: "Browse",
+  verified: "Verified",
+  comingSoon: "Coming Soon",
+  openResourceNewTab: "Open resource in new tab",
+  
+  // Affirmations specific
+  voiceInfo: "Voice: {name}",
+  voiceDescription: "{description} • {language}",
+  personalizedAffirmation: "Personalized Affirmation",
+  generateCustomAffirmation: "Generate a custom affirmation just for you with AI",
+  creating: "Creating...",
+  generate: "Generate",
+  voiceSynthesisUnavailable: "Voice synthesis unavailable - text only mode",
+  audioUnavailable: "Audio unavailable - try regenerating",
+  audioMuted: "Audio is muted",
+  generatingAudio: "Generating audio...",
+  multilingualTTS: "Multilingual AI voice synthesis with warm, feminine tone",
+  resetAudio: "Reset audio",
+  pauseAffirmation: "Pause affirmation",
+  listenToAffirmation: "Listen to affirmation",
+  saveAffirmation: "Save affirmation",
+  custom: "Custom",
+  ofAffirmations: "{current} of {total}",
+  
   // Disclaimer
   aboutShameless: "About shame.less",
   disclaimerDescription: "This app provides emotional support and wellness tools.",
@@ -466,6 +536,76 @@ const spanishTranslations = {
   // Footer
   importantNotice: "Aviso importante",
   notReplacementTherapy: "Esta aplicación no es un reemplazo para la terapia profesional.",
+  
+  // Dashboard specific
+  startYourJourney: "¡Comienza tu viaje! Cada actividad que completes hace crecer tus anillos. 🌱",
+  activitiesCompleted: "¡{count} actividades completadas! Sigue nutriendo tu crecimiento. 💚",
+  buildingMomentum: "¡{count} actividades! Estás construyendo un hermoso impulso. ✨",
+  dedicationInspiring: "¡{count} actividades! Tu dedicación es inspiradora. 🌟",
+  creatingChange: "¡{count} actividades! Estás creando un cambio duradero. 🦋",
+  growthExtraordinary: "¡{count} actividades! Tu crecimiento es extraordinario. 🌳",
+  startSelfCareToday: "Comienza tu viaje de autocuidado hoy",
+  weekStreakAchieved: "🌟 ¡Racha de una semana lograda!",
+  dayStreak: "Racha de {days} día{plural}",
+  
+  // Journal specific
+  loadingJournal: "Cargando tu diario...",
+  recentReflections: "Reflexiones Recientes",
+  viewAll: "Ver Todo",
+  journalGuidelines: "Pautas del Diario",
+  journalGuidelinesText: "Este es tu espacio personal de sanación. Por favor evita subir contenido explícito. Si estás en crisis, visita nuestra sección de Apoyo en Crisis.",
+  titleOptional: "Título (opcional)",
+  giveTitlePlaceholder: "Dale un título a tu entrada...",
+  howAreYouFeelingOptional: "¿Cómo te sientes? (opcional)",
+  addVoiceNote: "Agregar Nota de Voz",
+  addPhoto: "Agregar Foto",
+  saveAndScheduleEmail: "Guardar y Programar Email",
+  schedulingEmail: "Programando email...",
+  emailThisEntry: "Enviarme esta entrada por email en 7 días",
+  emailDescription: "Recibe un recordatorio gentil de tu yo pasado. Enviaremos esta reflexión a {email} como un mensaje amoroso de quien eres hoy.",
+  willBeSentOn: "Se enviará el {date}",
+  attachments: "Adjuntos",
+  readyToRecord: "Listo para grabar tu nota de voz",
+  startRecording: "Comenzar Grabación",
+  shareAMoment: "Comparte un momento a través de la fotografía",
+  
+  // Check-in specific
+  anyThoughtsToAdd: "¿Algún pensamiento que agregar?",
+  optionalThoughts: "Opcional: ¿Qué tienes en mente ahora mismo?",
+  getPersonalizedResponse: "Obtener mi respuesta personalizada",
+  creatingPersonalizedResponse: "Creando tu respuesta personalizada...",
+  uniqueAffirmationHint: "✨ Crearemos una afirmación y reflexión única solo para tu combinación de {mood} + {color}",
+  yourPersonalizedResponse: "Tu respuesta personalizada",
+  
+  // Win Tracker specific
+  quickWinsToCelebrate: "Logros rápidos para celebrar",
+  whatDidYouAccomplishToday: "¿Qué lograste hoy?",
+  
+  // Resources specific
+  allLinksVerified: "Todos los enlaces están verificados y son culturalmente responsivos.",
+  browse: "Navegar",
+  verified: "Verificado",
+  comingSoon: "Próximamente",
+  openResourceNewTab: "Abrir recurso en nueva pestaña",
+  
+  // Affirmations specific
+  voiceInfo: "Voz: {name}",
+  voiceDescription: "{description} • {language}",
+  personalizedAffirmation: "Afirmación Personalizada",
+  generateCustomAffirmation: "Genera una afirmación personalizada solo para ti con IA",
+  creating: "Creando...",
+  generate: "Generar",
+  voiceSynthesisUnavailable: "Síntesis de voz no disponible - solo modo texto",
+  audioUnavailable: "Audio no disponible - intenta regenerar",
+  audioMuted: "Audio silenciado",
+  generatingAudio: "Generando audio...",
+  multilingualTTS: "Síntesis de voz IA multilingüe con tono femenino cálido",
+  resetAudio: "Reiniciar audio",
+  pauseAffirmation: "Pausar afirmación",
+  listenToAffirmation: "Escuchar afirmación",
+  saveAffirmation: "Guardar afirmación",
+  custom: "Personalizado",
+  ofAffirmations: "{current} de {total}",
   
   // Disclaimer
   aboutShameless: "Acerca de sin.vergüenza",
@@ -707,6 +847,76 @@ const frenchTranslations = {
   importantNotice: "Avis important",
   notReplacementTherapy: "Cette application n'est pas un remplacement pour la thérapie professionnelle.",
   
+  // Dashboard specific
+  startYourJourney: "Commencez votre voyage ! Chaque activité que vous complétez fait grandir vos anneaux. 🌱",
+  activitiesCompleted: "{count} activités terminées ! Continuez à nourrir votre croissance. 💚",
+  buildingMomentum: "{count} activités ! Vous construisez un bel élan. ✨",
+  dedicationInspiring: "{count} activités ! Votre dévouement est inspirant. 🌟",
+  creatingChange: "{count} activités ! Vous créez un changement durable. 🦋",
+  growthExtraordinary: "{count} activités ! Votre croissance est extraordinaire. 🌳",
+  startSelfCareToday: "Commencez votre voyage de soins personnels aujourd'hui",
+  weekStreakAchieved: "🌟 Série d'une semaine accomplie !",
+  dayStreak: "Série de {days} jour{plural}",
+  
+  // Journal specific
+  loadingJournal: "Chargement de votre journal...",
+  recentReflections: "Réflexions Récentes",
+  viewAll: "Voir Tout",
+  journalGuidelines: "Directives du Journal",
+  journalGuidelinesText: "C'est votre espace personnel de guérison. Veuillez éviter de télécharger du contenu explicite. Si vous êtes en crise, visitez notre section de Soutien en Crise.",
+  titleOptional: "Titre (optionnel)",
+  giveTitlePlaceholder: "Donnez un titre à votre entrée...",
+  howAreYouFeelingOptional: "Comment vous sentez-vous ? (optionnel)",
+  addVoiceNote: "Ajouter Note Vocale",
+  addPhoto: "Ajouter Photo",
+  saveAndScheduleEmail: "Sauvegarder et Programmer Email",
+  schedulingEmail: "Programmation de l'email...",
+  emailThisEntry: "M'envoyer cette entrée par email dans 7 jours",
+  emailDescription: "Recevez un rappel doux de votre moi passé. Nous enverrons cette réflexion à {email} comme un message d'amour de qui vous êtes aujourd'hui.",
+  willBeSentOn: "Sera envoyé le {date}",
+  attachments: "Pièces jointes",
+  readyToRecord: "Prêt à enregistrer votre note vocale",
+  startRecording: "Commencer l'Enregistrement",
+  shareAMoment: "Partagez un moment à travers la photographie",
+  
+  // Check-in specific
+  anyThoughtsToAdd: "Des pensées à ajouter ?",
+  optionalThoughts: "Optionnel : Qu'avez-vous en tête maintenant ?",
+  getPersonalizedResponse: "Obtenir ma réponse personnalisée",
+  creatingPersonalizedResponse: "Création de votre réponse personnalisée...",
+  uniqueAffirmationHint: "✨ Nous créerons une affirmation et réflexion unique juste pour votre combinaison {mood} + {color}",
+  yourPersonalizedResponse: "Votre réponse personnalisée",
+  
+  // Win Tracker specific
+  quickWinsToCelebrate: "Victoires rapides à célébrer",
+  whatDidYouAccomplishToday: "Qu'avez-vous accompli aujourd'hui ?",
+  
+  // Resources specific
+  allLinksVerified: "Tous les liens sont vérifiés et culturellement responsables.",
+  browse: "Parcourir",
+  verified: "Vérifié",
+  comingSoon: "Bientôt Disponible",
+  openResourceNewTab: "Ouvrir la ressource dans un nouvel onglet",
+  
+  // Affirmations specific
+  voiceInfo: "Voix : {name}",
+  voiceDescription: "{description} • {language}",
+  personalizedAffirmation: "Affirmation Personnalisée",
+  generateCustomAffirmation: "Générez une affirmation personnalisée juste pour vous avec l'IA",
+  creating: "Création...",
+  generate: "Générer",
+  voiceSynthesisUnavailable: "Synthèse vocale indisponible - mode texte seulement",
+  audioUnavailable: "Audio indisponible - essayez de régénérer",
+  audioMuted: "Audio en sourdine",
+  generatingAudio: "Génération de l'audio...",
+  multilingualTTS: "Synthèse vocale IA multilingue avec ton féminin chaleureux",
+  resetAudio: "Réinitialiser l'audio",
+  pauseAffirmation: "Mettre en pause l'affirmation",
+  listenToAffirmation: "Écouter l'affirmation",
+  saveAffirmation: "Sauvegarder l'affirmation",
+  custom: "Personnalisé",
+  ofAffirmations: "{current} de {total}",
+  
   // Disclaimer
   aboutShameless: "À propos de sans.honte",
   disclaimerDescription: "Cette application fournit un soutien émotionnel et des outils de bien-être.",
@@ -947,6 +1157,76 @@ const swahiliTranslations = {
   importantNotice: "Taarifa muhimu",
   notReplacementTherapy: "Programu hii si mbadala wa tiba ya kitaalamu.",
   
+  // Dashboard specific
+  startYourJourney: "Anza safari yako! Kila shughuli unayomaliza inakuza pete zako. 🌱",
+  activitiesCompleted: "Shughuli {count} zimekamilika! Endelea kulisha ukuaji wako. 💚",
+  buildingMomentum: "Shughuli {count}! Unajenga kasi nzuri. ✨",
+  dedicationInspiring: "Shughuli {count}! Kujitolea kwako ni kichocheo. 🌟",
+  creatingChange: "Shughuli {count}! Unaunda mabadiliko ya kudumu. 🦋",
+  growthExtraordinary: "Shughuli {count}! Ukuaji wako ni wa ajabu. 🌳",
+  startSelfCareToday: "Anza safari yako ya kujitunza leo",
+  weekStreakAchieved: "🌟 Mfululizo wa wiki umefikiwa!",
+  dayStreak: "Mfululizo wa siku {days}{plural}",
+  
+  // Journal specific
+  loadingJournal: "Inapakia jarida lako...",
+  recentReflections: "Mawazo ya Hivi Karibuni",
+  viewAll: "Ona Yote",
+  journalGuidelines: "Miongozo ya Jarida",
+  journalGuidelinesText: "Hii ni nafasi yako ya kibinafsi ya uponyaji. Tafadhali epuka kupakia maudhui ya uchi. Ikiwa uko katika shida, tembelea sehemu yetu ya Msaada wa Shida.",
+  titleOptional: "Kichwa (si lazima)",
+  giveTitlePlaceholder: "Ipe kichwa ingizo lako...",
+  howAreYouFeelingOptional: "Unajisikiaje? (si lazima)",
+  addVoiceNote: "Ongeza Kumbuka ya Sauti",
+  addPhoto: "Ongeza Picha",
+  saveAndScheduleEmail: "Hifadhi na Panga Barua pepe",
+  schedulingEmail: "Inapanga barua pepe...",
+  emailThisEntry: "Nitumie ingizo hili kwa barua pepe baada ya siku 7",
+  emailDescription: "Pokea ukumbusho wa upole kutoka kwa mimi wako wa zamani. Tutatuma mawazo haya kwa {email} kama ujumbe wa upendo kutoka kwa wewe wa leo.",
+  willBeSentOn: "Itatumwa tarehe {date}",
+  attachments: "Viambatisho",
+  readyToRecord: "Tayari kurekodi kumbuka yako ya sauti",
+  startRecording: "Anza Kurekodi",
+  shareAMoment: "Shiriki wakati kupitia upigaji picha",
+  
+  // Check-in specific
+  anyThoughtsToAdd: "Kuna mawazo ya kuongeza?",
+  optionalThoughts: "Si lazima: Ni nini kilicho aklini mwako sasa?",
+  getPersonalizedResponse: "Pata jibu langu la kibinafsi",
+  creatingPersonalizedResponse: "Inaunda jibu lako la kibinafsi...",
+  uniqueAffirmationHint: "✨ Tutaunda uthibitisho na mawazo ya kipekee kwa mchanganyiko wako wa {mood} + {color}",
+  yourPersonalizedResponse: "Jibu lako la kibinafsi",
+  
+  // Win Tracker specific
+  quickWinsToCelebrate: "Ushindi wa haraka wa kusherehekea",
+  whatDidYouAccomplishToday: "Ulifanikisha nini leo?",
+  
+  // Resources specific
+  allLinksVerified: "Viungo vyote vimethibitishwa na ni vya kihisia.",
+  browse: "Vinjari",
+  verified: "Imethibitishwa",
+  comingSoon: "Inakuja Hivi Karibuni",
+  openResourceNewTab: "Fungua rasilimali katika kichupo kipya",
+  
+  // Affirmations specific
+  voiceInfo: "Sauti: {name}",
+  voiceDescription: "{description} • {language}",
+  personalizedAffirmation: "Uthibitisho wa Kibinafsi",
+  generateCustomAffirmation: "Tengeneza uthibitisho wa kibinafsi kwa ajili yako na AI",
+  creating: "Inaunda...",
+  generate: "Tengeneza",
+  voiceSynthesisUnavailable: "Uundaji wa sauti haupatikani - hali ya maandishi tu",
+  audioUnavailable: "Sauti haipatikani - jaribu kutengeneza upya",
+  audioMuted: "Sauti imezimwa",
+  generatingAudio: "Inaunda sauti...",
+  multilingualTTS: "Uundaji wa sauti wa AI wa lugha nyingi na toni ya kike ya joto",
+  resetAudio: "Weka upya sauti",
+  pauseAffirmation: "Simamisha uthibitisho",
+  listenToAffirmation: "Sikiliza uthibitisho",
+  saveAffirmation: "Hifadhi uthibitisho",
+  custom: "Maalum",
+  ofAffirmations: "{current} ya {total}",
+  
   // Disclaimer
   aboutShameless: "Kuhusu bila.aibu",
   disclaimerDescription: "Programu hii inatoa msaada wa kihisia na zana za ustawi.",
@@ -987,7 +1267,7 @@ export function getAvailableLanguages(): { code: string; name: string; nativeNam
 }
 
 // Fallback function for missing translations
-export function getTranslation(key: string, translations: Translations): string {
+export function getTranslation(key: string, translations: Translations, placeholders?: Record<string, string | number>): string {
   const keys = key.split('.');
   let value: any = translations;
   
@@ -997,11 +1277,29 @@ export function getTranslation(key: string, translations: Translations): string 
     } else {
       // Fallback to English if translation is missing
       const englishValue = getNestedValue(englishTranslations, keys);
-      return englishValue || key;
+      let result = englishValue || key;
+      
+      // Apply placeholders if provided
+      if (placeholders && typeof result === 'string') {
+        Object.entries(placeholders).forEach(([placeholder, replacement]) => {
+          result = result.replace(new RegExp(`\\{${placeholder}\\}`, 'g'), String(replacement));
+        });
+      }
+      
+      return result;
     }
   }
   
-  return typeof value === 'string' ? value : key;
+  let result = typeof value === 'string' ? value : key;
+  
+  // Apply placeholders if provided
+  if (placeholders && typeof result === 'string') {
+    Object.entries(placeholders).forEach(([placeholder, replacement]) => {
+      result = result.replace(new RegExp(`\\{${placeholder}\\}`, 'g'), String(replacement));
+    });
+  }
+  
+  return result;
 }
 
 function getNestedValue(obj: any, keys: string[]): string | undefined {

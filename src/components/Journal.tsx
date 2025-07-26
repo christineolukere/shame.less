@@ -316,7 +316,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center">
-        <div className={`text-${currentTheme.colors.text.replace('-900', '-600')}`}>Loading your journal...</div>
+        <div className={`text-${currentTheme.colors.text.replace('-900', '-600')}`}>{t('loadingJournal')}</div>
       </div>
     );
   }
@@ -429,14 +429,14 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
           className={`bg-${currentTheme.colors.surface} rounded-xl p-4 border border-${currentTheme.colors.secondary.replace('-400', '-200')}`}
         >
           <div className="flex items-center justify-between mb-3">
-            <h3 className={`font-serif text-${currentTheme.colors.text} text-sm`}>Recent Reflections</h3>
+            <h3 className={`font-serif text-${currentTheme.colors.text} text-sm`}>{t('recentReflections')}</h3>
             <motion.button
               onClick={() => setViewMode('history')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className={`text-xs text-${currentTheme.colors.primary.replace('-500', '-600')} hover:text-${currentTheme.colors.primary.replace('-500', '-700')} font-medium touch-target`}
             >
-              View All
+              {t('viewAll')}
             </motion.button>
           </div>
           <div className="space-y-2">
@@ -476,8 +476,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
           <AlertCircle className={`w-4 h-4 text-${currentTheme.colors.accent.replace('-600', '-600')} mt-0.5 flex-shrink-0`} />
           <div>
             <p className={`text-${currentTheme.colors.text.replace('-900', '-700')} text-sm`}>
-              <strong>Journal Guidelines:</strong> This is your personal healing space. 
-              Please avoid uploading explicit content. If you're in crisis, visit our Crisis Support section.
+              <strong>{t('journalGuidelines')}:</strong> {t('journalGuidelinesText')}
             </p>
           </div>
         </div>
@@ -528,13 +527,13 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
           {/* Optional Title */}
           <div>
             <label className={`block text-sm font-medium text-${currentTheme.colors.text.replace('-900', '-700')} mb-2`}>
-              Title (optional)
+              {t('titleOptional')}
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Give your entry a title..."
+              placeholder={t('giveTitlePlaceholder')}
               className={`w-full p-3 border border-${currentTheme.colors.secondary.replace('-400', '-200')} rounded-lg focus:ring-2 focus:ring-${currentTheme.colors.primary.replace('-500', '-300')} focus:border-transparent`}
             />
           </div>
@@ -565,7 +564,7 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
           {/* Mood Rating */}
           <div className="space-y-2">
             <label className={`block text-sm font-medium text-${currentTheme.colors.text.replace('-900', '-700')}`}>
-              How are you feeling? (optional)
+              {t('howAreYouFeelingOptional')}
             </label>
             <div className="flex space-x-2">
               {[1, 2, 3, 4, 5].map((rating) => (

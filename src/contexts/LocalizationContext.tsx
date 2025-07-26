@@ -7,7 +7,7 @@ interface LocalizationContextType {
   translations: Translations;
   setLanguage: (language: string) => Promise<void>;
   availableLanguages: { code: string; name: string; nativeName: string }[];
-  t: (key: string) => string;
+  t: (key: string, placeholders?: Record<string, string | number>) => string;
   isUpdatingLanguage: boolean;
 }
 
@@ -60,15 +60,15 @@ export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   };
 
   // Translation function with fallback
-  const t = (key: string): string => {
+  const t = (key: string, placeholders?: Record<string, string | number>): string => {
     try {
       const currentTranslations = getTranslationsForLanguage(currentLanguage);
-      return getTranslation(key, currentTranslations);
+      return getTranslation(key, currentTranslations, placeholders);
     } catch (error) {
       console.warn(`Translation missing for key: ${key}, language: ${currentLanguage}`);
       // Fallback to English
       const englishTranslations = getTranslationsForLanguage('English');
-      return getTranslation(key, englishTranslations);
+      return getTranslation(key, englishTranslations, placeholders);
     }
   };
 

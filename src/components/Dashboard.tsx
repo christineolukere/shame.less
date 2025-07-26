@@ -162,17 +162,17 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     const totalActivities = progress.checkInCount + progress.journalCount + progress.winCount;
     
     if (totalActivities === 0) {
-      showGrowthFeedback("Start your journey! Each activity you complete grows your rings. 🌱");
+      showGrowthFeedback(t('startYourJourney'));
     } else if (totalActivities < 5) {
-      showGrowthFeedback(`${totalActivities} activities completed! Keep nurturing your growth. 💚`);
+      showGrowthFeedback(t('activitiesCompleted', { count: totalActivities }));
     } else if (totalActivities < 15) {
-      showGrowthFeedback(`${totalActivities} activities! You're building beautiful momentum. ✨`);
+      showGrowthFeedback(t('buildingMomentum', { count: totalActivities }));
     } else if (totalActivities < 30) {
-      showGrowthFeedback(`${totalActivities} activities! Your dedication is inspiring. 🌟`);
+      showGrowthFeedback(t('dedicationInspiring', { count: totalActivities }));
     } else if (totalActivities < 50) {
-      showGrowthFeedback(`${totalActivities} activities! You're creating lasting change. 🦋`);
+      showGrowthFeedback(t('creatingChange', { count: totalActivities }));
     } else {
-      showGrowthFeedback(`${totalActivities} activities! Your growth is extraordinary. 🌳`);
+      showGrowthFeedback(t('growthExtraordinary', { count: totalActivities }));
     }
   };
   
@@ -389,7 +389,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         </AnimatePresence>
         
         <p className="text-center text-sm text-sage-600 mb-3">
-          Tap any activity above to begin your growth rings 🌱
+          {t('startYourJourney')}
         </p>
         
         <motion.div 
@@ -427,10 +427,10 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           <p className={`text-${currentTheme.colors.text.replace('-900', '-600')} text-sm`}>
             {progress.streakDays > 0 ? (
               <>
-                {progress.streakDays} day{progress.streakDays !== 1 ? 's' : ''} streak • {progress.totalDays} {t('daysOfSelfCare') || 'days of self-care'}
+                {t('dayStreak', { days: progress.streakDays, plural: progress.streakDays !== 1 ? 's' : '' })} • {progress.totalDays} {t('daysOfSelfCare')}
               </>
             ) : (
-              'Start your self-care journey today'
+              t('startSelfCareToday')
             )}
           </p>
           
@@ -441,7 +441,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               className="mt-2"
             >
               <span className={`inline-flex items-center px-3 py-1 bg-${currentTheme.colors.primary.replace('-500', '-200')} text-${currentTheme.colors.primary.replace('-500', '-800')} text-xs font-medium rounded-full shadow-sm`}>
-                🌟 Week streak achieved!
+                {t('weekStreakAchieved')}
               </span>
             </motion.div>
           )}
