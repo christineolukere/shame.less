@@ -229,7 +229,9 @@ export function getThemedAffirmations(baseAffirmations: any[], theme: ThemeConfi
 }
 
 // Get theme-specific journal prompts
-export function getThemedJournalPrompts(theme: ThemeConfig): string[] {
+export function getThemedJournalPrompts(theme: ThemeConfig, language: string = 'English'): string[] {
+  // For now, return English prompts. In a full implementation, you would
+  // have language-specific prompts in the theme configuration
   return theme.journalPrompts
 }
 

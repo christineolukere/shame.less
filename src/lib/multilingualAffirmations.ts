@@ -35,13 +35,14 @@ function getLanguageCode(language: string): string {
 export function createMultilingualAffirmations(
   language: string, 
   baseCategories: string[],
-  baseColors: string[]
+  baseColors: string[],
+  t?: (key: string) => string
 ): MultilingualAffirmation[] {
   const texts = getAffirmationsForLanguage(language);
   
   return texts.map((text, index) => ({
     text,
-    category: baseCategories[index % baseCategories.length],
+    category: t ? t(`affirmationCategory${index % baseCategories.length}`) : baseCategories[index % baseCategories.length],
     color: baseColors[index % baseColors.length]
   }));
 }

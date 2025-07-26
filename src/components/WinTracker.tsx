@@ -343,7 +343,7 @@ const WinTracker: React.FC<WinTrackerProps> = ({ onBack }) => {
               <textarea
                 value={newWin}
                 onChange={(e) => setNewWin(e.target.value)}
-                placeholder={t('whatDidYouAccomplish') || 'What did you accomplish today?'}
+                placeholder={t('whatDidYouAccomplishToday')}
                 className="w-full p-4 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-300 focus:border-transparent resize-none"
                 rows={3}
               />

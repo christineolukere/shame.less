@@ -743,14 +743,14 @@ const Journal: React.FC<JournalProps> = ({ onBack }) => {
           <div className={`w-32 h-32 mx-auto bg-${currentTheme.colors.secondary.replace('-400', '-100')} rounded-full flex items-center justify-center`}>
             <Camera className={`w-12 h-12 text-${currentTheme.colors.secondary.replace('-400', '-600')}`} />
           </div>
-          <p className={`text-${currentTheme.colors.text.replace('-900', '-600')}`}>Share a moment through photography</p>
+          <p className={`text-${currentTheme.colors.text.replace('-900', '-600')}`}>{t('shareAMoment')}</p>
           <motion.button
             onClick={() => setShowPhotoUploader(true)}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className={`px-8 py-3 bg-${currentTheme.colors.secondary.replace('-400', '-500')} text-white rounded-lg font-medium hover:bg-${currentTheme.colors.secondary.replace('-400', '-600')} transition-colors touch-target`}
           >
-            Add Photo
+            {t('addPhoto')}
           </motion.button>
         </motion.div>
       )}

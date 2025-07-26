@@ -456,7 +456,7 @@ const Affirmations: React.FC<AffirmationsProps> = ({ onBack }) => {
       {/* Navigation */}
       <div className="flex items-center justify-between">
         <div className={`text-xs text-${currentTheme.colors.text.replace('-900', '-600')}`}>
-          {customAffirmation ? 'Custom' : `${currentAffirmation + 1} of ${affirmations.length}`}
+          {customAffirmation ? t('custom') : t('ofAffirmations', { current: currentAffirmation + 1, total: affirmations.length })}
         </div>
         
         <motion.button

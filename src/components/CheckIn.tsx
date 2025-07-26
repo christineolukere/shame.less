@@ -214,7 +214,7 @@ const CheckIn: React.FC<CheckInProps> = ({ onBack }) => {
         >
           <ArrowLeft className="w-5 h-5" />
         </motion.button>
-        <h1 className="text-2xl font-serif text-sage-800">{t('howAreYouFeeling')}</h1>
+        <h1 className="text-2xl font-serif text-sage-800">{t('yourPersonalizedResponse')}</h1>
       </div>
 
       {/* Gentle Introduction */}
